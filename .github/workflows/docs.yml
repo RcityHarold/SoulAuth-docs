@@ -54,8 +54,14 @@ jobs:
         env:
           SOULAUTH_SRC: ${{ github.workspace }}/SoulAuth-src
 
+      # enablement: true 让 workflow 自己开启 Pages。
+      # 不加的话，仓库没在 Settings → Pages 里把 Source 选成 GitHub Actions 时，
+      # 这一步会以 "Get Pages site failed" 失败 —— 而失败原因在构建日志里，
+      # 不在你会去看的那个页面上。
       - uses: actions/configure-pages@v5
         if: github.ref == 'refs/heads/main'
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         if: github.ref == 'refs/heads/main'
         with:
