@@ -4,12 +4,28 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+
+# GitHub Pages 部署所需的最小权限集。
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同时只跑一个部署；排队而不是取消进行中的那个，
+# 免得一次 push 把上一次已经部署到一半的产物留在中间状态。
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # lastUpdated 需要完整历史，否则每页的「最后更新」都是同一个时间。
+          fetch-depth: 0
 
       # 端点数校验需要 SoulAuth 源码；取不到就跳过（脚本自己处理）。
       - uses: actions/checkout@v4
@@ -24,6 +40,35 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npm run build
+
+      # base 从仓库名推导，不写死 —— 仓库改名时 base 会跟着走，
+      # 否则所有资源 404 而构建依然是绿的。
+      - name: Build
+        run: npm run build
+        env:
+          DOCS_BASE: /${{ github.event.repository.name }}/
+
       - run: npm run check:anchors
-      - run: SOULAUTH_SRC="$GITHUB_WORKSPACE/SoulAuth-src" npm run check:endpoints
+      - name: Check endpoint counts
+        run: npm run check:endpoints
+        env:
+          SOULAUTH_SRC: ${{ github.workspace }}/SoulAuth-src
+
+      - uses: actions/configure-pages@v5
+        if: github.ref == 'refs/heads/main'
+      - uses: actions/upload-pages-artifact@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          path: docs/.vitepress/dist
+
+  deploy:
+    # PR 只构建校验，不部署。
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
