@@ -1,0 +1,27 @@
+/* SoulAuth 品牌色。只覆盖变量，不改结构 —— 默认主题的可访问性对比度是调过的，
+   自己重写组件样式很容易把深色模式下的对比度弄坏。 */
+:root {
+  --vp-c-brand-1: #4c5fd7;
+  --vp-c-brand-2: #5b6fe8;
+  --vp-c-brand-3: #7183f0;
+  --vp-c-brand-soft: rgba(91, 111, 232, 0.14);
+
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, #7f9cff 30%, #4c5fd7);
+  --vp-home-hero-image-background-image: linear-gradient(-45deg, #7f9cff 50%, #4c5fd7 50%);
+  --vp-home-hero-image-filter: blur(48px);
+}
+
+.dark {
+  --vp-c-brand-1: #8fa2ff;
+  --vp-c-brand-2: #7f93ff;
+  --vp-c-brand-3: #6b80f5;
+  --vp-c-brand-soft: rgba(143, 162, 255, 0.16);
+}
+
+/* 宽表格（端点清单、环境变量表）在窄屏上自己横向滚动，
+   而不是把整个页面撑出横向滚动条。 */
+.vp-doc div[class*='language-'],
+.vp-doc table {
+  overflow-x: auto;
+}

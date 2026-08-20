@@ -1,0 +1,29 @@
+name: docs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 端点数校验需要 SoulAuth 源码；取不到就跳过（脚本自己处理）。
+      - uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          repository: RcityHarold/SoulAuth
+          path: SoulAuth-src
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm run check:anchors
+      - run: SOULAUTH_SRC="$GITHUB_WORKSPACE/SoulAuth-src" npm run check:endpoints
