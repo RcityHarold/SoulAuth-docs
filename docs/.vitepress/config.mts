@@ -174,6 +174,8 @@ export default defineConfig({
           text: 'Introduction',
           items: [
             { text: 'What is SoulAuth', link: '/guide/what-is-soulauth' },
+            { text: 'Actor Identity Model', link: '/guide/actor-identity-model' },
+            { text: 'Identity vs Authority', link: '/guide/identity-vs-authority' },
             { text: 'Role in the Soulseed Ecosystem', link: '/guide/soulseed-ecosystem' },
             { text: 'Architecture', link: '/guide/architecture' },
           ],
