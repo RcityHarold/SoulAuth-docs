@@ -75,8 +75,9 @@ own counter and limit nothing.
 Two operational notes:
 
 - `/health` is exempt, deliberately.
-- Counters are per-process. Across replicas you need a shared backend or your
-  effective limit multiplies by replica count.
+- Credential endpoints count against a shared SurrealDB bucket, so their
+  limits hold across replicas. The general-API default rule is per-process by
+  design — see [Brute-force protection](./lockout#rate-limiting-sits-underneath).
 
 ## OIDC hardening
 

@@ -126,9 +126,16 @@ injection channel.
 Lockout stops repeated *failures* against one identifier. Rate limiting caps
 request *volume* per route, per IP, and applies whether or not requests fail.
 
-Both are per-instance in one respect: rate limit counters live in process
-memory unless you configure a shared backend, so N replicas mean N times the
-limit. Lockout state lives in the database and is shared automatically.
+Both are shared across replicas where it counts. Lockout state lives in the
+database. Rate limiting runs two layers: an in-process check, then a
+SurrealDB-backed shared count for the endpoints that carry an explicit rule —
+login, registration, password reset, email verification, the MFA challenge.
+Endpoints under the general default rule stay per-process, trading an N× ceiling
+on ordinary traffic for not adding a database round trip to every request.
+
+If the shared backend errors, the request is **allowed** and an error is logged.
+The in-process layer still applies. Failing closed would turn a database hiccup
+into a login outage — a deliberate trade, documented at the call site.
 
 ## Next steps
 

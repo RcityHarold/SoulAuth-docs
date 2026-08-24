@@ -151,8 +151,12 @@ SoulAuth is stateless apart from two things you must think about:
 
 1. **The OIDC signing key must be shared.** Configure the same PEM on every
    replica, or tokens issued by one will fail verification at another.
-2. **Rate limiting needs a shared backend** to be meaningful across replicas.
-   With per-process counters, N replicas means N times the effective limit.
+2. **Rate limiting is already shared for credential endpoints.** Login,
+   registration, password reset, email verification and the MFA challenge count
+   against a SurrealDB-backed bucket, so their limits hold across replicas. The
+   general-API default rule stays per-process on purpose — a database round trip
+   on every request is a worse trade than an N× ceiling on non-credential
+   traffic.
 
 Account lockout is not affected — it lives in the database and is therefore
 already shared.

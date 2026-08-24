@@ -104,8 +104,9 @@ Two notes:
 
 - `/health` is exempt, so probes cannot be throttled into a false "dead
   process" signal.
-- Counters are per-process. With N replicas and no shared backend, the
-  effective limit is N times what you configured.
+- Credential endpoints (login, register, password reset, verify-email, MFA
+  challenge) count against a shared backend and hold across replicas. Other
+  endpoints use the per-process default rule.
 
 ## Permissions
 

@@ -197,8 +197,11 @@ Two things need attention:
 **Share the OIDC signing key.** Every replica must load the same PEM. Otherwise
 a token issued by replica A fails verification against replica B's JWKS.
 
-**Rate limiting needs a shared backend.** Counters are per-process by default,
-so N replicas multiply every effective limit by N.
+**Rate limiting is already shared where it matters.** Credential endpoints
+(login, register, password reset, verify-email, MFA challenge) count against a
+SurrealDB-backed bucket that is shared automatically. The general-API default
+rule is per-process by design, so non-credential traffic does get an N× ceiling
+across N replicas.
 
 Account lockout is stored in the database and is therefore already shared.
 Sessions likewise.
