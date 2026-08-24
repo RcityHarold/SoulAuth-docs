@@ -88,7 +88,7 @@ Seeded by `initial_data.sql`:
 | --- | --- |
 | `admin` | Everything |
 | `user` | Baseline; no administrative permissions |
-| `user_manager` | User and profile management |
+| `user_manager` | `users.read`, `users.write` |
 | `security_manager` | `security.read`, `security.write`, `users.read` |
 | `auditor` | `audit.read` only |
 

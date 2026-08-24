@@ -28,37 +28,36 @@ Twelve permissions are checked by the code:
 | `soulauth:oidc_clients.read` | List and read OIDC clients |
 | `soulauth:oidc_clients.write` | Create, update, disable clients; regenerate secrets |
 
-## Seeded but unenforced
+## The registry matches what is enforced
 
-`initial_data.sql` seeds **18** permissions. Six of them are not checked
-anywhere in the code:
+`initial_data.sql` seeds **exactly** the twelve permissions the code checks —
+no more, no fewer.
 
-```text
-soulauth:users.delete
-soulauth:permissions.delete
-soulauth:profile.read
-soulauth:profile.write
-soulauth:preferences.read
-soulauth:preferences.write
-```
+`tests/conformance.rs::i3` asserts this in both directions: one extra in the
+seed (grantable but inert) or one extra in the code (permanently denied) turns
+the test red.
 
-They exist as data and are assigned to roles, but no endpoint consults them.
-The profile and preferences pairs are unenforced because those endpoints are
-self-service — they always act on the caller and need no permission. The two
-`delete` permissions correspond to operations the API does not expose.
+::: tip It used to be otherwise
+The seed once carried 18. Six of them — `users.delete`, `permissions.delete`,
+`profile.*`, `preferences.*` — were consulted by no endpoint. They could be
+granted and would show up in a role's details, but granting them did nothing.
 
-::: warning Granting these does nothing
-They are listed here so that a role holding `soulauth:users.delete` is not
-mistaken for a role that can delete users. There is no such endpoint.
+An administrator holding `soulauth:users.delete` would reasonably believe they
+had unlocked something. They had not. The registry was lying, so those six
+were removed.
+
+The profile and preferences pairs never needed a permission: those endpoints
+are self-service and always act on the caller. The two `delete` permissions
+described operations the API has never exposed.
 :::
 
 ## Built-in roles
 
 | Role | Permissions |
 | --- | --- |
-| `admin` | All 18 seeded permissions |
+| `admin` | All 12 permissions |
 | `user` | None — the baseline role |
-| `user_manager` | `users.read`, `users.write`, `users.delete`, `profile.read`, `profile.write`, `preferences.read`, `preferences.write` |
+| `user_manager` | `users.read`, `users.write` |
 | `security_manager` | `security.read`, `security.write`, `users.read` |
 | `auditor` | `audit.read` |
 

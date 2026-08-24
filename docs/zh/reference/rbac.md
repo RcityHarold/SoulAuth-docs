@@ -83,7 +83,7 @@ curl -X POST https://auth.example.com/api/rbac/users/user:abc/roles/assign \
 | --- | --- |
 | `admin` | 全部 |
 | `user` | 基线角色，无任何管理权限 |
-| `user_manager` | 用户与档案管理 |
+| `user_manager` | `users.read`、`users.write` |
 | `security_manager` | `security.read`、`security.write`、`users.read` |
 | `auditor` | 仅 `audit.read` |
 

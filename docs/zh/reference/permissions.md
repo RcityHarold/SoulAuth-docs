@@ -26,36 +26,32 @@ SoulAuth 定义的全部权限、谁持有它们，以及其中哪些是代码�
 | `soulauth:oidc_clients.read` | 列出与读取 OIDC 客户端 |
 | `soulauth:oidc_clients.write` | 创建、更新、停用客户端；重新生成密钥 |
 
-## 播了种但没有被校验的
+## 注册表与实际校验一一对应
 
-`initial_data.sql` 播种了 **18** 条权限，其中 6 条在代码里没有任何地方校验：
+`initial_data.sql` 播种的权限**恰好**是代码会校验的这 12 条，不多不少。
 
-```text
-soulauth:users.delete
-soulauth:permissions.delete
-soulauth:profile.read
-soulauth:profile.write
-soulauth:preferences.read
-soulauth:preferences.write
-```
+这一点由 `tests/conformance.rs::i3` 双向断言：种子里多出一条（授予了却零效果）
+或代码里多出一条（永远拒绝）都会让测试变红。
 
-它们作为数据存在，也被分配给了角色，但没有任何端点会去查它们。
-profile 与 preferences 这两对之所以没被校验，是因为对应端点是自助的 ——
-它们总是作用在调用者身上，不需要权限。两条 `delete` 对应的操作，
-API 根本没有暴露。
+::: tip 曾经不是这样
+早先种子里有 18 条，其中 6 条 —— `users.delete`、`permissions.delete`、
+`profile.*`、`preferences.*` —— 没有任何端点会去查。它们可以被授予、会出现在
+角色详情里，但授予它们不产生任何效果。
 
-::: warning 授予这些不产生任何效果
-把它们列在这里，是为了避免有人把一个持有 `soulauth:users.delete` 的角色
-误认为「能删用户的角色」。并不存在那样一个端点。
+一个持有 `soulauth:users.delete` 的管理员会合理地以为自己开了什么，
+实际什么也没开。注册表在说谎，所以这 6 条已被删除。
+
+profile 与 preferences 那两对本就不需要权限：对应端点是自助的，
+永远作用在调用者自己身上。两条 `delete` 对应的操作 API 从未暴露。
 :::
 
 ## 内置角色
 
 | 角色 | 权限 |
 | --- | --- |
-| `admin` | 全部 18 条播种权限 |
+| `admin` | 全部 12 条权限 |
 | `user` | 无 —— 基线角色 |
-| `user_manager` | `users.read`、`users.write`、`users.delete`、`profile.read`、`profile.write`、`preferences.read`、`preferences.write` |
+| `user_manager` | `users.read`、`users.write` |
 | `security_manager` | `security.read`、`security.write`、`users.read` |
 | `auditor` | `audit.read` |
 
