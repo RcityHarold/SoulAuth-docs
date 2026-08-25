@@ -6,11 +6,148 @@ const base = process.env.DOCS_BASE ?? '/SoulAuth-docs/'
 
 const REPO = 'https://github.com/RcityHarold/SoulAuth'
 
+// SoulAuth Public Documentation 由 30 篇 Canonical Documents 组成，分 8 个
+// Module。侧边栏结构直接照搬这个划分 —— 站点导航不自行发明第 31 个位置，
+// 也不把某一篇挪到别的 Module 下面。
+const EN_SIDEBAR = [
+  {
+    text: 'Start',
+    items: [
+      { text: 'What is SoulAuth', link: '/start/what-is-soulauth' },
+      { text: 'Quickstart', link: '/start/quickstart' },
+      { text: 'Choose an Integration Path', link: '/start/integration-path' },
+    ],
+  },
+  {
+    text: 'Concepts',
+    items: [
+      { text: 'AI-native Identity', link: '/concepts/ai-native-identity' },
+      { text: 'Actor Identity Model', link: '/concepts/actor-identity-model' },
+      { text: 'Identity vs Authority', link: '/concepts/identity-vs-authority' },
+      { text: 'Soulseed & Mind OS', link: '/concepts/soulseed-and-mind-os' },
+      { text: 'SoulAuth Architecture', link: '/concepts/architecture' },
+    ],
+  },
+  {
+    text: 'Integrate',
+    items: [
+      { text: 'Register a Client', link: '/integrate/register-a-client' },
+      { text: 'Authorization Code Flow', link: '/integrate/authorization-code-flow' },
+      { text: 'Browser & BFF', link: '/integrate/browser-and-bff' },
+      { text: 'Verify Tokens', link: '/integrate/verify-tokens' },
+      { text: 'Soulseed Integration', link: '/integrate/soulseed' },
+    ],
+  },
+  {
+    text: 'Operate',
+    items: [
+      { text: 'Deployment', link: '/operate/deployment' },
+      { text: 'Production Checklist', link: '/operate/production-checklist' },
+      { text: 'Operations & Recovery', link: '/operate/operations-and-recovery' },
+      { text: 'Troubleshooting', link: '/operate/troubleshooting' },
+    ],
+  },
+  {
+    text: 'Security & Trust',
+    items: [
+      { text: 'Security Model', link: '/security/security-model' },
+      { text: 'Threat Model', link: '/security/threat-model' },
+      { text: 'Authentication Protection', link: '/security/authentication-protection' },
+      { text: 'Standards & Conformance', link: '/security/standards-and-conformance' },
+    ],
+  },
+  {
+    text: 'Reference',
+    items: [
+      { text: 'API Conventions', link: '/reference/api-conventions' },
+      { text: 'Authentication & Sessions', link: '/reference/authentication-and-sessions' },
+      { text: 'Actors & Profiles', link: '/reference/actors-and-profiles' },
+      { text: 'OIDC & Clients', link: '/reference/oidc-and-clients' },
+      { text: 'Administration', link: '/reference/administration' },
+      { text: 'Audit', link: '/reference/audit' },
+      { text: 'Configuration', link: '/reference/configuration' },
+    ],
+  },
+  {
+    text: 'Project',
+    items: [{ text: 'Project Status', link: '/project/status' }],
+  },
+]
+
+// 中文侧边栏是同一棵树，只翻译显示文本并加 /zh 前缀。
+const ZH_TEXT: Record<string, string> = {
+  Start: '开始',
+  Concepts: '概念',
+  Integrate: '接入',
+  Operate: '运行',
+  'Security & Trust': '安全与信任',
+  Reference: '参考',
+  Project: '项目',
+
+  'What is SoulAuth': 'SoulAuth 是什么',
+  Quickstart: '快速开始',
+  'Choose an Integration Path': '选择接入路径',
+  'AI-native Identity': 'AI 原生身份',
+  'Actor Identity Model': 'Actor 身份模型',
+  'Identity vs Authority': '身份与权限',
+  'Soulseed & Mind OS': 'Soulseed 与 Mind OS',
+  'SoulAuth Architecture': 'SoulAuth 架构',
+  'Register a Client': '注册 Client',
+  'Authorization Code Flow': '授权码流程',
+  'Browser & BFF': '浏览器与 BFF',
+  'Verify Tokens': '验证 Token',
+  'Soulseed Integration': 'Soulseed 接入',
+  Deployment: '部署',
+  'Production Checklist': '生产环境检查表',
+  'Operations & Recovery': '运维与恢复',
+  Troubleshooting: '故障排查',
+  'Security Model': '安全模型',
+  'Threat Model': '威胁模型',
+  'Authentication Protection': '认证防护',
+  'Standards & Conformance': '标准与符合性',
+  'API Conventions': 'API 约定',
+  'Authentication & Sessions': '认证与会话',
+  'Actors & Profiles': 'Actor 与档案',
+  'OIDC & Clients': 'OIDC 与 Client',
+  Administration: '管理',
+  Audit: '审计',
+  Configuration: '配置',
+  'Project Status': '项目状态',
+}
+
+const ZH_SIDEBAR = EN_SIDEBAR.map((group) => ({
+  text: ZH_TEXT[group.text] ?? group.text,
+  items: group.items.map((item) => ({
+    text: ZH_TEXT[item.text] ?? item.text,
+    link: `/zh${item.link}`,
+  })),
+}))
+
+const EN_NAV = [
+  { text: 'Start', link: '/start/what-is-soulauth', activeMatch: '/start/' },
+  { text: 'Concepts', link: '/concepts/actor-identity-model', activeMatch: '/concepts/' },
+  { text: 'Integrate', link: '/integrate/register-a-client', activeMatch: '/integrate/' },
+  { text: 'Operate', link: '/operate/deployment', activeMatch: '/operate/' },
+  { text: 'Reference', link: '/reference/api-conventions', activeMatch: '/reference/' },
+  { text: 'Status', link: '/project/status', activeMatch: '/project/' },
+]
+
+const ZH_NAV = [
+  { text: '开始', link: '/zh/start/what-is-soulauth', activeMatch: '/zh/start/' },
+  { text: '概念', link: '/zh/concepts/actor-identity-model', activeMatch: '/zh/concepts/' },
+  { text: '接入', link: '/zh/integrate/register-a-client', activeMatch: '/zh/integrate/' },
+  { text: '运行', link: '/zh/operate/deployment', activeMatch: '/zh/operate/' },
+  { text: '参考', link: '/zh/reference/api-conventions', activeMatch: '/zh/reference/' },
+  { text: '状态', link: '/zh/project/status', activeMatch: '/zh/project/' },
+]
+
+const DESCRIPTION =
+  'Actor-native identity and authentication infrastructure. Human and AIActor enter the same first-class ActorIdentity contract.'
+
 export default defineConfig({
   base,
   title: 'SoulAuth',
-  description:
-    'An OpenID Connect provider in Rust — identity, sessions, MFA and audit for the Soulseed stack.',
+  description: DESCRIPTION,
   lastUpdated: true,
   cleanUrls: true,
   ignoreDeadLinks: false,
@@ -19,14 +156,7 @@ export default defineConfig({
     ['meta', { name: 'theme-color', content: '#5b7cfa' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:title', content: 'SoulAuth' }],
-    [
-      'meta',
-      {
-        property: 'og:description',
-        content:
-          'An OpenID Connect provider in Rust — identity, sessions, MFA and audit for the Soulseed stack.',
-      },
-    ],
+    ['meta', { property: 'og:description', content: DESCRIPTION }],
   ],
 
   // 英文是主版本，落在根路径上；中文在 /zh/ 下。
@@ -36,103 +166,38 @@ export default defineConfig({
       label: '简体中文',
       lang: 'zh-CN',
       link: '/zh/',
-      description: '一个用 Rust 写的 OpenID Connect 提供方 —— 为 Soulseed 技术栈提供身份、会话、MFA 与审计。',
+      description:
+        'Actor-native 身份与认证基础设施。Human 与 AIActor 通过同一份 first-class ActorIdentity contract 进入系统。',
       themeConfig: {
-        nav: [
-          { text: '指南', link: '/zh/guide/what-is-soulauth', activeMatch: '/zh/guide/' },
-          { text: '接入', link: '/zh/integrate/', activeMatch: '/zh/integrate/' },
-          { text: '参考', link: '/zh/reference/api', activeMatch: '/zh/reference/' },
-        ],
-        sidebar: {
-          '/zh/guide/': [
-            {
-              text: '介绍',
-              items: [
-                { text: 'SoulAuth 是什么', link: '/zh/guide/what-is-soulauth' },
-                { text: '在 Soulseed 生态里的位置', link: '/zh/guide/soulseed-ecosystem' },
-                { text: '架构', link: '/zh/guide/architecture' },
-              ],
-            },
-            {
-              text: '上手',
-              items: [
-                { text: '快速开始', link: '/zh/guide/quickstart' },
-                { text: '配置', link: '/zh/guide/configuration' },
-                { text: '部署', link: '/zh/guide/deployment' },
-              ],
-            },
-            {
-              text: '运维',
-              items: [
-                { text: '安全模型', link: '/zh/guide/security-model' },
-                { text: '暴力破解防护', link: '/zh/guide/lockout' },
-                { text: '审计', link: '/zh/guide/auditing' },
-              ],
-            },
-          ],
-          '/zh/integrate/': [
-            {
-              text: '接入',
-              items: [
-                { text: '选择接入方式', link: '/zh/integrate/' },
-                { text: '注册客户端', link: '/zh/integrate/clients' },
-                { text: '授权码流程', link: '/zh/integrate/auth-code-flow' },
-                { text: 'BFF 模式', link: '/zh/integrate/bff' },
-                { text: '验证 ID Token', link: '/zh/integrate/verifying-tokens' },
-              ],
-            },
-            {
-              text: 'Soulseed',
-              items: [{ text: 'SoulSeedOS 适配器', link: '/zh/integrate/soulseedos' }],
-            },
-          ],
-          '/zh/reference/': [
-            {
-              text: 'HTTP API',
-              items: [
-                { text: '通用约定', link: '/zh/reference/api' },
-                { text: '认证', link: '/zh/reference/auth' },
-                { text: '用户与档案', link: '/zh/reference/users' },
-                { text: 'RBAC', link: '/zh/reference/rbac' },
-                { text: 'OIDC', link: '/zh/reference/oidc' },
-                { text: '安全', link: '/zh/reference/security' },
-                { text: '审计', link: '/zh/reference/audit' },
-              ],
-            },
-            {
-              text: '附录',
-              items: [
-                { text: '环境变量', link: '/zh/reference/environment' },
-                { text: '错误', link: '/zh/reference/errors' },
-                { text: '权限', link: '/zh/reference/permissions' },
-              ],
-            },
-          ],
-        },
+        nav: ZH_NAV,
+        sidebar: { '/zh/': ZH_SIDEBAR },
+        outline: { level: [2, 3], label: '本页目录' },
+        docFooter: { prev: '上一页', next: '下一页' },
+        lastUpdatedText: '最后更新',
+        darkModeSwitchLabel: '外观',
+        lightModeSwitchTitle: '切换到浅色模式',
+        darkModeSwitchTitle: '切换到深色模式',
+        sidebarMenuLabel: '目录',
+        returnToTopLabel: '回到顶部',
+        langMenuLabel: '切换语言',
         editLink: {
           pattern: 'https://github.com/RcityHarold/SoulAuth-docs/edit/main/docs/:path',
           text: '在 GitHub 上编辑此页',
         },
-        docFooter: { prev: '上一页', next: '下一页' },
-        outline: { level: [2, 3], label: '本页目录' },
-        lastUpdatedText: '最后更新',
-        returnToTopLabel: '回到顶部',
-        sidebarMenuLabel: '菜单',
-        darkModeSwitchLabel: '主题',
-        lightModeSwitchTitle: '切换到浅色模式',
-        darkModeSwitchTitle: '切换到深色模式',
-        langMenuLabel: '切换语言',
         footer: {
-          message: '基于 Apache-2.0 许可发布。',
-          copyright: 'Copyright © 2026 The SoulAuth Authors',
+          message: '文档以 CC BY 4.0 授权；SoulAuth 本体以 Apache-2.0 授权。',
+          copyright: 'Copyright © 2026 TRANTOR LABS, Singapore',
         },
       },
     },
   },
 
   themeConfig: {
-    logo: { src: '/logo.svg', alt: 'SoulAuth' },
+    logo: '/logo.svg',
+    siteTitle: 'SoulAuth',
+
     socialLinks: [{ icon: 'github', link: REPO }],
+
     search: {
       provider: 'local',
       options: {
@@ -142,9 +207,9 @@ export default defineConfig({
               button: { buttonText: '搜索文档', buttonAriaLabel: '搜索文档' },
               modal: {
                 displayDetails: '显示详情',
-                resetButtonTitle: '清除',
+                resetButtonTitle: '清除查询条件',
                 backButtonTitle: '返回',
-                noResultsText: '没有找到结果',
+                noResultsText: '无法找到相关结果',
                 footer: {
                   selectText: '选择',
                   selectKeyAriaLabel: '回车',
@@ -160,82 +225,10 @@ export default defineConfig({
         },
       },
     },
+
     outline: { level: [2, 3] },
-
-    nav: [
-      { text: 'Guide', link: '/guide/what-is-soulauth', activeMatch: '/guide/' },
-      { text: 'Integrate', link: '/integrate/', activeMatch: '/integrate/' },
-      { text: 'Reference', link: '/reference/api', activeMatch: '/reference/' },
-    ],
-
-    sidebar: {
-      '/guide/': [
-        {
-          text: 'Introduction',
-          items: [
-            { text: 'What is SoulAuth', link: '/guide/what-is-soulauth' },
-            { text: 'Actor Identity Model', link: '/guide/actor-identity-model' },
-            { text: 'Identity vs Authority', link: '/guide/identity-vs-authority' },
-            { text: 'Role in the Soulseed Ecosystem', link: '/guide/soulseed-ecosystem' },
-            { text: 'Architecture', link: '/guide/architecture' },
-          ],
-        },
-        {
-          text: 'Getting Started',
-          items: [
-            { text: 'Quickstart', link: '/guide/quickstart' },
-            { text: 'Configuration', link: '/guide/configuration' },
-            { text: 'Deployment', link: '/guide/deployment' },
-          ],
-        },
-        {
-          text: 'Operating SoulAuth',
-          items: [
-            { text: 'Security Model', link: '/guide/security-model' },
-            { text: 'Brute-force Protection', link: '/guide/lockout' },
-            { text: 'Auditing', link: '/guide/auditing' },
-          ],
-        },
-      ],
-      '/integrate/': [
-        {
-          text: 'Integration',
-          items: [
-            { text: 'Choosing a Path', link: '/integrate/' },
-            { text: 'Registering a Client', link: '/integrate/clients' },
-            { text: 'The Authorization Code Flow', link: '/integrate/auth-code-flow' },
-            { text: 'The BFF Pattern', link: '/integrate/bff' },
-            { text: 'Verifying ID Tokens', link: '/integrate/verifying-tokens' },
-          ],
-        },
-        {
-          text: 'Soulseed',
-          items: [{ text: 'SoulSeedOS Adapter', link: '/integrate/soulseedos' }],
-        },
-      ],
-      '/reference/': [
-        {
-          text: 'HTTP API',
-          items: [
-            { text: 'Conventions', link: '/reference/api' },
-            { text: 'Authentication', link: '/reference/auth' },
-            { text: 'Users & Profiles', link: '/reference/users' },
-            { text: 'RBAC', link: '/reference/rbac' },
-            { text: 'OIDC', link: '/reference/oidc' },
-            { text: 'Security', link: '/reference/security' },
-            { text: 'Audit', link: '/reference/audit' },
-          ],
-        },
-        {
-          text: 'Appendix',
-          items: [
-            { text: 'Environment Variables', link: '/reference/environment' },
-            { text: 'Errors', link: '/reference/errors' },
-            { text: 'Permissions', link: '/reference/permissions' },
-          ],
-        },
-      ],
-    },
+    nav: EN_NAV,
+    sidebar: { '/': EN_SIDEBAR },
 
     editLink: {
       pattern: 'https://github.com/RcityHarold/SoulAuth-docs/edit/main/docs/:path',
@@ -243,8 +236,9 @@ export default defineConfig({
     },
 
     footer: {
-      message: 'Released under the Apache-2.0 License.',
-      copyright: 'Copyright © 2026 The SoulAuth Authors',
+      message:
+        'Documentation licensed under CC BY 4.0. SoulAuth itself is licensed under Apache-2.0.',
+      copyright: 'Copyright © 2026 TRANTOR LABS, Singapore',
     },
   },
 })
