@@ -1,64 +1,65 @@
-// 比对文档里声称的端点数与 SoulAuth 源码里的真实路由表。
+// 守住「文档不复述机器契约里的确切事实」这条纪律。
 //
-// 审查期间这个项目的端点总数先后被说成 66 / 68 / 70，没有一个对。
-// 手写的数字会漂移，所以让 CI 去数。
+// 这个脚本最早的职责是：比对文档里写死的端点数与源码路由表。审查期间这个
+// 项目的端点总数先后被说成 66 / 68 / 70，没有一个对，所以让 CI 去数。
+//
+// 现在职责反过来了。按 V3 语料 23 §2「Contract Ownership」，SoulAuth-owned
+// 的 Exact Wire 归 Published Machine-readable Contract 所有；文档负责准确
+// 解释这些 Contract，不做第二个 Wire Source of Truth。端点总数正是这样一个
+// Exact Wire 事实——它的守卫已经搬到 SoulAuth 仓库的
+// `tests/conformance.rs::j4`（openapi.yaml ↔ 路由表双向断言）。
+//
+// 于是文档这边要守的不再是「数字对不对」，而是「有没有人又把数字抄回来」。
+// 一个抄回来的数字即使今天是对的，也重新制造了会漂移的第二处真相。
 //
 // 用法：SOULAUTH_SRC=../SoulAuth node scripts/check-endpoints.mjs
-// 源码不可达时跳过（退出码 0）—— 文档仓库可以独立构建。
-import { readFileSync, existsSync } from 'node:fs'
+// 源码不可达时仍然会跑——本检查不需要源码。
+import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
-const SRC = process.env.SOULAUTH_SRC || join(process.cwd(), '..', 'SoulAuth')
-if (!existsSync(join(SRC, 'src/main.rs'))) {
-  console.log(`⊘ 跳过：${SRC} 下没有 SoulAuth 源码`)
-  process.exit(0)
+function walk(dir) {
+  return readdirSync(dir).flatMap((name) => {
+    const path = join(dir, name)
+    return statSync(path).isDirectory() ? walk(path) : path.endsWith('.md') ? [path] : []
+  })
 }
 
-const { default: endpoints } = await import('./extract-endpoints.mjs')
-const total = endpoints.length
-
-const counts = {}
-for (const e of endpoints) counts[e.module] = (counts[e.module] ?? 0) + 1
-// oidc 与 oidc_client 在文档里合并成一个 "OIDC" 模块
-const merged = {
-  auth: counts.auth ?? 0,
-  user_management: counts.user_management ?? 0,
-  rbac: counts.rbac ?? 0,
-  oidc: (counts.oidc ?? 0) + (counts.oidc_client ?? 0),
-  security: counts.security ?? 0,
-  audit: counts.audit ?? 0,
-}
-
-// 文档里写死这些数字的地方
-const CLAIMS = [
-  { file: 'docs/reference/api.md',    re: /\*\*(\d+) endpoints\*\*/,  expect: total, what: '总数（英文）' },
-  { file: 'docs/zh/reference/api.md', re: /\*\*(\d+) 个端点\*\*/,      expect: total, what: '总数（中文）' },
-  { file: 'docs/guide/what-is-soulauth.md',    re: /\*\*(\d+) HTTP endpoints/, expect: total, what: '总数（英文首页正文）' },
-  { file: 'docs/zh/guide/what-is-soulauth.md', re: /八个模块 (\d+) 个 HTTP 端点/, expect: total, what: '总数（中文首页正文）' },
-  { file: 'docs/reference/auth.md',    re: /— (\d+) endpoints/,  expect: merged.auth, what: 'auth' },
-  { file: 'docs/zh/reference/auth.md', re: /—— (\d+) 个端点/,     expect: merged.auth, what: 'auth（中文）' },
-  { file: 'docs/reference/rbac.md',    re: /— (\d+) endpoints/,  expect: merged.rbac, what: 'rbac' },
-  { file: 'docs/zh/reference/rbac.md', re: /—— (\d+) 个端点/,     expect: merged.rbac, what: 'rbac（中文）' },
-  { file: 'docs/reference/users.md',    re: /— (\d+) endpoints/, expect: merged.user_management, what: 'users' },
-  { file: 'docs/zh/reference/users.md', re: /—— (\d+) 个端点/,    expect: merged.user_management, what: 'users（中文）' },
-  { file: 'docs/reference/audit.md',    re: /— (\d+) reporting endpoints/, expect: merged.audit, what: 'audit' },
-  { file: 'docs/zh/reference/audit.md', re: /—— (\d+) 个报告端点/,  expect: merged.audit, what: 'audit（中文）' },
-  { file: 'docs/reference/security.md',    re: /— (\d+) endpoints/, expect: merged.security, what: 'security' },
-  { file: 'docs/zh/reference/security.md', re: /—— (\d+) 个端点/,   expect: merged.security, what: 'security（中文）' },
-  { file: 'docs/reference/oidc.md',    re: /^(\d+) endpoints/m,  expect: merged.oidc, what: 'oidc' },
-  { file: 'docs/zh/reference/oidc.md', re: /^(\d+) 个端点/m,      expect: merged.oidc, what: 'oidc（中文）' },
+// 「N 个端点 / N endpoints / N 条路径」这类断言。
+//
+// 只匹配数字紧邻端点名词的写法。像「64 paths / 75 operations」这种出现在
+// contracts/openapi.yaml 头注释里的描述不在文档仓库中，不会被扫到。
+const CLAIM_PATTERNS = [
+  { re: /\b(\d+)\s+endpoints?\b/gi, what: 'endpoint count' },
+  { re: /\b(\d+)\s*个端点/g, what: '端点数' },
+  { re: /\b(\d+)\s+routes?\b/gi, what: 'route count' },
+  { re: /\b(\d+)\s*条路由/g, what: '路由数' },
+  { re: /\b(\d+)\s+paths?\s*\/\s*(\d+)\s+operations?\b/gi, what: 'path/operation count' },
 ]
 
-let bad = 0
-for (const { file, re, expect, what } of CLAIMS) {
-  if (!existsSync(file)) { console.error(`✖ 缺文件 ${file}`); bad++; continue }
-  const m = readFileSync(file, 'utf8').match(re)
-  if (!m) { console.error(`✖ ${file}：没找到 ${what} 的数字`); bad++; continue }
-  if (Number(m[1]) !== expect) {
-    console.error(`✖ ${file}：${what} 写的是 ${m[1]}，源码里是 ${expect}`)
-    bad++
+const failures = []
+
+for (const file of walk('docs')) {
+  // VitePress 内部目录不算文档正文。
+  if (file.includes('.vitepress')) continue
+  const text = readFileSync(file, 'utf8')
+  for (const { re, what } of CLAIM_PATTERNS) {
+    re.lastIndex = 0
+    let m
+    while ((m = re.exec(text)) !== null) {
+      failures.push(`${file}: 出现 ${what} 断言 「${m[0].trim()}」`)
+    }
   }
 }
 
-if (bad) { console.error(`\n${bad} 处端点数与源码不符`); process.exit(1) }
-console.log(`✓ 端点数与源码一致（共 ${total} 个）`)
+if (failures.length) {
+  for (const f of failures) console.error(`✖ ${f}`)
+  console.error(
+    `\n${failures.length} 处把 Exact Wire 事实抄进了文档。\n` +
+      '端点/路由计数归 contracts/openapi.yaml，由 SoulAuth 仓库的\n' +
+      'tests/conformance.rs::j4 守卫。文档应链接到 Machine Contract，\n' +
+      '而不是复述一个会各自漂移的数字。'
+  )
+  process.exit(1)
+}
+
+console.log('✓ 文档没有复述端点/路由计数这类 Exact Wire 事实')

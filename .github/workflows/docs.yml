@@ -27,13 +27,6 @@ jobs:
           # lastUpdated 需要完整历史，否则每页的「最后更新」都是同一个时间。
           fetch-depth: 0
 
-      # 端点数校验需要 SoulAuth 源码；取不到就跳过（脚本自己处理）。
-      - uses: actions/checkout@v4
-        continue-on-error: true
-        with:
-          repository: RcityHarold/SoulAuth
-          path: SoulAuth-src
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -49,10 +42,9 @@ jobs:
           DOCS_BASE: /${{ github.event.repository.name }}/
 
       - run: npm run check:anchors
-      - name: Check endpoint counts
-        run: npm run check:endpoints
-        env:
-          SOULAUTH_SRC: ${{ github.workspace }}/SoulAuth-src
+      # 文档不得复述端点/路由计数 —— 那份事实归 contracts/openapi.yaml，
+      # 由 SoulAuth 仓库的 tests/conformance.rs::j4 守卫。
+      - run: npm run check:endpoints
 
       # enablement: true 让 workflow 自己开启 Pages。
       # 不加的话，仓库没在 Settings → Pages 里把 Source 选成 GitHub Actions 时，
