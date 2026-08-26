@@ -43,19 +43,30 @@ AI agent as a subject in its own right rather than as a human account with a rob
 
 ```bash
 git clone https://github.com/RcityHarold/SoulAuth && cd SoulAuth
-cp .env.example .env
-docker compose up -d
+surreal start --bind 127.0.0.1:8000 --user root --pass root memory &
+
+DB="--endpoint http://127.0.0.1:8000 --user root --pass root --namespace auth --database main"
+surreal import $DB schema.sql
+surreal import $DB initial_data.sql
+
+export JWT_SECRET=$(openssl rand -hex 32) APP_URL=http://localhost:8080 \
+       SMTP_HOST=127.0.0.1 SMTP_FROM=noreply@example.com
+cargo run
 ```
 
-Then register a human:
+A `docker-compose.yml` exists too, but nobody has run it end to end yet, so this page
+and the [quickstart](/start/quickstart) lead with the path that is actually verified.
+
+There is no default account. A fresh instance prints a one-time bootstrap token in its
+startup log — use it to create the first administrator without touching the database:
 
 ```bash
-curl -X POST http://localhost:8080/api/auth/register \
+curl -X POST http://localhost:8080/api/bootstrap/admin \
   -H 'Content-Type: application/json' \
-  -d '{"email":"you@example.com","password":"CorrectHorse42!","username":"you"}'
+  -d '{"token":"<from the log>","email":"you@example.com","username":"admin","password":"CorrectHorse42!"}'
 ```
 
-Or register an agent, which needs no account at all:
+An agent needs no account at all:
 
 ```bash
 # The agent's private key never leaves the agent.

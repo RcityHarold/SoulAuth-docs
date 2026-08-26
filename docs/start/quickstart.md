@@ -1,402 +1,220 @@
 # Quickstart
 
-## From zero to a first verified authentication result
+A running instance, a first administrator, and a working token — in about five minutes.
 
-This page does one thing:
+Every command on this page comes from a script that runs in CI
+(<Status kind="tested" guard="deployment_walkthrough.sh" />). If one of them fails for
+you, that is a bug in SoulAuth or in this page, not something you are expected to work
+around. [Tell us.](https://github.com/RcityHarold/SoulAuth/issues)
 
-> **Start from a fresh SoulAuth development instance, walk the release's golden path, and
-> obtain a first authentication result you can independently verify.**
+## You need
 
-```text
-Start SoulAuth
-        ↓
-Verify Runtime Readiness
-        ↓
-Establish Minimal Client State
-        ↓
-Establish a Test Human
-        ↓
-Run the Current Golden-path Authentication
-        ↓
-Validate the Authentication Result
-```
+- [SurrealDB](https://surrealdb.com/install) v3
+- A Rust toolchain (to build the binary), or a prebuilt `soulauth` binary
+- `curl` and `openssl`
 
-Success is not the process starting, not the browser returning to your application, and
-not the token endpoint answering. It is:
+::: details Prefer Docker Compose?
+`docker-compose.yml` is in the repository and brings up SurrealDB, imports the schema,
+and starts SoulAuth in one command. It is <Status kind="implemented" /> — the file
+exists and has been reviewed, but **nobody has executed it end to end yet**, so this page
+does not present it as the verified path.
 
-> **the client has independently proven, under the current authentication and protocol
-> contract, that this authentication result is trustworthy.**
+The repository holds itself to a rule after an earlier incident where deployment docs
+did not actually work: *executable documentation must have been executed*. When someone
+runs it through, this section becomes the first step instead of a footnote.
+:::
 
-## Quickstart success is not production readiness
-
-This page uses a **development environment** only.
-
-```text
-Quickstart Success
-≠
-Production Readiness
-```
-
-It proves the shortest developer path of the current release works. It proves nothing
-about the production key/secret boundary, backup and recovery, the production issuer,
-runtime topology, security operations or production evidence. Before production, complete
-[Deployment](../operate/deployment) and
-[Production Checklist](../operate/production-checklist) separately.
-
-## Before you start
-
-Prepare only what the release's official local development path requires: a running
-SurrealDB instance and a Rust toolchain (edition 2021).
-
-This Quickstart does not ask you to connect to SoulAuth's private persistence by hand,
-create tables manually, insert Actor, client or credential records directly, or bypass the
-supported control plane by editing database state:
-
-```text
-Quickstart
-≠
-Direct Persistence Setup
-```
-
-## Step 1 · Start SoulAuth
-
-The application performs no DDL of its own — the schema and seed data are imported once:
+## 1 · Start the database
 
 ```bash
-surreal import --endpoint http://127.0.0.1:8000 --user root --pass root \
-    --namespace auth --database main schema.sql
-surreal import --endpoint http://127.0.0.1:8000 --user root --pass root \
-    --namespace auth --database main initial_data.sql
+surreal start --bind 127.0.0.1:8000 --user root --pass root file:soulauth.db
 ```
 
-Four environment variables are required; nothing else is:
+Use `memory` instead of `file:soulauth.db` if you want a throwaway instance.
+
+## 2 · Load the schema
+
+SoulAuth does not create its own tables. An authentication service holding permission to
+alter its own schema is a boundary this project does not cross, so the two files are
+imported by you, once:
 
 ```bash
-export JWT_SECRET=$(openssl rand -hex 32)   # at least 32 characters
-export APP_URL=http://localhost:8080        # loopback keeps development gates open
+export DB="--endpoint http://127.0.0.1:8000 --user root --pass root \
+  --namespace auth --database main"
+
+surreal import $DB schema.sql
+surreal import $DB initial_data.sql
+```
+
+::: warning The namespace and database must match
+`auth` / `main` here must be the same pair the process connects with. Import into the
+wrong pair and everything still *looks* fine — the process starts, `/health` returns
+`ok` — until the first write fails. This exact mistake is why the walkthrough script
+exists.
+:::
+
+## 3 · Configure
+
+```bash
+export DATABASE_URL=127.0.0.1:8000
+export DATABASE_NAMESPACE=auth
+export DATABASE_NAME=main
+export DATABASE_USER=root
+export DATABASE_PASS=root
+
+export JWT_SECRET=$(openssl rand -hex 32)
+export APP_URL=http://localhost:8080
+export BIND_ADDR=127.0.0.1:8080
 export SMTP_HOST=127.0.0.1
-export SMTP_FROM=noreply@localhost
-
-cargo run
+export SMTP_FROM=noreply@example.com
 ```
 
-`APP_URL` is the **public** address, not the listen address — that is `BIND_ADDR`,
-default `0.0.0.0:8080`. It determines the OIDC issuer, the prefix of links in outgoing
-mail, and whether session cookies carry `Secure`. Pointing it at a non-loopback host
-switches the production gates on.
+`APP_URL` is the public address, **not** the listen address. It decides the OIDC issuer,
+the prefix of links in outgoing mail, and whether session cookies carry `Secure`.
 
-The full configuration vocabulary is owned by the config registry and explained in
-[Configuration](../reference/configuration).
+A loopback `APP_URL` keeps you out of the production gate, which is why this quickstart
+needs neither an OIDC signing key nor an MFA encryption key. That is also precisely why
+these settings are not suitable for production — see the
+[production checklist](/operate/production-checklist).
 
-A start command returning does not mean the runtime can accept the next step.
+## 4 · Run it
 
-## Step 2 · Verify runtime readiness
-
-```text
-Process Started
-≠
-Runtime Ready
+```bash
+cargo build && ./target/debug/soulauth
 ```
 
 ```bash
-curl -s http://localhost:8080/health
+curl http://localhost:8080/health
+# {"status":"ok","uptime_seconds":3}
 ```
 
-If readiness cannot be established, do not continue to client provisioning or the
-authentication flow. Go to [Troubleshooting](../operate/troubleshooting) or
-[Deployment](../operate/deployment) first.
+## 5 · Create the first administrator
 
-## Step 3 · Verify the protocol surface
+There is no default account and no seeded password. Instead, a fresh instance prints a
+one-time bootstrap token at startup:
 
-The golden path uses OpenID Connect, so confirm the declared protocol surface is really
-available before authenticating. The trust order stays:
-
-```text
-Configured Trusted Issuer
-        ↓
-Current OIDC Metadata
-        ↓
-Declared Protocol Endpoints
+```
+WARN No administrator found. Bootstrap token for this process: 7f3a…
+     Create the first administrator:
+     curl -X POST http://localhost:8080/api/bootstrap/admin ...
 ```
 
-never:
-
-```text
-Unknown endpoint / token → discover arbitrary issuer → trust it
-```
-
-```bash
-curl -s http://localhost:8080/.well-known/openid-configuration
-```
-
-What this proves is that the protocol contract the Quickstart depends on is usable by a
-client. The semantics of the authorization endpoint, the token endpoint, key distribution
-and metadata belong to [OIDC & Clients](../reference/oidc-and-clients) and
-[Authorization Code Flow](../integrate/authorization-code-flow).
-
-## Step 4 · Establish the Quickstart client
-
-Before authentication, a software client must exist. Keep:
-
-```text
-Client
-≠
-Actor
-```
-
-Client answers *which software participant is using SoulAuth.* Actor answers *who is being
-authenticated.*
-
-The client must be created through the supported administrative path:
-
-```text
-Client Provisioning
-≠
-Direct Persistence Mutation
-```
-
-A fresh instance has a genuine deadlock: registering an OIDC client requires
-`soulauth:oidc_clients.write`, which comes from the `admin` role — and the first admin
-would otherwise have to be granted by writing to the database directly. The current
-release therefore provides a bootstrap path for exactly that window. On startup, the
-runtime logs the command to run, including a freshly generated token:
+Use it:
 
 ```bash
 curl -X POST http://localhost:8080/api/bootstrap/admin \
   -H 'Content-Type: application/json' \
-  -d '{"token":"<TOKEN FROM STARTUP LOG>","email":"you@example.com",
-       "username":"admin","password":"<at least the configured minimum length>"}'
+  -d '{"token":"7f3a…","email":"you@example.com","username":"admin","password":"CorrectHorse42!"}'
 ```
 
-The gate closes permanently once an administrator exists — its success condition is
-exactly its deactivation condition. Set `SOULAUTH_BOOTSTRAP_TOKEN` to a fixed value when
-you need a deterministic token, or to an empty string to disable the path entirely.
-
-> **Being the first registered client or the bootstrap administrator is a runtime
-> capability of this release, not a general architectural assumption.** Register a client
-> properly, and the client contract itself, per
-> [Register a Client](../integrate/register-a-client) and
-> [OIDC & Clients](../reference/oidc-and-clients).
-
-## Step 5 · Establish the test human
-
-This golden path uses a **Human** as the authenticated Actor. That does not make SoulAuth
-a human-only system — it means human interactive authentication is the first golden path
-the Quickstart chooses.
-
-Use the supported development provisioning path to create a test human and establish the
-authentication conditions this path actually needs. HumanAccount, credential, password,
-MFA and recovery are not redefined here; they belong to
-[Actors & Profiles](../reference/actors-and-profiles) and
-[Authentication & Sessions](../reference/authentication-and-sessions).
-
-### The golden path does not require an AuthSession to exist
-
-Do not read a mandatory runtime chain of
-`Human → Authentication → AuthSession → Authorization Code` into this:
-
-```text
-Successful Authentication
-≠
-AuthSession Necessarily Created
+```json
+{ "user_id": "7ad93d87-…", "email": "you@example.com", "is_admin": true }
 ```
 
-Whether an AuthSession is established, and how it continues, is defined by the
-authentication contract. Quickstart observes what the golden path really does — it does
-not invent a stage to make the summary look complete.
+Three things about this path worth knowing now:
 
-## Step 6 · Run the golden-path authentication
+- **It closes permanently.** Once an administrator exists, the same token is rejected —
+  and it returns the same status as a wrong token, so a stale token cannot be used to
+  probe whether an instance is initialised.
+- **The password policy is not relaxed** because this is the first user.
+- **You never touch the database.** Going from empty to a usable administrator without
+  hand-editing records is a requirement this project holds itself to, not a convenience.
 
-The profile uses **authorization code flow with PKCE.** This page runs it; it does not
-re-explain it.
+## 6 · Get a token
 
-```text
-Authorization Request
-        ↓
-Actor Authentication
-        ↓
-Authorization Response
-        ↓
-Transaction Validation
-        ↓
-Authorization Code Exchange
+The bootstrap response does not contain one — log in:
+
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"you@example.com","password":"CorrectHorse42!"}'
 ```
 
-Why `state`, PKCE, `nonce`, the redirect and client authentication each exist and how they
-work belongs to [Authorization Code Flow](../integrate/authorization-code-flow). Quickstart
-does not become a second protocol tutorial.
-
-### A token response is not the success condition
-
-```text
-Token Response Success
-≠
-Verified Authentication Result
+```json
+{
+  "token": "eyJhbGciOi…",
+  "user": {
+    "id": "7ad93d87-…",
+    "email": "you@example.com",
+    "username": "admin",
+    "is_admin": true,
+    "verified": true,
+    "account_status": "Active",
+    "has_password": true,
+    "last_login_at": 1787738966,
+    "membership_level": "FREE",
+    "membership_expiry": null,
+    "created_at": "2026-08-26T10:09:26Z"
+  }
+}
 ```
 
-Once the token endpoint answers, the authentication result still has to be validated. This
-page does not maintain a token response field list, and does not announce refresh tokens,
-UserInfo or other optional capabilities in passing — the token surface belongs to
-[OIDC & Clients](../reference/oidc-and-clients).
-
-## Step 7 · Validate the OIDC authentication result
-
-The final step is validating the ID token fully. Never:
-
-```text
-Decode JWT → Read Claims → Trust Identity
+```bash
+curl http://localhost:8080/api/auth/me -H "Authorization: Bearer $TOKEN"
 ```
 
-```text
-ID Token Decoded
-≠
-ID Token Validated
+API authentication is `Authorization: Bearer` only. Cookies exist, but they serve the
+browser and OIDC flows — not this.
+
+## 7 · Optional — give an AI agent an identity
+
+No email, no password, no account:
+
+```bash
+# Generate a key. The private half never leaves the agent.
+openssl genpkey -algorithm ed25519 -out agent.pem
+PUBKEY=$(openssl pkey -in agent.pem -pubout -outform DER | tail -c 32 | basenc --base64url | tr -d '=')
+
+curl -X POST http://localhost:8080/api/actors \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d "{\"public_key\":\"$PUBKEY\",\"label\":\"nightly-runner\"}"
 ```
 
-Use the trusted issuer the release declares, the current OIDC metadata and verification
-contract, and the complete validation the profile requires. Representative checks include
-cryptographic validation, issuer, audience, time validity and — where applicable —
-transaction binding. The complete normative rules belong to
-[Authorization Code Flow](../integrate/authorization-code-flow) and
-[OIDC & Clients](../reference/oidc-and-clients).
+The agent then authenticates in two steps. Ask for a challenge:
 
-## Step 8 · Interpret the verified OIDC subject correctly
-
-After validation, the client may consume the verified claims. `sub` must always be
-interpreted inside the **trusted issuer / current OIDC subject contract**:
-
-```text
-Trusted Issuer
-+
-Validated `sub`
-        ↓
-Verified OIDC Subject Context
+```bash
+curl -X POST http://localhost:8080/api/actors/challenge \
+  -H 'Content-Type: application/json' -d "{\"actor_id\":\"$ACTOR_ID\"}"
 ```
 
-not:
-
-```text
-`sub` → Global Actor ID
+```json
+{
+  "actor_id": "actor_identity:lnhl…",
+  "nonce": "sp9kEQQT4evGROocexd1lw0Z5u7Bcmbpuahl9A-iPT4",
+  "expires_at": 1787739106,
+  "algorithm": "ed25519",
+  "payload": "soulauth-ai-actor-auth/v1\nhttp://localhost:8080\nactor_identity:lnhl…\nsp9kEQQ…"
+}
 ```
 
-### `sub` is not the ActorIdentity resource ID
+`payload` is exactly the bytes to sign — four lines, `\n`-joined, no trailing newline.
+It is returned so that every client library does not have to reimplement the
+canonicalisation and get it subtly wrong. The server recomputes it independently before
+verifying; the copy you send back is never trusted.
 
-```text
-OIDC `sub`
-≠
-ActorIdentity Resource ID
+Sign it and exchange it for a session:
+
+```bash
+curl -X POST http://localhost:8080/api/actors/authenticate \
+  -H 'Content-Type: application/json' \
+  -d "{\"actor_id\":\"$ACTOR_ID\",\"nonce\":\"$NONCE\",\"algorithm\":\"ed25519\",\"signature\":\"$SIG\"}"
 ```
 
-`sub` belongs to the OIDC subject namespace; the ActorIdentity resource ID belongs to
-SoulAuth's identity domain resource namespace. Matching strings do not license an implicit
-cast.
+The session token that comes back carries `subject_type: agent`. It works on
+`/api/actors/me` and is **refused** on human endpoints — that boundary is deliberate and
+[documented](/concepts/ai-native-identity).
 
-### `sub` is not the stable subject foundation
+## What you have now
 
-```text
-OIDC `sub`
-≠
-Stable Subject Foundation
-```
-
-This page does not tell you "`sub` is the stable Actor subject". Identity continuity and
-OIDC subject policy are different layers of semantics.
-
-### Mutable profile data does not replace the subject
-
-Do not use email, username or display name in place of verified issuer + `sub` to build
-your authentication subject mapping. The complete subject contract belongs to
-[OIDC & Clients](../reference/oidc-and-clients).
-
-### ID token and access token stay separate
-
-Even when the token response contains both:
-
-```text
-ID Token      ≠  API Access Token
-Access Token  ≠  JWT by definition
-```
-
-If your next step is protecting a backend/API, continue to
-[Verify Tokens](../integrate/verify-tokens). Quickstart does not infer an access token's
-public contract from the fact that it can be decoded.
-
-## Expected result
-
-```text
-Runtime Ready                              PASS
-Current Protocol Surface                   PASS
-Client Provisioning                        PASS
-Human Authentication                       PASS
-OIDC Transaction                           PASS
-ID Token Validation                        PASS
-Verified Issuer-scoped OIDC Subject Context  ESTABLISHED
-```
-
-The last line means the client can trustworthily identify the subject of this
-authentication inside the current OIDC subject contract. It does not mean the client
-obtained the SoulAuth ActorIdentity resource itself, and it does not mean the Actor gained
-any downstream authority.
-
-## Quickstart at a glance
-
-| Boundary | Meaning |
-| --- | --- |
-| **Quickstart success ≠ Production readiness** | A development first success is not a production gate |
-| **Process started ≠ Runtime ready** | A running process is not a serviceable runtime |
-| **Client ≠ Actor** | A software participant is not the authenticated subject |
-| **Client provisioning ≠ Direct persistence mutation** | Initial setup goes through supported paths |
-| **Human golden path ≠ Human-only architecture** | Human is just the first developer path |
-| **Authentication success ≠ AuthSession created** | A session is not a mandatory stage |
-| **Protocol explanation ≠ Quickstart procedure** | Quickstart runs the protocol; it does not define it |
-| **Token response success ≠ Verified result** | Validation still follows |
-| **Decoded ≠ Validated** | Readable is not trustworthy |
-| **`sub` ≠ ActorIdentity resource ID** | Two namespaces do not merge implicitly |
-| **`sub` ≠ Stable subject foundation** | A protocol subject is not a continuity primitive |
-| **ID token ≠ API access token** | Authentication result is not resource access |
-| **Access token ≠ JWT by definition** | Representation comes from the token contract |
-
-## If it fails
-
-| Failure stage | Go to |
-| --- | --- |
-| **Runtime will not start or become ready** | [Deployment](../operate/deployment) → [Troubleshooting](../operate/troubleshooting) |
-| **Initial client provisioning fails** | [Register a Client](../integrate/register-a-client) → [Administration](../reference/administration) |
-| **Human provisioning / authentication fails** | [Authentication & Sessions](../reference/authentication-and-sessions) → [Troubleshooting](../operate/troubleshooting) |
-| **The authorization transaction fails** | [Authorization Code Flow](../integrate/authorization-code-flow) → [Troubleshooting](../operate/troubleshooting) |
-| **ID token validation fails** | [OIDC & Clients](../reference/oidc-and-clients) → [Troubleshooting](../operate/troubleshooting) |
-| **Using the access token against an API fails** | [Verify Tokens](../integrate/verify-tokens) → [Troubleshooting](../operate/troubleshooting) |
-
-If you see identity misattribution, unknown trust material, suspected persistence
-corruption or possible security material compromise, stop ordinary Quickstart debugging
-and go to [Operations & Recovery](../operate/operations-and-recovery).
+A running identity provider, one administrator, and a session token. What you do **not**
+have is a production deployment: no TLS, no OIDC signing key, root database credentials,
+and an SMTP host that is probably not listening.
 
 ## Next
 
-If you are unsure which integration boundary your real system needs:
-[Choose an Integration Path](./integration-path). To register a real application client:
-[Register a Client](../integrate/register-a-client). To understand the authorization code
-transaction properly: [Authorization Code Flow](../integrate/authorization-code-flow). To
-protect a backend/API: [Verify Tokens](../integrate/verify-tokens). To move towards a real
-deployment: [Deployment](../operate/deployment), then
-[Production Checklist](../operate/production-checklist). To understand why Human and
-AIActor share one ActorIdentity contract:
-[AI-native Identity](../concepts/ai-native-identity) and
-[Actor Identity Model](../concepts/actor-identity-model).
-
-## Exact contract source
-
-This page owns the **golden-path Quickstart procedure of the current release.**
-
-The repository URL, local runtime packaging, start command, readiness endpoint, default
-port, initial client provisioning mechanism, client schema, human provisioning mechanism,
-human authentication method, authorization endpoint, PKCE profile, token endpoint, token
-response schema, ID token validation command, OIDC subject policy and the current
-supported feature set are all owned elsewhere: the release artifact, the machine-readable
-contracts, the canonical references, the runtime, verification evidence and
-[Project Status](../project/status).
-
-```text
-Quickstart Consumes Current Contracts
-Quickstart Does Not Define Current Contracts
-```
+| | |
+|---|---|
+| Connect a web application | [Authorization Code flow](/integrate/authorization-code-flow) |
+| Harden this before it faces anyone | [Production checklist](/operate/production-checklist) |
+| Understand what a token does and does not grant | [Identity vs authority](/spec/identity-vs-authority) |
+| See exactly what this release supports | [Project status](/project/status) |

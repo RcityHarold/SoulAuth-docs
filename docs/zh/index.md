@@ -43,19 +43,30 @@ Keycloak 或 Auth0 的东西都能接它——同时它把 AI Agent 当作独立
 
 ```bash
 git clone https://github.com/RcityHarold/SoulAuth && cd SoulAuth
-cp .env.example .env
-docker compose up -d
+surreal start --bind 127.0.0.1:8000 --user root --pass root memory &
+
+DB="--endpoint http://127.0.0.1:8000 --user root --pass root --namespace auth --database main"
+surreal import $DB schema.sql
+surreal import $DB initial_data.sql
+
+export JWT_SECRET=$(openssl rand -hex 32) APP_URL=http://localhost:8080 \
+       SMTP_HOST=127.0.0.1 SMTP_FROM=noreply@example.com
+cargo run
 ```
 
-注册一个人：
+仓库里也有 `docker-compose.yml`，但还没有人完整跑通过，所以本页与
+[快速上手](/zh/start/quickstart)带头给的都是**已验证**的那条路径。
+
+没有默认账号。全新实例会在启动日志里打印一枚一次性引导令牌，
+用它创建第一个管理员，全程不碰数据库：
 
 ```bash
-curl -X POST http://localhost:8080/api/auth/register \
+curl -X POST http://localhost:8080/api/bootstrap/admin \
   -H 'Content-Type: application/json' \
-  -d '{"email":"you@example.com","password":"CorrectHorse42!","username":"you"}'
+  -d '{"token":"<日志里那枚>","email":"you@example.com","username":"admin","password":"CorrectHorse42!"}'
 ```
 
-或者注册一个 Agent——它压根不需要账户：
+而一个 Agent 压根不需要账户：
 
 ```bash
 # Agent 的私钥从不离开 Agent。
