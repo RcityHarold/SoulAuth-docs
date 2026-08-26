@@ -74,6 +74,13 @@ sits:
 
 ## 2 · Figure 1: Soulseed AGI infrastructure
 
+<Figure
+  src="/figures/figure-1-soulseed-agi-infrastructure.en.webp"
+  alt="Soulseed AGI infrastructure above the LLM: the LLM supplies intelligence capability into Mind OS, which contains SoulseedAGI, SoulseedOS and Soulseed Apps. SoulAuth sits beside SoulseedOS as independent identity and authentication infrastructure that any application may also use, and a public bridge provides on-demand access to public reality infrastructure."
+  title="Figure 1 · Soulseed — AGI infrastructure above the LLM"
+  caption="LLMs provide intelligence. Soulseed provides the Mind, runtime, applications and public infrastructure a persistent AIActor needs. SoulAuth is independent identity and authentication infrastructure — usable by SoulseedOS and by any application on its own."
+/>
+
 Figure 1 does not describe how SoulAuth works internally. It answers:
 
 > **What larger system is SoulAuth part of?**

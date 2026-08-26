@@ -54,6 +54,12 @@ SoulAuth therefore adopts **Actor First** — answer *who is the Actor?* before 
 
 ## WHO · An Actor-centred identity model
 
+<Figure
+  src="/figures/figure-2-actor-centred-identity-model.en.webp"
+  alt="An Actor-centred identity model: Human and AIActor both entering one ActorIdentity through different credentials."
+  title="Figure 2 · An Actor-centred identity model"
+/>
+
 Inside the SoulAuth identity domain, **ActorIdentity** is the canonical actor identity
 anchor. Human and AIActor are both Actor Kinds sharing **first-class identity standing** —
 both enter the ActorIdentity canonical identity contract as themselves.
@@ -105,6 +111,12 @@ The fuller reasoning belongs to [AI-native Identity](/concepts/ai-native-identit
 
 ## WHERE · SoulAuth in the Soulseed ecosystem
 
+<Figure
+  src="/figures/figure-1-soulseed-agi-infrastructure.en.webp"
+  alt="Soulseed AGI infrastructure above the LLM, with SoulAuth as independent identity and authentication infrastructure."
+  title="Figure 1 · Soulseed — AGI infrastructure above the LLM"
+/>
+
 SoulAuth can run standalone. It does not need Soulseed to establish its own ActorIdentity
 or its identity and authentication domain.
 
@@ -128,6 +140,12 @@ Read further: [Soulseed & Mind OS](/concepts/soulseed-and-mind-os) ·
 [Soulseed Integration](/integrate/soulseed)
 
 ## HOW · The logical architecture
+
+<Figure
+  src="/figures/figure-3-soulauth-architecture.en.webp"
+  alt="SoulAuth logical responsibility architecture, with ActorIdentity as the identity root."
+  title="Figure 3 · SoulAuth — Actor-native identity infrastructure"
+/>
 
 SoulAuth's logical architecture has three parts. First, the main responsibility chain for
 identity and authentication:

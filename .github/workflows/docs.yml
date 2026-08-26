@@ -45,6 +45,9 @@ jobs:
       # 文档不得复述端点/路由计数 —— 那份事实归 contracts/openapi.yaml，
       # 由 SoulAuth 仓库的 tests/conformance.rs::j4 守卫。
       - run: npm run check:endpoints
+      # 三张 Canonical Figure：文件在不在、中英文有没有串。
+      # 这两类错都不会让构建变红，只会让读者看到坏图或另一种语言。
+      - run: npm run check:figures
 
       # enablement: true 让 workflow 自己开启 Pages。
       # 不加的话，仓库没在 Settings → Pages 里把 Source 选成 GitHub Actions 时，

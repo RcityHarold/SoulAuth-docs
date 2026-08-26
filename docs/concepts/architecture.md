@@ -34,6 +34,13 @@ endpoints, database schemas or deployment topology. It answers only:
 
 ## 1 · Figure 3: the logical responsibility architecture
 
+<Figure
+  src="/figures/figure-3-soulauth-architecture.en.webp"
+  alt="SoulAuth Actor-native identity infrastructure: clients enter through the access and protocol edge into SoulAuth Core, whose identity domain holds Actor Identity with HumanAccount, IdentityBinding and Credential around it, followed by the authentication core, AuthSession, token and federation, and authenticated identity and claims. Control plane, security protection and audit and attribution act as cross-cutting planes, over a persistence and infrastructure base."
+  title="Figure 3 · SoulAuth — Actor-native identity infrastructure"
+  caption="With ActorIdentity as the identity root, organising credential, authentication, AuthSession, OIDC, security and audit. This is a map of logical responsibilities — not a runtime sequence, and not a deployment diagram."
+/>
+
 Figure 3 is SoulAuth's own canonical architecture view. It answers **HOW: which logical
 responsibilities is SoulAuth made of?**
 

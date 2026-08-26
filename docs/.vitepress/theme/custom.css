@@ -25,3 +25,49 @@
 .vp-doc table {
   overflow-x: auto;
 }
+
+/* ── Canonical Figures ────────────────────────────────────────────────
+   语料只承认三张 Public Core Figure：Figure 1 (WHERE) / Figure 2 (WHO) /
+   Figure 3 (HOW)。它们是浅底插图，深色模式下直接铺在深色页面上会刺眼，
+   所以始终给一块近白的承托底，让它读起来像"一张图"而不是"漏了背景的图"。 */
+.vp-doc figure.figure {
+  margin: 2rem 0;
+}
+
+.vp-doc figure.figure a {
+  display: block;
+  padding: 12px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 10px;
+  background: #fbfcfe;
+  transition: border-color 0.2s;
+}
+
+.vp-doc figure.figure a:hover {
+  border-color: var(--vp-c-brand-1);
+}
+
+.dark .vp-doc figure.figure a {
+  /* 深色模式不反相图片 —— 反相会毁掉图里的语义配色
+     （蓝=身份链路，橙=Audit，红=Security）。只压一点亮度减少眩光。 */
+  background: #eef1f6;
+  filter: brightness(0.94);
+}
+
+.vp-doc figure.figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.vp-doc figure.figure figcaption {
+  margin-top: 0.75rem;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--vp-c-text-2);
+}
+
+.vp-doc figure.figure figcaption strong {
+  color: var(--vp-c-text-1);
+}
