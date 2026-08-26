@@ -99,12 +99,7 @@ identity root.
 
 ## 3 · Figure 2: Actor-native identity
 
-<Figure
-  src="/figures/figure-2-actor-centred-identity-model.en.webp"
-  alt="An Actor-centred identity model: Human and AIActor both entering one ActorIdentity, each through its own Credential, into the SoulAuth identity and authentication core, which projects authenticated identity and claims to any application or to SoulseedOS."
-  title="Figure 2 · An Actor-centred identity model"
-  caption="Human and AIActor are first-class identity subjects entering the same Actor-native identity core through different credentials."
-/>
+<Figure2 locale="en" />
 
 Figure 2 expresses one core relation:
 

@@ -54,11 +54,7 @@ SoulAuth 因此采用 **Actor First** —— 先回答**谁是 Actor**，再回�
 
 ## WHO · 一个以 Actor 为中心的身份模型
 
-<Figure
-  src="/figures/figure-2-actor-centred-identity-model.zh.webp"
-  alt="一个以 Actor 为中心的身份模型：Human 与 AIActor 通过不同 Credential 进入同一个 ActorIdentity。"
-  title="Figure 2 · 一个以 Actor 为中心的身份模型"
-/>
+<Figure2 locale="zh" />
 
 在 SoulAuth Identity Domain 中，**ActorIdentity** 是 Canonical Actor Identity
 Anchor。Human 与 AIActor 都是 Actor Kind，二者共享 **First-class Identity
@@ -110,11 +106,7 @@ Human implementation = Entire identity ontology
 
 ## WHERE · SoulAuth 在 Soulseed 生态中的位置
 
-<Figure
-  src="/figures/figure-1-soulseed-agi-infrastructure.zh.webp"
-  alt="LLM 之上的 Soulseed AGI 基础设施，SoulAuth 作为独立的身份与认证基础设施。"
-  title="Figure 1 · Soulseed —— LLM 之上的 AGI 基础设施"
-/>
+<Figure1 locale="zh" />
 
 SoulAuth 可以独立运行 —— 它不依赖 Soulseed 才能建立自己的 ActorIdentity 与 Identity /
 Authentication Domain。
@@ -139,11 +131,7 @@ Soulseed Integration 是一种可选的 ecosystem integration，不是采用 Sou
 
 ## HOW · SoulAuth 的 Logical Architecture
 
-<Figure
-  src="/figures/figure-3-soulauth-architecture.zh.webp"
-  alt="SoulAuth 逻辑职责架构，以 ActorIdentity 为身份根。"
-  title="Figure 3 · SoulAuth —— Actor-native 身份基础设施架构"
-/>
+<Figure3 locale="zh" />
 
 SoulAuth 的 Logical Architecture 由三部分组成。首先是 Identity 与 Authentication 的
 主要责任链：

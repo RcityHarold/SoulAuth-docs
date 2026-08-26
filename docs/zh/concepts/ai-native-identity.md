@@ -94,12 +94,7 @@ SoulAuth Identity Root。
 
 ## 3 · Figure 2：Actor-native Identity
 
-<Figure
-  src="/figures/figure-2-actor-centred-identity-model.zh.webp"
-  alt="一个以 Actor 为中心的身份模型：Human 与 AIActor 各自通过自己的 Credential 进入同一个 ActorIdentity，再进入 SoulAuth 身份认证核心，并把已认证身份与 Claims 提供给任意应用或 SoulseedOS。"
-  title="Figure 2 · 一个以 Actor 为中心的身份模型"
-  caption="Human 与 AIActor 作为一等身份主体，通过不同 Credential 进入同一个 Actor-native Identity Core。"
-/>
+<Figure2 locale="zh" />
 
 Figure 2 只表达一个核心关系：
 

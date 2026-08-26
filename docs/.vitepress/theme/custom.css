@@ -71,3 +71,13 @@
 .vp-doc figure.figure figcaption strong {
   color: var(--vp-c-text-1);
 }
+
+/* 三张架构图比正文密得多，688px 的正文栏放不下 —— HumanAccount 这类标识符
+   会被折成 HumanA / ccount。让图适度探进两侧留白，用负边距而不是
+   transform，这样不会脱离文档流、也不会盖到侧边栏或右侧目录。 */
+@media (min-width: 960px) {
+  .vp-doc figure.figure { margin-inline: -56px; }
+}
+@media (min-width: 1440px) {
+  .vp-doc figure.figure { margin-inline: -120px; }
+}

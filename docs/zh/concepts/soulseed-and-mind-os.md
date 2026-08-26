@@ -67,12 +67,7 @@ Mind OS。这就是 SoulAuth 存在的位置：
 
 ## 2 · Figure 1：Soulseed AGI Infrastructure
 
-<Figure
-  src="/figures/figure-1-soulseed-agi-infrastructure.zh.webp"
-  alt="LLM 之上的 Soulseed AGI 基础设施：LLM 提供智能能力，Mind OS 内含 SoulseedAGI、SoulseedOS 与 Soulseed Apps；SoulAuth 位于 SoulseedOS 旁边，是独立的身份与认证基础设施，任意应用同样可以使用；Public Bridge 通向公共现实基础设施。"
-  title="Figure 1 · Soulseed —— LLM 之上的 AGI 基础设施"
-  caption="LLM 提供智能，Soulseed 为持续 AIActor 建立 Mind、运行、应用与公共现实所需要的系统秩序。SoulAuth 是独立的身份与认证基础设施 —— 既可被 SoulseedOS 使用，也可独立服务任意应用。"
-/>
+<Figure1 locale="zh" />
 
 Figure 1 回答的不是 SoulAuth 内部怎样工作，而是：
 

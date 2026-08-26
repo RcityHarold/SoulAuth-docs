@@ -31,12 +31,7 @@ Deployment Topology。它只回答：
 
 ## 1 · Figure 3：SoulAuth 的 Logical Responsibility Architecture
 
-<Figure
-  src="/figures/figure-3-soulauth-architecture.zh.webp"
-  alt="SoulAuth Actor-native 身份基础设施：客户端经接入与协议边界进入 SoulAuth 核心域，身份域以 Actor Identity 为中心，周围是 Human Account、Identity Binding 与 Credential，其后依次是认证核心、认证会话、令牌与身份联邦、已认证身份与 Claims；控制平面、安全防护、审计与归因作为横向平面，底部是持久化与基础设施。"
-  title="Figure 3 · SoulAuth —— Actor-native 身份基础设施架构"
-  caption="以 ActorIdentity 为身份根，组织 Credential、Authentication、AuthSession、OIDC、Security 与 Audit。这是一张 Logical Responsibilities 图 —— 不是 Runtime Sequence，也不是 Deployment Diagram。"
-/>
+<Figure3 locale="zh" />
 
 Figure 3 是 SoulAuth 自身的 Canonical Architecture View。它回答的是：
 
