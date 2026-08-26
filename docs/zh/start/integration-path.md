@@ -180,9 +180,9 @@ SoulAuth 证明 Actor Authentication 是否按照自己的 Contract 成立；Sou
 这个 Actor 在自己的 Runtime / Governance Domain 中能做什么。
 
 **Start here：** [Soulseed 接入](../integrate/soulseed)。如果你希望先理解三个系统
-之间为什么这样分工，进入 [Soulseed 与 Mind OS](../concepts/soulseed-and-mind-os)；
+之间为什么这样分工，进入 [Soulseed 与 Mind OS](../spec/soulseed-and-mind-os)；
 如果你想理解为什么 Authentication 不能直接产生 Authority，进入
-[身份与权限](../concepts/identity-vs-authority)。
+[身份与权限](../spec/identity-vs-authority)。
 
 本篇不再使用
 `Canonical Actor → SoulAuth → Authenticated Identity → SoulseedOS`

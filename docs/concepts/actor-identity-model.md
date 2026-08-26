@@ -323,7 +323,7 @@ Permission to redefine Soulseed Canonical Actor
 ```
 
 Creating a binding does not give SoulAuth the power to define or modify a Mind. The
-full architectural relationship is in [Soulseed & Mind OS](./soulseed-and-mind-os);
+full architectural relationship is in [Soulseed & Mind OS](/spec/soulseed-and-mind-os);
 the runtime integration is in [Soulseed Integration](../integrate/soulseed).
 
 ## 8 · The whole model, compressed into five boundaries
@@ -370,5 +370,5 @@ We now know how SoulAuth answers *who this Actor is*. That still does not answer
 > **Why may this Actor perform a given operation?**
 
 A successful authentication does not make authority follow automatically.
-[Identity vs Authority](./identity-vs-authority) takes up that boundary — why identity,
+[Identity vs Authority](/spec/identity-vs-authority) takes up that boundary — why identity,
 authentication and authority must always stay apart.

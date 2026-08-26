@@ -10,8 +10,9 @@
     "preview": "vitepress preview docs",
     "check:endpoints": "node scripts/check-endpoints.mjs",
     "check:anchors": "node scripts/check-anchors.mjs",
-    "verify": "npm run build && npm run check:anchors && npm run check:endpoints && npm run check:figures",
-    "check:figures": "node scripts/check-figures.mjs"
+    "verify": "npm run build && npm run check:anchors && npm run check:endpoints && npm run check:figures && npm run check:status",
+    "check:figures": "node scripts/check-figures.mjs",
+    "check:status": "node scripts/check-status.mjs"
   },
   "devDependencies": {
     "vitepress": "^1.6.4"

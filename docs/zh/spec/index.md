@@ -1,0 +1,87 @@
+# 规范
+
+这一节描述**架构**——对象模型、边界，以及不随 Release 变化的规则。
+
+它被刻意从站点其余部分分出来。别处回答的是「我今天能做什么」，这里回答的是
+「这个系统是什么，以及它拒绝变成什么」。两者混在一条阅读路径上，文档最后就会
+去描述一个没人建出来的系统。
+
+::: warning 架构职责 ≠ 当前支持的能力
+这几页里的任何内容，都不应被读成「当前 Release 已经实现了它」。凡是描述尚未
+建成之物的地方，都带着 <Status kind="planned" /> 标记。想知道实际在跑的是什么，
+看[项目状态](/zh/project/status)。
+:::
+
+## 对象模型
+
+五个对象。它们分开，是因为任意两个合并掉，都会毁掉某个后来有人依赖的性质。
+
+| 对象 | 回答什么 | 合并掉会失去 |
+|---|---|---|
+| **ActorIdentity** | 这是谁，持久地 | 当这个主体的其它一切都变了之后，归因还能保持稳定 |
+| **HumanAccount** | 一个人怎么管理自己的登录 | 非人主体不必伪造人类属性也能存在 |
+| **Credential** | 此刻能拿什么证明 | 轮换或吊销证明手段而不摧毁身份 |
+| **IdentityBinding** | 外部哪个主体与它是同一个 | 分得清「同一个人、不同 IdP」和「同一份凭证」 |
+| **Client** | 是哪个应用在问 | 限定任一集成能看到多少 |
+
+<Figure2 locale="zh" />
+
+它们怎么用，看 [Actor 身份模型](/zh/concepts/actor-identity-model)；
+这一页说的是它们**为什么**存在。
+
+## 这个系统不会越过的边界
+
+它们不是「以后某个版本会放开」的实现限制，而是关于认证**是什么**的声明。
+
+- **认证不授予任何权限。** 认证成功产出的是一句关于「是谁」的陈述。它不创造
+  应用权限、不创造治理地位、也不创造在世界上行动的资格。
+  [身份与权限的边界 →](/zh/spec/identity-vs-authority)
+- **SoulAuth 认证主体，不定义主体。** 在 Soulseed 部署里，canonical actor 由别处
+  定义，SoulAuth 持有的是一个引用，不是定义本身。
+  [Soulseed 与 Mind OS →](/zh/spec/soulseed-and-mind-os)
+- **退役的主体永不被重新分配。** 一个身份可以停止认证；它的标识符不会在之后
+  被交给另一个人。历史 Claims 与审计记录不得悄悄改变含义。
+
+## 权威从哪里来
+
+站上的一句声称，只能和撑得起它的那一层一样可靠。五层，互不替代：
+
+| 层 | 能回答 | 住在哪 |
+|---|---|---|
+| 语义文档 | 一个概念**意味着**什么 | 就是这几页 |
+| **机器契约** | 本 Release **实际暴露**什么 | 仓库里的 `contracts/*.yaml` |
+| 外部规范 | 某个标准**要求**什么 | RFC / OIDC 规范原文 |
+| Runtime | 代码**真的在做**什么 | `src/` |
+| 证据 | 上面这些**如何被证明** | `tests/` |
+
+层与层之间的规则是：**语义向下流，证据向上顶。** 概念可以指导实现，但「我们支持
+X」这句话只能自下而上地挣来——要有一个真这么做的 runtime，和一条能证明它的测试。
+
+所以端点、配置项、权限名、规范声称都**不是**在这几页上手写的。它们住在机器可读
+的注册表里，由测试套件对照运行中的代码核对，站点只负责渲染。
+
+## 六个状态词
+
+它们是一套词汇，不是形容词。**任何一个都不蕴含另一个。**
+
+<Status kind="implemented" glossary /> <Status kind="supported" glossary /> <Status kind="tested" guard="conformance::j1" /> <Status kind="conformant" glossary /> <Status kind="certified" glossary /> <Status kind="deprecated" glossary />
+
+点任意徽章看它的精确含义。两条后果值得直说：
+
+- `implemented` **不**意味着 `supported`。代码存在不等于承诺保留它。
+- SoulAuth 没有任何一项是 `certified`。认证来自标准组织的正式流程，自己声明
+  不构成认证。
+
+## 哪些还没冻结
+
+把这件事说清楚，本身就是规范的一部分，而不是附在末尾的免责声明。下面这些在这里
+有描述，但**确切的 wire 形态尚未定死**，任何集成都不应该现在就依赖某个具体形状：
+
+- 物化的 `AuthenticationResult` 类型——今天认证结果是内部 runtime fact，
+  投影进会话令牌与 OIDC claims。<Status kind="planned" />
+- 收口的 `Credential` 对象——今天凭证散在好几张表里。<Status kind="planned" />
+- `auth_time` 之外的正式 assurance 分级与新鲜度模型。<Status kind="planned" />
+- 建立在 `ActorIdentity` 上的 RBAC——今天角色挂在人类账户行上，所以一个 AI
+  主体的会话带不了权限。<Status kind="planned" />
+
+<Conformance />

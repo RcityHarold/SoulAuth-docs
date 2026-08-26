@@ -308,7 +308,7 @@ Permission to redefine Soulseed Canonical Actor
 ```
 
 SoulAuth 不会因为建立 Binding 而获得定义或修改 Mind 的权力。Soulseed 的完整
-Architecture Relationship 见 [Soulseed 与 Mind OS](./soulseed-and-mind-os)；具体
+Architecture Relationship 见 [Soulseed 与 Mind OS](/zh/spec/soulseed-and-mind-os)；具体
 Runtime Integration 见 [Soulseed 接入](../integrate/soulseed)。
 
 ## 8 · 把整个模型压缩成五条边界
@@ -353,5 +353,5 @@ Actor**。这就是 ActorIdentity 作为稳定身份锚点的意义。
 但知道是谁，还没有回答：**这个 Actor 为什么有权执行某个 Operation？**
 Authentication 成功，也不意味着 Authority 自动成立。
 
-下一篇 [身份与权限](./identity-vs-authority) 将继续处理这条边界：Identity、
+下一篇 [身份与权限](/zh/spec/identity-vs-authority) 将继续处理这条边界：Identity、
 Authentication 与 Authority 为什么必须始终分开。

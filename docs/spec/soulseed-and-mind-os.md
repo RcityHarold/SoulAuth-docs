@@ -354,7 +354,7 @@ Contracts    connect the domains without merging them
 We now know **where SoulAuth is**.
 
 To understand SoulAuth's own internals, continue to
-[SoulAuth Architecture](./architecture) — how the identity domain, authentication,
+[SoulAuth Architecture](/concepts/architecture) — how the identity domain, authentication,
 AuthSession, protocol, control plane, security, audit and persistence responsibilities
 are organised inside an Actor-native identity and authentication infrastructure.
 

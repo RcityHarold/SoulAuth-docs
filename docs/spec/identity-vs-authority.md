@@ -2,7 +2,7 @@
 
 ## Being identified is not the same as being allowed to act
 
-[Actor Identity Model](./actor-identity-model) established the identity foundation:
+[Actor Identity Model](/concepts/actor-identity-model) established the identity foundation:
 **ActorIdentity answers "who is this Actor".** Knowing who, however, only solves the
 identity problem. Even after SoulAuth has successfully authenticated an Actor, nothing
 about *what that Actor may do* follows automatically.

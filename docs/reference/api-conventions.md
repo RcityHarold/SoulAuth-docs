@@ -290,7 +290,7 @@ into a generic "user", and in particular
 describes a security boundary, not a physical network topology.
 
 The full semantics belong to
-[Identity vs Authority](../concepts/identity-vs-authority) and
+[Identity vs Authority](../spec/identity-vs-authority) and
 [Administration](./administration); this page only requires that endpoint references
 state them.
 

@@ -288,7 +288,7 @@ Ontology Ownership Merge
 
 Integration does not make SoulAuth the owner of a Soulseed canonical Actor, and SoulAuth
 does not define or modify a Mind. Those ecosystem boundaries are defined by
-[Soulseed & Mind OS](./soulseed-and-mind-os) and
+[Soulseed & Mind OS](/spec/soulseed-and-mind-os) and
 [Soulseed Integration](../integrate/soulseed).
 
 ## AI-native identity at a glance
@@ -340,7 +340,7 @@ Authority and Legal Status may remain different.
 To understand what ActorIdentity, HumanAccount, IdentityBinding, Credential and Client
 each are, continue to [Actor Identity Model](./actor-identity-model). To understand why a
 completed authentication still does not grant the right to act, continue to
-[Identity vs Authority](./identity-vs-authority).
+[Identity vs Authority](/spec/identity-vs-authority).
 
 ## Exact semantic ownership
 

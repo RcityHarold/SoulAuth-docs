@@ -280,7 +280,7 @@ User First towards Actor First: [AI-native Identity](../concepts/ai-native-ident
 the canonical relations between ActorIdentity, HumanAccount, IdentityBinding, Credential
 and Client: [Actor Identity Model](../concepts/actor-identity-model). For why
 authentication still does not confer the right to act:
-[Identity vs Authority](../concepts/identity-vs-authority).
+[Identity vs Authority](../spec/identity-vs-authority).
 
 ## Exact semantic ownership
 

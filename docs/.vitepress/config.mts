@@ -23,8 +23,6 @@ const EN_SIDEBAR = [
     items: [
       { text: 'AI-native Identity', link: '/concepts/ai-native-identity' },
       { text: 'Actor Identity Model', link: '/concepts/actor-identity-model' },
-      { text: 'Identity vs Authority', link: '/concepts/identity-vs-authority' },
-      { text: 'Soulseed & Mind OS', link: '/concepts/soulseed-and-mind-os' },
       { text: 'SoulAuth Architecture', link: '/concepts/architecture' },
     ],
   },
@@ -69,6 +67,19 @@ const EN_SIDEBAR = [
     ],
   },
   {
+    // 规范层。
+    //
+    // 这里放的是**架构与本体**，不是「当前 Release 会做什么」—— 两者混在
+    // 一条阅读路径上，读者读完不知道哪些今天能调。分开之后，Concepts
+    // 只讲你写代码前需要知道的，深度留在这一层，随时可以往下挖。
+    text: 'Specification',
+    items: [
+      { text: 'Overview', link: '/spec/' },
+      { text: 'Identity vs Authority', link: '/spec/identity-vs-authority' },
+      { text: 'Soulseed & Mind OS', link: '/spec/soulseed-and-mind-os' },
+    ],
+  },
+  {
     text: 'Project',
     items: [{ text: 'Project Status', link: '/project/status' }],
   },
@@ -76,6 +87,8 @@ const EN_SIDEBAR = [
 
 // 中文侧边栏是同一棵树，只翻译显示文本并加 /zh 前缀。
 const ZH_TEXT: Record<string, string> = {
+  Specification: '规范',
+  Overview: '总览',
   Start: '开始',
   Concepts: '概念',
   Integrate: '接入',

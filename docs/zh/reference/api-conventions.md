@@ -281,7 +281,7 @@ context、Administrative principal context、Integration context。这些 Contex
 **Exposure** 说明这个 Operation 预期处于哪个 Trust Boundary。Exposure 描述 Security
 Boundary，它不等于 Physical Network Topology。
 
-这些 Concept 的完整语义由 [身份与权限](../concepts/identity-vs-authority) 与
+这些 Concept 的完整语义由 [身份与权限](../spec/identity-vs-authority) 与
 [管理](./administration) 定义；本篇只要求 Endpoint Reference 把它们写清楚。
 
 ## 8 · Errors 与 Diagnostics

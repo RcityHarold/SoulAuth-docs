@@ -272,7 +272,7 @@ Web、Backend、AI / Agent 或 Soulseed integration 应该从哪里进入，进�
 ActorIdentity、HumanAccount、IdentityBinding、Credential 与 Client 的 Canonical
 关系，进入 [Actor 身份模型](../concepts/actor-identity-model)；如果你要理解为什么
 Authentication 成功仍然不等于拥有行动权，进入
-[身份与权限](../concepts/identity-vs-authority)。
+[身份与权限](../spec/identity-vs-authority)。
 
 ## Exact Semantic Ownership
 

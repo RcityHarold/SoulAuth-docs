@@ -508,7 +508,7 @@ Actor
 不能在 Troubleshooting 里做 `OAuth client_id → treated as ActorIdentity` 这种 local
 fallback。如果 Subject / Principal Semantics 本身不明确，停止猜测，回到
 [OIDC 与 Client](../reference/oidc-and-clients)、
-[身份与权限](../concepts/identity-vs-authority)、
+[身份与权限](../spec/identity-vs-authority)、
 [Soulseed 接入](../integrate/soulseed) 的正式 Contract。
 
 ## 26 · Runtime / Persistence Diagnosis

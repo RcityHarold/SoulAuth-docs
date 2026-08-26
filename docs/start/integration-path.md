@@ -183,9 +183,9 @@ to decide what that Actor may do in its own runtime and governance domain.
 
 **Start here:** [Soulseed Integration](../integrate/soulseed). To understand why the three
 systems divide responsibility this way, see
-[Soulseed & Mind OS](../concepts/soulseed-and-mind-os). To understand why authentication
+[Soulseed & Mind OS](../spec/soulseed-and-mind-os). To understand why authentication
 cannot produce authority directly, see
-[Identity vs Authority](../concepts/identity-vs-authority).
+[Identity vs Authority](../spec/identity-vs-authority).
 
 This page does not use a linear model like
 `Canonical Actor → SoulAuth → Authenticated Identity → SoulseedOS`, which blurs ontology

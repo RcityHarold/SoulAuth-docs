@@ -282,7 +282,7 @@ Ontology Ownership Merge
 
 SoulAuth 不会因为 Integration 成为 Soulseed Canonical Actor 的 Owner；同样，SoulAuth
 不定义或修改 Mind。这些 Ecosystem Boundary 由
-[Soulseed 与 Mind OS](./soulseed-and-mind-os) 与
+[Soulseed 与 Mind OS](/zh/spec/soulseed-and-mind-os) 与
 [Soulseed 接入](../integrate/soulseed) 进一步定义。
 
 ## AI-native Identity at a glance
@@ -335,7 +335,7 @@ Authority and Legal Status may remain different.
 如果你要继续理解 ActorIdentity、HumanAccount、IdentityBinding、Credential 与 Client
 分别是什么，进入 [Actor 身份模型](./actor-identity-model)；如果你要继续理解为什么一个
 Actor 已经完成 Authentication 以后仍然不能自动获得行动权，进入
-[身份与权限](./identity-vs-authority)。
+[身份与权限](/zh/spec/identity-vs-authority)。
 
 ## Exact Semantic Ownership
 

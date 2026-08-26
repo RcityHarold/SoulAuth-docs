@@ -2,7 +2,7 @@
 
 ## 身份成立，不等于拥有行动权
 
-前一篇 [Actor 身份模型](./actor-identity-model) 建立了 SoulAuth 的身份基础：
+前一篇 [Actor 身份模型](/zh/concepts/actor-identity-model) 建立了 SoulAuth 的身份基础：
 **ActorIdentity 回答"这个 Actor 是谁"。**
 
 但知道是谁，只解决了 Identity 问题。即使 SoulAuth 已经成功 Authentication 一个

@@ -340,7 +340,7 @@ Contracts    connect the domains without merging them
 到这里，我们已经知道 **SoulAuth 在哪里**。
 
 如果你想继续理解 SoulAuth 自己的内部 Architecture，进入
-[SoulAuth 架构](./architecture)：它会回答 Actor-native Identity & Authentication
+[SoulAuth 架构](/zh/concepts/architecture)：它会回答 Actor-native Identity & Authentication
 Infrastructure 内部怎样组织 Identity Domain、Authentication、AuthSession、Protocol、
 Control Plane、Security、Audit 与 Persistence。
 

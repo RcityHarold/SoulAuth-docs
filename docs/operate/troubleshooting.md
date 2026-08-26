@@ -517,7 +517,7 @@ Actor
 Never introduce a local fallback of `OAuth client_id → treated as ActorIdentity`. When
 subject or principal semantics are unclear, stop guessing and return to the formal
 contracts in [OIDC & Clients](../reference/oidc-and-clients),
-[Identity vs Authority](../concepts/identity-vs-authority) and
+[Identity vs Authority](../spec/identity-vs-authority) and
 [Soulseed Integration](../integrate/soulseed).
 
 ## 26 · Runtime / persistence diagnosis
