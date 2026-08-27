@@ -27,9 +27,18 @@ jobs:
           # lastUpdated 需要完整历史，否则每页的「最后更新」都是同一个时间。
           fetch-depth: 0
 
+      # Node 22.18+ / 24 才默认支持不带 flag 的 TypeScript 类型剥离。
+      #
+      # `scripts/check-figures.mjs` 直接 import `strings.ts` —— 那是刻意的：
+      # 逐字段递归比对中英结构，靠文本正则做不到。但它把 Node 版本变成了硬依赖，
+      # 而这条依赖曾经**静默地**让整个站点停止部署：CI 上是 node 20，
+      # `import ... from '.ts'` 直接抛错，build job 失败，deploy 因为
+      # `needs: build` 而从不执行 —— 线上停在旧版，而没有任何页面会告诉你。
+      #
+      # 版本同时写在 package.json 的 engines 里，本地与 CI 不再各说各话。
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - run: npm ci

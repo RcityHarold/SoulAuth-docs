@@ -12,6 +12,9 @@
 //      核心图锁死为 WHERE / WHO / HOW 三张。
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
+// 直接 import `.ts`：需要 Node ≥ 22.18（原生类型剥离，无需 flag）。
+// package.json 的 engines 与 CI 的 setup-node 都钉在这个版本上 ——
+// 这条依赖曾在 CI（node 20）上静默失败，连带整个站点停止部署。
 import { fig1, fig2, fig3 } from '../docs/.vitepress/theme/figures/strings.ts'
 
 const failures = []
