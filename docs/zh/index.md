@@ -35,11 +35,11 @@ features:
     linkText: 部署
 ---
 
-## 它是什么
+## SoulAuth 是什么
 
 SoulAuth 是一个自行部署的身份提供方，对外提供标准 OpenID Connect。
-原本能对接 Keycloak 或 Auth0 的系统都能对接它；与那些系统不同的是，
-它把 AI 主体视为独立主体，而不是一个顶着机器人头像的人类账户。
+原本能对接 Keycloak 或 Auth0 的系统，同样可以对接它。区别在于：
+SoulAuth 把 AI 主体视为独立主体，而不是一个顶着机器人头像的人类账户。
 
 ```bash
 git clone https://github.com/RcityHarold/SoulAuth && cd SoulAuth
@@ -54,9 +54,9 @@ export JWT_SECRET=$(openssl rand -hex 32) APP_URL=http://localhost:8080 \
 cargo run
 ```
 
-也可以直接 `docker compose up -d`：compose 文件做的是同一件事，
-并且 [CI 每次推送都会执行它](/zh/start/quickstart)。上面之所以列出手工步骤，
-是因为那正是 compose 文件实际在做的事。
+也可以直接执行 `docker compose up -d`。compose 文件完成的是同一件事，
+并且 [CI 每次推送都会执行它](/zh/start/quickstart)。上面之所以逐条列出手工步骤，
+是因为那正是 compose 文件内部所做的事。
 
 系统没有默认账号。全新实例会在启动日志中打印一枚一次性引导令牌，
 用它创建第一个管理员，全程无需接触数据库：
@@ -67,7 +67,7 @@ curl -X POST http://localhost:8080/api/bootstrap/admin \
   -d '{"token":"<日志里那枚>","email":"you@example.com","username":"admin","password":"CorrectHorse42!"}'
 ```
 
-而 AI 主体完全不需要账户：
+AI 主体则完全不需要账户：
 
 ```bash
 # 私钥始终留在 AI 主体一侧。
@@ -81,8 +81,8 @@ curl -X POST http://localhost:8080/api/actors \
 
 ## AI 主体为何需要区别对待
 
-多数身份系统允许将就：为机器人配一个邮箱、一个口令，再加入某个组。这套做法可以
-一直用下去，直到需要回答审计日志里的那个问题：**这次操作是谁做的？**
+多数身份系统允许将就：为机器人分配一个邮箱、一个口令，再加入某个组。
+这套做法可以一直沿用，直到需要回答审计日志中的那个问题：**这次操作是谁做的？**
 
 诚实的答案通常是「某人在 2023 年创建的服务账号，口令曾在 Slack 里传过」。
 
@@ -91,18 +91,18 @@ SoulAuth 把多数系统合并在一起的几个对象拆开：
 | 对象 | 回答什么 | 适用于 |
 |---|---|---|
 | `ActorIdentity` | 这是谁，且持久不变 | 所有主体 |
-| `HumanAccount` | 一个人怎么管理自己的登录 | 只有人 |
-| Credential | 此刻能拿什么证明 | 都有，种类不同 |
-| `IdentityBinding` | 外部哪个主体和它是同一个 | 可选 |
+| `HumanAccount` | 一个人如何管理自己的登录 | 仅人类主体 |
+| Credential | 此刻能用什么来证明 | 两者都有，种类不同 |
+| `IdentityBinding` | 外部哪个主体与它是同一个 | 可选 |
 
-AI 主体拿到的只有一个 `ActorIdentity` 和一枚密钥。它名下不存在 `HumanAccount`
-记录，而一致性套件会断言这条认证路径完全不涉及人类账户结构。
+AI 主体拿到的只有一个 `ActorIdentity` 和一枚密钥，名下不存在 `HumanAccount` 记录。
+一致性套件会断言这条认证路径完全不涉及人类账户结构。
 
 <Figure2 locale="zh" />
 
 ## 本 Release 实际做到了什么
 
-能描述一套架构，不等于已经把它建成。本站每一项能力都标注了六个状态词之一，
+能够描述一套架构，不等于已经把它建成。本站每一项能力都标注了六个状态词之一，
 而这六个词互不蕴含：
 
 <Status kind="implemented" glossary /> 代码里有这条路径 ·
@@ -118,20 +118,20 @@ AI 主体拿到的只有一个 `ActorIdentity` 和一枚密钥。它名下不存
 
 <Conformance />
 
-## 它不是什么
+## SoulAuth 不是什么
 
 - **不是业务规则的授权服务器。** 认证成功只回答**是谁**，不授予任何应用权限。
   [身份与权限的边界 →](/zh/spec/identity-vs-authority)
 - **不具备任何认证资质。** 本项目未通过 OpenID Foundation 认证，自我声明也不构成认证。
 - **不是托管服务。** 需要自行部署与运维。
 
-## 接下来看哪儿
+## 从哪里开始
 
 | 你想…… | 从这里开始 |
 |---|---|
-| 五分钟看它跑起来 | [快速上手](/zh/start/quickstart) |
-| 用 OIDC 接一个 Web 应用 | [授权码流程](/zh/integrate/authorization-code-flow) |
+| 五分钟内跑起来 | [快速上手](/zh/start/quickstart) |
+| 用 OIDC 接入 Web 应用 | [授权码流程](/zh/integrate/authorization-code-flow) |
 | 为 AI 主体建立身份 | [AI 原生身份](/zh/concepts/ai-native-identity) |
-| 精确知道支持到什么程度 | [项目状态](/zh/project/status) |
-| 写代码前先理解模型 | [Actor 身份模型](/zh/concepts/actor-identity-model) |
-| 读完整规范 | [Specification](/zh/spec/) |
+| 确认支持到什么程度 | [项目状态](/zh/project/status) |
+| 动手前先理解模型 | [Actor 身份模型](/zh/concepts/actor-identity-model) |
+| 阅读完整规范 | [规范](/zh/spec/) |

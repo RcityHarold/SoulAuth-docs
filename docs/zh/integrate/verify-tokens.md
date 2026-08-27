@@ -1,8 +1,8 @@
 # 校验令牌
 
-你的资源服务器收到一枚令牌。你该检查什么，又能检查什么？
+资源服务器收到一枚令牌之后，应当校验什么，又能够校验什么？
 
-## 先分清手上是哪一种
+## 先分清收到的是哪一种令牌
 
 SoulAuth 签发两样东西，它们都以 `Authorization: Bearer` 到达，而校验方式完全不同：
 
@@ -21,7 +21,7 @@ SoulAuth 签发两样东西，它们都以 `Authorization: Bearer` 到达，而�
 
 ## 校验 ID Token
 
-取一次签名密钥并缓存：
+拉取一次签名密钥并缓存：
 
 ```bash
 curl $SOULAUTH/api/oidc/jwks
@@ -45,7 +45,7 @@ curl $SOULAUTH/api/oidc/jwks
 按令牌头中的 `kid` 匹配。遇到未知 `kid` 时重新拉取：密钥轮换本该这样处理，
 而不是按定时器刷新。
 
-### Node
+### Node.js
 
 ```js
 import { createRemoteJWKSet, jwtVerify } from 'jose'
@@ -76,7 +76,7 @@ payload = jwt.decode(
 )
 ```
 
-### 每个库都必须检查的
+### 每个库都必须校验的项目
 
 各家库默认校验的内容不一致。确认下面这些都做了：
 
@@ -89,7 +89,7 @@ payload = jwt.decode(
 
 ## 校验访问令牌
 
-它是不透明的，本地没什么可验：
+访问令牌是不透明的，本地无从校验：
 
 ```bash
 curl $SOULAUTH/api/oidc/userinfo -H "Authorization: Bearer $ACCESS_TOKEN"
@@ -123,9 +123,9 @@ curl $SOULAUTH/api/oidc/userinfo -H "Authorization: Bearer $ACCESS_TOKEN"
 而不是永久不可重新分配。[完整 caveat](/zh/security/standards-and-conformance)。
 :::
 
-## 吊销
+## 关于吊销
 
-没有吊销端点可调，也没有推送通知。你的选择：
+系统没有提供吊销端点，也没有推送通知。可选的做法有三种：
 
 - 把访问令牌有效期保持得短（默认 3600 秒）然后刷新。
 - 当某个动作重要到值得一趟往返时，调 `/userinfo`。

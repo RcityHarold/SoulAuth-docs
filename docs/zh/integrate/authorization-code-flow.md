@@ -1,6 +1,6 @@
 # 授权码流程
 
-整条流程，配的是从一个跑着的实例上取来的真实值。PKCE 是强制的，且只接受 `S256`。
+以下是完整流程，所用数值均取自一个真实运行的实例。PKCE 是强制的，且只接受 `S256`。
 
 先要有一个[已注册的客户端](/zh/integrate/register-a-client)。
 
@@ -35,7 +35,7 @@ curl $SOULAUTH/.well-known/openid-configuration
 
 ## 2 · 生成 PKCE 与 state
 
-每次事务重新生成，绝不复用：
+每次事务都重新生成，绝不复用：
 
 ```js
 const verifier = base64url(crypto.getRandomValues(new Uint8Array(32)))
@@ -51,8 +51,8 @@ function base64url(buf) {
 }
 ```
 
-把 `verifier` 与 `state` 存在服务端（或 `HttpOnly` cookie 里），与这个浏览器会话关联。
-`verifier` 是秘密；上网线的是 `challenge`。
+把 `verifier` 与 `state` 保存在服务端（或 `HttpOnly` cookie 中），与该浏览器会话关联。
+`verifier` 是秘密，真正上网络的是 `challenge`。
 
 ## 3 · 把浏览器送去 /authorize
 
@@ -67,8 +67,8 @@ GET /api/oidc/authorize
   &code_challenge_method=S256
 ```
 
-这个端点认的是**浏览器会话 cookie**，不是 bearer 令牌。用户没登录就会被重定向到
-登录页，之后回到这里。
+这个端点校验的是**浏览器会话 cookie**，而不是 bearer 令牌。用户未登录时会被重定向到
+登录页，完成后再回到此处。
 
 成功后 SoulAuth 重定向回来：
 
@@ -107,7 +107,7 @@ curl -X POST $SOULAUTH/api/oidc/token \
 }
 ```
 
-注意访问令牌是什么：一个**不透明字符串**，不是 JWT。不要试图去解码它。
+请注意访问令牌的形态：它是一个**不透明字符串**，不是 JWT，不要尝试解码。
 `id_token` 才是 JWT。
 
 ## 5 · ID Token
@@ -161,7 +161,7 @@ curl -X POST $SOULAUTH/api/oidc/token \
 
 刷新时 scope 不能变大：新 scope 必须是原 scope 的子集。
 
-## 常见失败
+## 常见失败原因
 
 | 现象 | 原因 |
 |---|---|

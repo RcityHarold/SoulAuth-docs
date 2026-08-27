@@ -1,8 +1,8 @@
 # 运维与恢复
 
-日常工作：轮换、备份，以及出事之后怎么办。
+本页涵盖日常运维工作：密钥轮换、数据备份，以及事故发生后的处理。
 
-## 备份
+## 备份策略
 
 需要备份的只有一样：SurrealDB 数据目录。身份、凭证、会话、客户端、审计行都在其中。
 
@@ -12,16 +12,15 @@ tar czf soulauth-$(date +%F).tar.gz /var/lib/surrealdb/
 systemctl start soulauth
 ```
 
-有两样东西**在数据库之外**，而恢复时同样必需：
+另有两样东西保存**在数据库之外**，但在恢复时同样必需：
 
 - `JWT_SECRET`
 - OIDC 签名密钥（`OIDC_RSA_PRIVATE_KEY_PATH`）与 `MFA_SECRET_ENCRYPTION_KEY`
 
 没有它们就恢复数据库，结果是所有会话失效、所有已签发的 ID Token 验不过，
-而且**所有已存的 TOTP 密钥无法解密**。把它们放在你存秘密的地方，并且真的测一次
-能不能取回来。
+而且**所有已存的 TOTP 密钥无法解密**。请把它们保存在专门存放秘密的位置，并且实际验证一次能否取回。
 
-## 轮换密钥
+## 密钥轮换
 
 ### `JWT_SECRET`
 
@@ -48,9 +47,9 @@ curl -X POST $SOULAUTH/api/oidc/clients/$CLIENT_ID/regenerate-secret \
   -H "Authorization: Bearer $ADMIN_TOKEN"
 ```
 
-只返回一次。旧密钥立刻停止工作，所以要在同一个维护窗口里把新密钥部署到客户端。
+新密钥只返回一次。旧密钥立即停止工作，因此需要在同一个维护窗口内把新密钥部署到客户端。
 
-## 被锁定的账号
+## 处理被锁定的账号
 
 ```bash
 # 谁被锁了
@@ -67,7 +66,7 @@ curl -X POST $SOULAUTH/api/security/unlock \
 
 需要 `soulauth:security.write`。
 
-## 停用一个主体
+## 停用主体
 
 ```bash
 curl -X PUT $SOULAUTH/api/users/$USER_ID/status \
@@ -78,10 +77,10 @@ curl -X PUT $SOULAUTH/api/users/$USER_ID/status \
 停用挡住的是**未来**的认证。其它副本上已有的会话最多还能用
 `AUTH_SESSION_CACHE_TTL_SECONDS`。如果这件事要紧，重启那些副本。
 
-历史不被改写：过去的认证、审计行与归因都保留。一个被停用的主体是「不能再认证」，
-不是「从未存在过」。
+历史不会被改写：过去的认证、审计行与归因都保留下来。被停用的主体的含义是
+「不能再认证」，而不是「从未存在过」。
 
-## 怀疑凭证泄露
+## 怀疑凭证泄露时
 
 **某个用户的口令。** 停用、强制重置、恢复。改密时他的会话会失效。
 
@@ -103,14 +102,14 @@ curl -X DELETE $SOULAUTH/api/actors/$ACTOR_ID/credentials/$CREDENTIAL_ID \
 <Status kind="tested" guard="conformance::b4b" /> 口令用 Argon2。TOTP 密钥是加密的，
 而所用的那把密钥若从未显式设置，则来自 `JWT_SECRET` 派生。
 
-## 清理
+## 自动清理
 
-后台任务每小时跑一次：过期会话、过期重置令牌、过期 OIDC 制品、陈旧限流行、
-陈旧锁定记录。不需要你调度什么。
+后台任务每小时执行一次，清理过期会话、过期重置令牌、过期 OIDC 制品、陈旧的限流行
+与锁定记录。无需额外调度。
 
-审计行**不**清理。需要保留期限的话，那是你的策略。
+审计行**不在**清理范围内。如需保留期限策略，由部署方自行制定。
 
-## 监控
+## 监控要点
 
 ```bash
 curl $SOULAUTH/health                     # 公开

@@ -6,9 +6,9 @@
 
 <Conformance />
 
-上面每个数字都来自真跑那四条命令。这里没有任何估计值。
+上面每一个数字都来自实际执行那四条命令的输出，其中没有任何估计值。
 
-## 今天能用的
+## 当前可用的能力
 
 | 能力 | 状态 |
 |---|---|
@@ -29,7 +29,7 @@
 <Status kind="certified" glossary />。没有标准组织认证过它的任何部分，
 也不存在进行中的认证流程。
 
-## 没建的
+## 尚未建成的部分
 
 架构描述了、本 Release 里不存在：
 
@@ -42,9 +42,9 @@
 | <Status kind="planned" /> 物化的 `AuthenticationResult` | 目前只是内部 runtime fact。到调用方手上的会话令牌与 OIDC claims 是稳定的。 |
 | <Status kind="planned" /> 正式的 assurance 分级 | 除了 `auth_time`，没有 assurance 模型。 |
 
-## 你真会撞到的限制
+## 实际会遇到的限制
 
-这些不是路线图条目，是运行中系统的性质。
+以下不是路线图条目，而是运行中系统本身的性质。
 
 **`sub` 弱于模型所描述的。** 它带的是遗留 `user` 行的键，所以只在那一行的
 生命周期内稳定，而不是 OIDC Core 期待的「永不重新分配」。这一点作为具名 caveat 记在
@@ -57,13 +57,13 @@
 访问令牌也确实是它能查到的一行；但 RFC 7009 与 RFC 7662 都没有作为 wire 协议实现。
 请对着 JWKS 在本地校验 ID Token。
 
-**Docker Compose 只适合本地。** CI 每次推送都会端到端执行它，因此它确实能用；
+**Docker Compose 只适合本地环境。** CI 每次推送都会端到端执行它，因此它确实可用；
 但它的数据库凭证是开发默认值，SurrealDB 也没有 TLS。
 生产环境请走[生产清单](/zh/operate/production-checklist)。
 
-## 状态词怎么读
+## 如何读状态词
 
-六个词，**任何一个都不蕴含另一个**：
+六个词，且**任何一个都不蕴含另一个**：
 
 <Status kind="implemented" glossary /> ·
 <Status kind="supported" glossary /> ·
@@ -72,13 +72,14 @@
 <Status kind="certified" glossary /> ·
 <Status kind="deprecated" glossary />
 
-点任意徽章看它的精确含义。值得内化的一条后果：代码存在（`implemented`）不是
-保留它的承诺（`supported`），而这两者都不说明它符合任何规范（`conformant`）。
+点击任意徽章即可看到它的精确含义。有一条后果值得记住：代码存在
+（`implemented`）不构成保留它的承诺（`supported`），而这两者都不说明它符合
+任何规范（`conformant`）。
 
 站上的徽章如果是在**做声称**而不是解释词义，它会写出撑住这句话的那条断言。
 如果看到某个徽章没有写出断言名，那是缺陷，`scripts/check-status.mjs` 本该拦住它。
 
-## 自己验一遍
+## 自行核验
 
 ```bash
 git clone https://github.com/RcityHarold/SoulAuth && cd SoulAuth
@@ -87,9 +88,9 @@ cargo test                    # 单元 + 一致性
 ./tests/deployment_walkthrough.sh   # 把部署文档执行一遍
 ```
 
-被 ignore 的那些一致性测试不是无关噪声。每一条都是写好了、能跑、而当前实现
-达不到的断言，并带着写明原因的注释。删掉一个 `#[ignore]` 发现它照样通过，
-就是一个缺口被补上的方式。
+被标记为 ignore 的一致性测试不是无关噪声。每一条都是已经写好、能够运行、
+而当前实现尚未满足的断言，并附有写明原因的注释。删掉某个 `#[ignore]` 之后
+发现它照样通过，正是一个缺口被补上的标志。
 
 ## 接下来
 

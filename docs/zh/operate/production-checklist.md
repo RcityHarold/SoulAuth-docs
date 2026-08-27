@@ -1,8 +1,9 @@
 # 生产清单
 
-快速上手刻意让你用最少的决定跑起来。这一页是那个状态与「能面向真实用户」之间的差距。
+快速上手刻意把需要做的决定压到最少。本页要补的，正是那个状态与「可以面向真实用户」
+之间的差距。
 
-## 进程拒绝替你做的事
+## 进程会拒绝启动的三种情况
 
 下面三条不是建议：弄错了 SoulAuth **不会启动**。
 
@@ -12,7 +13,7 @@
 openssl rand -hex 32
 ```
 
-短了就启动失败，并指名道姓地说是哪一项。
+长度不足时启动失败，并会指明是哪一项。
 
 ### 非环回的 `APP_URL` 强制要求另外两把密钥
 
@@ -52,9 +53,9 @@ BIND_ADDR=127.0.0.1:8080             # 在代理之后
 
 `APP_URL` 与客户端预期的 `issuer` 差一个尾斜杠，是真实且真的很难排查的失败。
 
-## 数据库
+## 数据库配置
 
-快速上手用 `root:root` 走明文。两者都不该进生产。
+快速上手使用 `root:root` 并走明文连接，这两点都不应进入生产环境。
 
 ```bash
 DATABASE_URL=https://db.internal:8000     # https:// 启用 TLS
@@ -64,7 +65,7 @@ DATABASE_NAMESPACE=auth
 DATABASE_NAME=main
 ```
 
-给服务一个限定在那个 namespace/database 内的账号，不要用 `root`。
+请为服务分配一个限定在该 namespace/database 内的账号，不要使用 `root`。
 明文连接非环回数据库会打印一次告警，请把它当作错误处理。
 
 ::: warning schema 必须导进进程连接的那一对
@@ -73,7 +74,7 @@ DATABASE_NAME=main
 **可执行**的部署 walkthrough 而不只是散文的原因。
 :::
 
-## 在代理之后
+## 部署在代理之后
 
 ```bash
 TRUST_PROXY_HEADERS=true
@@ -83,10 +84,10 @@ TRUST_PROXY_HEADERS=true
 开了它，`X-Forwarded-For` 就会被信任。只要有任何途径能不经过你的代理直达 SoulAuth，
 客户端就能伪造这个头，径直绕开 IP 限流与 IP 锁定。
 
-绑在环回或内网接口上，让代理成为唯一入口。
+请绑定到环回或内网接口，使代理成为唯一入口。
 :::
 
-## CORS
+## CORS 白名单
 
 默认为空，且不接受通配符。通配符加上凭证，等于让任何站点都能带着用户的
 `Authorization` 头调用 SoulAuth。
@@ -95,9 +96,9 @@ TRUST_PROXY_HEADERS=true
 CORS_ALLOWED_ORIGINS=https://app.example.com,https://admin.example.com
 ```
 
-BFF 架构完全不需要它：浏览器只和你自己的源说话。
+BFF 架构完全不需要它，因为浏览器只与自己的源通信。
 
-## 调锁定阈值
+## 锁定阈值的调整
 
 默认为 5 次、15 分钟、60 分钟窗口，用户与 IP 两个维度都开启。面向公众的服务与内部
 工具在这件事上的容忍度确实不同，这几项本来就是留给你调整的。
@@ -110,9 +111,9 @@ LOCKOUT_USER_ENABLED=true
 LOCKOUT_IP_ENABLED=true
 ```
 
-计数器在数据库里，所以是跨副本共享的，不是每个进程各算各的。
+计数器保存在数据库中，因此跨副本共享，而不是每个进程各自计数。
 
-## 邮件必须真的能发
+## 确认邮件确实能够发出
 
 即使关闭邮箱验证，`SMTP_HOST` 与 `SMTP_FROM` 仍是必填，因为口令重置要发信。
 
@@ -120,7 +121,7 @@ LOCKOUT_IP_ENABLED=true
 变成 500，也不能让响应时间差泄露某个地址是否已注册。代价是配错时它完全**静默**。
 在相信它能用之前，先给自己发一封重置信。
 
-## 跑多个实例
+## 多实例部署
 
 就认证而言无状态；实例共享数据库，彼此从不通信。
 
@@ -131,7 +132,7 @@ LOCKOUT_IP_ENABLED=true
   `AUTH_SESSION_CACHE_TTL_SECONDS`（默认 5）之内观察到。调小它能更快传播，
   代价是更多数据库读。
 
-## 开放之前
+## 开放访问之前
 
 ```bash
 curl https://auth.example.com/health
@@ -150,7 +151,7 @@ curl https://auth.example.com/.well-known/openid-configuration   # issuer 等于
 - [ ] 第一个管理员经由引导令牌创建，而不是改数据库
 - [ ] 备份覆盖 SurrealDB 数据目录
 
-## 你仍然暴露在什么之下
+## 仍然存在的暴露面
 
 把这件事说清楚，是部署工作的一部分：
 

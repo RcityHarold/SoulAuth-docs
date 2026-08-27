@@ -1,8 +1,8 @@
 # 浏览器与 BFF
 
-浏览器保不住秘密。本页的一切都由这一句推出来。
+浏览器无法保管秘密。本页的全部结论都由这一点推出。
 
-## 二选一
+## 两种架构，二选一
 
 | | Backend for Frontend | 公开客户端 + PKCE |
 |---|---|---|
@@ -16,9 +16,9 @@
 有规范依据的模式。真正的理由是，令牌托管在浏览器里意味着任何 XSS 都会变成令牌失窃，
 而自己的代码写得再小心，也挡不住一个被投毒的依赖。
 
-## BFF
+## BFF 模式
 
-浏览器和你的服务器说话，你的服务器和 SoulAuth 说话。令牌从不进入 JavaScript。
+浏览器只与你的服务器通信，服务器再与 SoulAuth 通信。令牌始终不进入 JavaScript。
 
 ```
 浏览器 ──cookie──▶ 你的 BFF ──令牌──▶ SoulAuth
@@ -49,10 +49,10 @@ res.cookie('session', sessionId, {
 暴露你自己的端点。让 BFF 决定每个端点被允许做什么。
 :::
 
-## 公开客户端 + PKCE
+## 公开客户端加 PKCE
 
-没有服务器，所以没有密钥。注册时用 `"client_type": "public"`，
-令牌端点不带 `client_secret`。
+没有服务器，也就没有密钥可保管。注册时使用 `"client_type": "public"`，
+令牌端点不携带 `client_secret`。
 
 流程其余部分完全相同。让它安全的正是 PKCE，而且在这里 PKCE 是强制的，不是可选项。
 
@@ -68,7 +68,7 @@ res.cookie('session', sessionId, {
 但不消除暴露面。这是一次需要主动权衡的取舍，而不该是一个默认结果。
 :::
 
-## CORS
+## CORS 配置
 
 `CORS_ALLOWED_ORIGINS` 是显式白名单，默认为空，且不接受通配符。
 通配符加上凭证，意味着任何站点都能带着用户的 `Authorization` 头调用 SoulAuth。
@@ -79,9 +79,9 @@ CORS_ALLOWED_ORIGINS=https://app.example.com,https://admin.example.com
 
 BFF 根本不需要它：浏览器只和你自己的源说话。
 
-## 登出
+## 登出处理
 
-是两件事，只做一件用户会察觉：
+登出包含两件事，只做其中一件用户会察觉到：
 
 ```js
 // 1. 结束你自己的会话

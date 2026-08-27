@@ -7,7 +7,7 @@
 你的环境里失败，那是 SoulAuth 或本页的缺陷，而不是需要你自行绕过的事情。
 欢迎[提交 issue](https://github.com/RcityHarold/SoulAuth/issues)。
 
-## 你需要
+## 前置条件
 
 - [SurrealDB](https://surrealdb.com/install) v3
 - Rust 工具链（用来构建二进制），或者一个已编好的 `soulauth`

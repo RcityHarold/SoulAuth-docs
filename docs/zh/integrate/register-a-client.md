@@ -1,7 +1,7 @@
 # 注册客户端
 
-每个 OIDC 集成都从这里开始。注册客户端需要 `soulauth:oidc_clients.write`，
-默认只有 `admin` 持有它。
+每一次 OIDC 集成都从这一步开始。注册客户端需要 `soulauth:oidc_clients.write` 权限，
+默认只有 `admin` 角色持有。
 
 ```bash
 curl -X POST $SOULAUTH/api/oidc/clients \
@@ -44,9 +44,9 @@ curl -X POST $SOULAUTH/api/oidc/clients \
 丢了？`POST /api/oidc/clients/{client_id}/regenerate-secret` 签发一枚新的并作废旧的。
 :::
 
-## confidential 还是 public
+## 选 confidential 还是 public
 
-唯一真正要决定的事：
+这是唯一真正需要决定的事：
 
 | | 什么时候用 | 后果 |
 |---|---|---|
@@ -56,9 +56,10 @@ curl -X POST $SOULAUTH/api/oidc/clients \
 两者的 `require_pkce` 都默认为 `true`，且只接受 `S256`。`plain` 挡不住被拦截的
 授权码被兑换，所以不提供。
 
-## 重定向 URI
+## 重定向 URI 的匹配规则
 
-**精确匹配**——整串相等，不支持通配符，不支持前缀匹配。把你用到的每个环境都登记上：
+重定向 URI 按**精确匹配**处理：整串相等，不支持通配符，也不支持前缀匹配。
+请把用到的每一个环境都登记进来：
 
 ```json
 "redirect_uris": [
@@ -67,10 +68,10 @@ curl -X POST $SOULAUTH/api/oidc/clients \
 ]
 ```
 
-这是客户端上安全相关性最强的一个字段。能改它的人就能把一枚有效授权码重定向给自己，
-所以修改客户端需要 `.write`，而这条权限授予得很窄。
+这是客户端配置中安全相关性最强的一个字段：能修改它的人就能把一枚有效授权码重定向
+给自己。因此修改客户端需要 `.write` 权限，而这条权限的授予范围很窄。
 
-## 管理客户端
+## 客户端的日常管理
 
 ```bash
 # 列出（永不返回密钥）

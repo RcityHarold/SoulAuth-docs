@@ -2,7 +2,7 @@
 
 <ContractNote file="openapi.yaml" />
 
-## 支持到什么程度
+## 支持范围
 
 授权码流程，强制 PKCE（`S256`）、RS256 ID Token、发现文档、JWKS，
 以及带复用检测的刷新令牌轮换。
@@ -13,7 +13,7 @@ resource owner password credentials 也都没有。
 发现文档广播的正是已实现的那些能力，不含任何前瞻性内容，
 由 <Status kind="tested" guard="conformance::h10" /> 守住。
 
-## 协议端点
+## OIDC 协议端点
 
 <ApiTable tag="OIDC" />
 
@@ -31,14 +31,14 @@ resource owner password credentials 也都没有。
 
 删除客户端是禁用而不是删记录，这样已经签发给它的令牌仍然可归因。
 
-## 刷新令牌
+## 刷新令牌的轮换
 
-轮换是强制的：每次刷新消费掉旧令牌并签发新的，同时吊销旧的访问令牌。
+轮换是强制的。每次刷新都会消费掉旧令牌并签发新的，同时吊销旧的访问令牌。
 
 出示一枚已被消费的刷新令牌，会被当作**泄露证据**而不是重试：
 该客户端与该用户名下的**整个令牌族**都会被吊销。
 
-刷新不允许提权：新 scope 必须是原 scope 的子集。
+刷新过程不允许提权，新 scope 必须是原 scope 的子集。
 
 ## `sub` 到底对什么稳定
 
@@ -58,7 +58,7 @@ resource owner password credentials 也都没有。
 一个 OIDC subject 只有连同它的 issuer 才有意义。`(iss, sub)` 才是标识用户的那一对；
 单拿 `sub` 跨 issuer 比对，等于一次随时会发生的跨 provider 账号接管。
 
-## 校验令牌
+## 令牌校验
 
 对着 JWKS 在本地校验 ID Token。不要指望 introspection：
 `/introspect`（RFC 7662）**未实现**，`/revoke`（RFC 7009）也没有。

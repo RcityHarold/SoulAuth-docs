@@ -8,10 +8,10 @@
 参数，schema 又导进了进程不会读的 namespace。服务照常启动，`/health` 照常返回
 `ok`，直到第一次写入才失败。三处失败全都是照着说明做出来的，重读多少遍也发现不了。
 
-## 你部署的是什么
+## 部署的构成
 
-一个静态链接的 Rust 二进制加一个 SurrealDB 实例。没有运行时，没有应用服务器，
-没有 sidecar。
+一个静态链接的 Rust 二进制，加一个 SurrealDB 实例。不需要额外的运行时、
+应用服务器或 sidecar。
 
 ## 1 · 数据库
 
@@ -25,8 +25,8 @@ surreal start --bind 0.0.0.0:8000 --user root --pass root \
 
 ## 2 · Schema
 
-SoulAuth 不发出任何 DDL。它无法创建或修改自己的表；这条边界是结构性的，
-不是一个开关。两个文件由你导入一次：
+SoulAuth 不发出任何 DDL，因此无法创建或修改自己的表。这条边界是结构性的，
+而不是某个可以切换的开关。下面两个文件需要由部署者导入一次：
 
 ```bash
 DB="--endpoint http://127.0.0.1:8000 --user root --pass root \
@@ -43,7 +43,7 @@ surreal import $DB initial_data.sql
 参数是 `--endpoint`。`--conn` 是 3.x 之前的写法，报错信息毫无帮助。
 :::
 
-`initial_data.sql` 种下系统角色与权限。跳过它，你将无法引导出管理员。
+`initial_data.sql` 写入系统角色与权限。跳过这一步将无法引导出管理员。
 
 ## 3 · 配置
 
@@ -126,7 +126,7 @@ WantedBy=multi-user.target
 
 `/etc/soulauth/env` 保持 `0600`：里面有 `JWT_SECRET`。
 
-## 反向代理
+## 反向代理配置
 
 ```nginx
 location / {
@@ -141,23 +141,23 @@ location / {
 **只有在** SoulAuth 无法绕过代理被访问时，才设 `TRUST_PROXY_HEADERS=true`。
 否则客户端伪造 `X-Forwarded-For` 就能绕开 IP 限流。
 
-## 升级
+## 版本升级
 
 1. 读发布说明里的 schema 变更。
 2. 备份 SurrealDB 数据目录。
 3. 导入新增的 schema 语句。
 4. 换二进制并重启。
 
-滚动重启没问题，前提是每个副本共享同一个 `JWT_SECRET` 与 OIDC 签名密钥。
-它们必须相同，否则一个副本的令牌在另一个副本的 JWKS 上验不过。
+滚动重启没有问题，前提是每个副本共享同一个 `JWT_SECRET` 与 OIDC 签名密钥。
+二者必须一致，否则一个副本签发的令牌在另一个副本的 JWKS 上无法通过校验。
 
-## 自己验一遍
+## 自行核验
 
 ```bash
 ./tests/deployment_walkthrough.sh
 ```
 
-零失败意味着这份文档是可执行的，而不只是可读的。
+零失败意味着这份文档是可执行的，而不只是可读的文字。
 
 ## 接下来
 
