@@ -1,597 +1,171 @@
 # Deployment
 
-## Putting SoulAuth into a real environment without changing its semantics
+The path below is the one the repository executes in CI —
+`tests/deployment_walkthrough.sh` runs these exact steps from an empty database to a
+working administrator. <Status kind="tested" guard="deployment_walkthrough.sh" />
 
-The preceding pages answered what SoulAuth is, how an application integrates, how an
-ActorIdentity is authenticated, and what contracts Client, token, AuthSession and the
-control plane each carry. From here the question becomes:
+That script exists because this document used to be wrong. `surreal import` was
+documented with a flag that does not exist, and the schema went into a namespace the
+process does not read — the service started, `/health` returned `ok`, and the first
+write failed. Three failures, all produced by following the instructions, none findable
+by rereading them.
 
-> **How do those established semantics enter a real runtime environment and keep holding
-> across startup, restart, traffic shifts and infrastructure change?**
+## What you deploy
 
-Deployment changes **how the system physically runs.** It does not redefine
-ActorIdentity, credentials, authentication, IdentityBinding, Client, authority or
-historical fact:
+One statically-linked Rust binary and a SurrealDB instance. No runtime, no application
+server, no sidecar.
 
-```text
-Deployment Topology
-≠
-Identity Ontology
+## 1 · Database
+
+```bash
+surreal start --bind 0.0.0.0:8000 --user root --pass root \
+  file:/var/lib/surrealdb/soulauth.db
 ```
 
-A runtime may change process, container or host, and — where the release supports it —
-run several replicas. None of that turns SoulAuth into a different identity system.
+For production give SoulAuth a scoped account rather than `root`, and put TLS in front —
+see the [production checklist](/operate/production-checklist).
 
-## 1 · The deployment boundary
+## 2 · Schema
 
-A common deployment abstracts to:
+SoulAuth issues no DDL. It cannot create or alter its own tables; that boundary is
+structural, not a setting. You import the two files once:
 
-```text
-External Client / Consumer
-        ↓
-Public Network / Protocol Boundary
-        ↓
-SoulAuth Runtime
-        ↓
-Durable Infrastructure / Dependencies
+```bash
+DB="--endpoint http://127.0.0.1:8000 --user root --pass root \
+    --namespace auth --database main"
+
+surreal import $DB schema.sql
+surreal import $DB initial_data.sql
 ```
 
-The control plane has its own controlled exposure boundary.
+::: danger The namespace and database must match the process
+`auth` / `main` here must equal `DATABASE_NAMESPACE` / `DATABASE_NAME` below. Get it
+wrong and everything looks fine until the first write.
 
-This is a **topology sketch.** It is not a new canonical architecture figure, and it does
-not require every deployment to run a separate reverse proxy, key service or control
-plane process. [SoulAuth Architecture](../concepts/architecture) defines the logical
-architecture; this page explains how those responsibilities enter a real deployment
-boundary.
+The flag is `--endpoint`. `--conn` is the pre-3.x spelling and fails with an unhelpful
+message.
+:::
 
-## 2 · Architecture component is not deployment unit
+`initial_data.sql` seeds the system roles and permissions. Skipping it leaves you unable
+to bootstrap an administrator.
 
-```text
-Architecture Component  ≠  Deployment Unit
-One Service             ≠  One Domain
+## 3 · Configuration
+
+```bash
+DATABASE_URL=127.0.0.1:8000
+DATABASE_NAMESPACE=auth
+DATABASE_NAME=main
+DATABASE_USER=root
+DATABASE_PASS=root
+
+JWT_SECRET=<openssl rand -hex 32>
+APP_URL=http://localhost:8080
+BIND_ADDR=127.0.0.1:8080
+SMTP_HOST=127.0.0.1
+SMTP_FROM=noreply@example.com
 ```
 
-Even when identity, authentication, AuthSession, protocol and the control plane are all
-carried by one service process, their semantic boundaries remain. Simplicity in
-deployment is not a merge of domains.
+Every key: [configuration reference](/reference/configuration).
 
-## 3 · Public protocol exposure is separate from control plane exposure
+## 4 · Run
 
-```text
-Public Protocol Exposure
-≠
-Control Plane Exposure
+```bash
+./soulauth
+curl http://localhost:8080/health
+# {"status":"ok","uptime_seconds":3}
 ```
 
-The public authentication/protocol surface may need to be reachable by external clients.
-The control plane should be governed separately by administrative authentication,
-authorization, network boundary and deployment policy.
+## 5 · First administrator
 
-Sharing a process, a host or even an ingress does not mean **they should share a public
-exposure policy.**
+The startup log prints a one-time bootstrap token:
 
-## 4 · Consumer access is not infrastructure access
-
-Applications, SoulseedOS and other consumers should use SoulAuth through its **formally
-supported interfaces** — not by reaching persistence, key/secret infrastructure or
-internal runtime state directly.
-
-```text
-Consumer Access          ≠  Infrastructure Access
-Supported Administration ≠  Direct Persistence Mutation
+```
+WARN No administrator found. Bootstrap token for this process: 7f3a…
 ```
 
-Persistence is internal infrastructure. It is not a second control plane that bypasses
-the domain contract.
-
-## 5 · Topology patterns
-
-These describe topology — not different SoulAuth product editions.
-
-### Local / development
-
-A development deployment exists to start quickly, debug and validate an integration. But:
-
-```text
-Development Deployment
-≠
-Production Security Baseline
+```bash
+curl -X POST http://localhost:8080/api/bootstrap/admin \
+  -H 'Content-Type: application/json' \
+  -d '{"token":"7f3a…","email":"admin@example.com","username":"admin","password":"CorrectHorse42!"}'
 ```
 
-Exceptions allowed for convenience in development must not be copied into production
-without an explicit production review. Which development artifacts, containers, compose
-files or local configuration the current release provides comes from the current
-deployment artifacts and [Project Status](../project/status).
+The gate closes permanently once an administrator exists. **Do not create the first
+admin by writing to the database** — that path predates the bootstrap endpoint and the
+public documentation forbids it.
 
-### Single-runtime deployment
+## Docker Compose
 
-A production deployment is not illegitimate merely because it runs one SoulAuth runtime.
-Nor does running one runtime prove production readiness:
+`docker-compose.yml` brings up SurrealDB, imports the schema and starts SoulAuth in one
+command. It is <Status kind="implemented" /> — the file exists and has been reviewed, but
+nobody has executed it end to end, so this page does not present it as verified.
 
-```text
-Single-runtime Topology
-≠
-Production Readiness
+The repository's rule after the incident above: *executable documentation must have been
+executed.* When someone runs it through, this section moves to the top.
+
+## systemd
+
+```ini
+[Unit]
+Description=SoulAuth
+After=network.target
+
+[Service]
+Type=simple
+User=soulauth
+EnvironmentFile=/etc/soulauth/env
+ExecStart=/usr/local/bin/soulauth
+Restart=on-failure
+RestartSec=5
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/soulauth
+
+[Install]
+WantedBy=multi-user.target
 ```
 
-Readiness is judged by [Production Checklist](./production-checklist).
+Keep `/etc/soulauth/env` at mode `0600` — it holds `JWT_SECRET`.
 
-### Replicated deployment, where supported
+## Reverse proxy
 
-Where the release formally supports it, several runtime instances may serve traffic
-together. But:
-
-```text
-Replica Lifecycle
-≠
-ActorIdentity Lifecycle
+```nginx
+location / {
+    proxy_pass http://127.0.0.1:8080;
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
 ```
 
-A replica may restart, be replaced or disappear. ActorIdentity, credentials, AuthSession,
-Client and historical fact must not be redefined because one replica vanished.
+Set `TRUST_PROXY_HEADERS=true` **only** if SoulAuth cannot be reached without going
+through the proxy. Otherwise a client forges `X-Forwarded-For` and walks past IP rate
+limiting.
 
-Whether the current release formally supports multiple replicas, and to what extent, must
-be confirmed by [Project Status](../project/status) and runtime evidence. This page does
-not convert an architectural possibility into a support claim.
+## Upgrading
 
-## 6 · An ephemeral runtime is not a durable source of truth
+1. Read the release notes for schema changes.
+2. Back up the SurrealDB data directory.
+3. Import any new schema statements.
+4. Replace the binary and restart.
 
-One of the real deployment dividing lines is **which state may live only in the current
-process, and which facts must survive process lifetime.**
+Rolling restarts are fine as long as every replica shares the same `JWT_SECRET` and OIDC
+signing key. They must, or tokens from one replica fail against another's JWKS.
 
-Any canonical fact or security state that must keep holding across requests, restarts,
-failover or applicable replica switches must not depend on ephemeral instance-local
-memory as its only source of truth:
+## Verify it yourself
 
-```text
-Ephemeral Runtime
-≠
-Durable Source of Truth
+```bash
+./tests/deployment_walkthrough.sh
 ```
 
-However:
-
-```text
-Must survive instance loss
-≠
-Must live in one database
-```
-
-A contract may maintain its semantics through durable state, coordinated state, a
-cryptographically protected artifact or another supported mechanism. Deployment requires
-only that **necessary continuity does not disappear with a temporary runtime.**
-
-## 7 · Durability is not permanent retention
-
-```text
-Durability
-≠
-Permanent Retention
-```
-
-Different domains have different lifetimes, expiry, retention and deletion contracts. A
-short-lived protocol state may need to be durable for a bounded window; that does not
-turn it into a long-lived historical record.
-
-## 8 · Persistence does not define ontology
-
-```text
-Persistence Infrastructure  ≠  Identity Ontology
-One Database                ≠  One Domain
-```
-
-A database schema cannot become the source of truth for ActorIdentity, credential or
-IdentityBinding semantics in reverse. Even where several domains share one physical
-database, they keep different canonical contracts. Which persistence implementations the
-current release supports belongs to the current deployment/runtime contract, not to this
-page's long-term semantics.
-
-## 9 · Operational logs are not audit
-
-A deployment usually has logs, metrics, traces and monitoring. But:
-
-```text
-Operational Log  ≠  Audit Record
-Container Log    ≠  Durable Audit History
-```
-
-Operational observability supports diagnosis, performance and runtime investigation.
-Audit carries historical accountability. Any current audit integrity capability is
-defined by [Audit](../reference/audit) and [Project Status](../project/status).
-
-### Observability must not become a secret exfiltration channel
-
-```text
-Observability
-≠
-Secret Exfiltration Channel
-```
-
-Centralised collection of logs, metrics or traces does not dissolve the secret and token
-protection boundary. Deployment convenience is never a reason to write raw credentials,
-tokens or other sensitive material into ordinary telemetry.
-
-## 10 · Key/secret lifecycle does not follow replica lifecycle
-
-```text
-Key / Secret Lifecycle
-≠
-Container / Replica Lifecycle
-```
-
-Material that must maintain trust continuity across restarts must not be regenerated
-contract-free because a pod or process was recreated. The reverse holds too: keys may
-rotate, retire, be revoked or replaced — but by a **declared key/secret lifecycle**, not
-because "the container happened to restart".
-
-## 11 · Configuration is not secret material
-
-```text
-Configuration
-≠
-Secret Material
-```
-
-Configuration decides how the runtime runs, which dependencies it references and which
-policies apply. Secret and key material carry their own confidentiality, custody and
-lifecycle. Configuration sources and key/secret reference semantics are defined by
-[Configuration](../reference/configuration); this page keeps the boundary at deployment
-time.
-
-## 12 · A runtime image is not a secret store
-
-```text
-Runtime Image
-≠
-Secret Store
-```
-
-Long-lived runtime secrets must not be baked into a widely distributed software artifact
-for deployment convenience. Software artifacts and runtime secrets carry different
-lifecycles and access boundaries.
-
-## 13 · Actor-held credential material is separate from server secrets
-
-Where an authentication method uses actor-held private credential material:
-
-```text
-Actor-held Private Credential Material
-≠
-SoulAuth Server Secret
-```
-
-Its custody boundary must not be pulled back into the SoulAuth server secret store
-because the deployment shape changed. The current AIActor authentication methods and
-verification material are defined by
-[Authentication & Sessions](../reference/authentication-and-sessions) and the current
-release. This page does not create authentication methods through a deployment document.
-
-## 14 · Internal listen address is separate from the public issuer
-
-The listen address answers where the process receives traffic on the local network. The
-public issuer answers which identity/trust domain external protocol consumers treat as
-the formal issuer:
-
-```text
-Internal Listen Address
-≠
-Public Issuer
-```
-
-A runtime may listen on a private address while external clients see an entirely
-different public origin. Deployment convenience must not merge the two concepts.
-
-### Deployment must not create a split-brain protocol view
-
-Where the profile uses a public issuer, the public endpoint, proxy reconstruction,
-metadata and what the runtime actually issues must present one consistent declared
-protocol view. A deployment where clients reach one public origin while artifacts claim
-an unrelated issuer cannot expect consumers to establish trust correctly. Exact issuer
-semantics belong to [OIDC & Clients](../reference/oidc-and-clients).
-
-### An issuer change may be a trust migration
-
-```text
-Issuer Change
-≠
-Ordinary Hostname Edit
-```
-
-A deployment change that alters the declared issuer may change downstream trust and
-subject semantics. It cannot be handled as an ordinary network rename. Migration
-procedures live in [Operations & Recovery](./operations-and-recovery),
-[OIDC & Clients](../reference/oidc-and-clients) and
-[Configuration](../reference/configuration).
-
-## 15 · The external production boundary needs transport protection
-
-An external boundary carrying real production authentication and protocol traffic should
-satisfy the transport protection the current security baseline requires — for a typical
-public deployment, a protected HTTPS boundary.
-
-Whether a deployment has met *all* production conditions is judged by
-[Production Checklist](./production-checklist). This page locks only:
-
-> **The external identity-protocol boundary in production must not treat transport
-> protection as an unrelated optimisation.**
-
-## 16 · Forwarded metadata is not automatically trusted
-
-Behind a reverse proxy or ingress, SoulAuth may need the external request context the
-proxy supplies. But:
-
-```text
-Internet-supplied Forwarded Metadata
-≠
-Trusted External Request Context
-```
-
-Enabling proxy support does not make any host or forwarded information an internet caller
-submits trustworthy. Only a declared **trusted proxy boundary** can establish that
-context. Exact headers and proxy configuration come from the current
-deployment/configuration contract.
-
-## 17 · Process started is not runtime ready
-
-```text
-Process Started
-≠
-Runtime Ready
-```
-
-Before accepting the traffic it promises to carry, a runtime must satisfy the applicable
-critical dependencies and initialisation requirements.
-
-## 18 · Reliable system time is a security dependency
-
-A great deal of authentication and protocol semantics is time-bounded: expiry, freshness,
-key lifecycle, time-bound security state.
-
-> **Reasonably trustworthy system time is an operational dependency of time-bound
-> authentication and protocol security.**
-
-If several runtimes disagree significantly about time, the same artifact can receive
-inconsistent security decisions. This page does not prescribe a synchronisation
-technology or an allowed clock skew — those belong to the security/protocol contract.
-
-## 19 · Liveness and readiness are separate
-
-```text
-Liveness
-≠
-Readiness
-```
-
-**Liveness** asks whether the process is still in a state where it can keep running.
-**Readiness** asks whether this instance meets the conditions to safely accept the traffic
-it declares.
-
-An instance may be alive and temporarily not ready. Equally, a feature-specific dependency
-failing need not mechanically crash the whole runtime.
-
-## 20 · Core and feature-specific dependencies are separate
-
-```text
-Core Runtime Dependency
-≠
-Feature-specific Dependency
-```
-
-An optional integration failing temporarily does not necessarily mean SoulAuth cannot
-continue serving other ready capabilities. Readiness should be judged from what this
-instance promises to provide and which dependencies those capabilities actually need —
-never as a blanket "any adapter failure means the identity service is down".
-
-## 21 · Elapsed time is not dependency readiness
-
-Startup ordering cannot be replaced with:
-
-```text
-start dependency
-sleep N seconds
-start SoulAuth
-```
-
-because:
-
-```text
-Elapsed Time
-≠
-Dependency Readiness
-```
-
-What is needed:
-
-```text
-Required Dependency Ready
-        ↓
-SoulAuth Initialization
-        ↓
-SoulAuth Ready
-        ↓
-Traffic Accepted
-```
-
-The mechanism comes from the current runtime/deployment contract.
-
-## 22 · Replicated deployment, where supported
-
-Where several runtimes share traffic, routing and failover must not change identity,
-protocol or security semantics. A request beginning on instance A and continuing on
-instance B must not break the declared protocol contract merely because the runtime
-differs.
-
-### Protocol continuity is not one shared database
-
-```text
-Protocol Continuity
-≠
-Mandatory Shared Database
-```
-
-Cross-request or cross-replica semantics may be maintained through durable state,
-coordinated state, a protected artifact or another declared mechanism. This page requires
-only that **the contract still holds after failover** — not that all state share a single
-database or storage technology.
-
-### A runtime replica is not an ActorIdentity source of truth
-
-```text
-Runtime Replica
-≠
-ActorIdentity Source of Truth
-```
-
-Instance-local caches may exist. They must not become the only, unrecoverable ActorIdentity
-fact. Replacing a replica must not change *who this Actor is.*
-
-### Different security state, different consistency requirements
-
-Not all security state needs one consistency model. What is required is that **each
-stateful protection satisfies its own declared atomicity, consistency and freshness
-requirement**:
-
-```text
-Cross-replica Security Correctness
-≠
-One Universal Shared Store
-```
-
-This page defines no `SecurityStateStore` and mandates no Redis, SurrealDB or other
-infrastructure.
-
-### Replicated is not stateless
-
-```text
-Replicated
-≠
-Stateless
-```
-
-Running several runtimes does not mean SoulAuth holds no state. What must hold is that
-critical identity, security and protocol semantics do not depend on one short-lived
-instance as their sole holder.
-
-## 23 · An optional dependency is not a core dependency
-
-```text
-Optional Integration  ≠  Core Deployment Dependency
-Standalone SoulAuth   ≠  Soulseed Deployment Dependency
-```
-
-Soulseed integration existing does not remove SoulAuth's ability to stand alone. An
-optional integration failing should first affect the features that genuinely depend on it,
-not escalate unconditionally into total identity service failure.
-
-## 24 · Deployment does not guarantee zero-downtime upgrade
-
-```text
-Multi-replica Support
-≠
-Zero-downtime Upgrade Guarantee
-```
-
-Whether an upgrade can complete without interruption also depends on release
-compatibility, persistence compatibility, configuration compatibility, protocol/session
-compatibility, key lifecycle and mixed-version behaviour. Migration and upgrade procedures
-are defined by [Operations & Recovery](./operations-and-recovery). Having several replicas
-does not imply every release can be rolling-upgraded.
-
-## 25 · Deployment health
-
-This page ultimately answers one question:
-
-> **Can this deployment currently run correctly according to the contract it declares?**
-
-A healthy deployment can answer:
-
-- **Runtime** — is it running and has it completed necessary initialisation?
-- **Durable dependencies** — is the durable infrastructure the promised capabilities need
-  available?
-- **Security dependencies** — are the required key, secret and time dependencies usable?
-- **Network / protocol boundary** — do the external exposure, proxy and public protocol
-  view match the declared contract?
-- **Readiness** — is this instance genuinely fit to accept the traffic it declares?
-
-Exact images, ports, health and readiness endpoints, persistence products, proxy keys and
-configuration keys must all come from the current deployment/configuration contract. This
-page does not invent them.
-
-## 26 · A healthy deployment is not a production-ready deployment
-
-```text
-Healthy Deployment
-≠
-Production-ready Deployment
-```
-
-This page can establish that SoulAuth runs in this environment according to its declared
-contract. It cannot establish on its own that backups have been rehearsed, recovery has
-been verified, monitoring meets production requirements, operational ownership is clear,
-or the production security gate has passed. Those are judged by
-[Production Checklist](./production-checklist).
-
-## 27 · Deployment at a glance
-
-| Boundary | Meaning |
-| --- | --- |
-| **Deployment topology ≠ Identity ontology** | Runtime shape does not redefine ActorIdentity |
-| **Architecture component ≠ Deployment unit** | A logical responsibility needs no dedicated process |
-| **One service ≠ One domain** | Sharing a process does not merge semantic domains |
-| **One database ≠ One domain** | Shared persistence does not merge ontologies |
-| **Public protocol exposure ≠ Control plane exposure** | Exposure is governed separately |
-| **Consumer access ≠ Infrastructure access** | Consumers use supported contracts |
-| **Ephemeral runtime ≠ Durable source of truth** | Facts that must survive restart cannot live only in memory |
-| **Durability ≠ Permanent retention** | Recoverable is not kept forever |
-| **Key / secret lifecycle ≠ Replica lifecycle** | Trust material does not follow pod accidents |
-| **Runtime image ≠ Secret store** | Artifacts and long-lived secrets stay apart |
-| **Internal listen address ≠ Public issuer** | Network address is not protocol identity |
-| **Forwarded metadata ≠ Trusted request context** | Only a trusted proxy boundary establishes it |
-| **Process started ≠ Runtime ready** | Starting is not being fit for traffic |
-| **Liveness ≠ Readiness** | Being alive is not being serviceable |
-| **Elapsed time ≠ Dependency readiness** | A fixed sleep is not proof |
-| **Protocol continuity ≠ One shared database** | Continuity does not fix a storage implementation |
-| **Replicated ≠ Stateless** | Scaling out does not remove identity and security state |
-| **Healthy deployment ≠ Production-ready** | Running is not having passed the production gate |
-
-Compressed:
-
-```text
-Declared Architecture Semantics
-        ↓
-Deployment Topology
-        ↓
-Runtime + Required Dependencies
-        ↓
-Network / Exposure Boundary
-        ↓
-Durable Continuity
-        ↓
-Readiness
-```
-
-One principle:
-
-> **Deployment may change where SoulAuth runs, how many instances run, and how it
-> connects to infrastructure — it must never change what SoulAuth considers an
-> ActorIdentity, an authentication, an authority or a trustworthy history.**
-
-## Exact contract source
-
-This page defines the deployment boundary, topology patterns, the runtime/durable state
-separation, network exposure, the key/secret lifecycle boundary, health and readiness, and
-the semantic requirements of a replicated topology.
-
-It does not define an official container image, runtime port, health or readiness
-endpoint, persistence implementation, multi-replica support status, proxy header
-configuration, deployment configuration keys, migration command or upgrade procedure.
-Those come from the current deployment artifacts, the config registry, the runtime
-implementation and [Project Status](../project/status).
-
-> **Multi-replica being an architecture or deployment pattern does not make it formally
-> supported in the current release.**
+Zero failures means this document is executable, not merely readable.
 
 ## Next
 
-[Production Checklist](./production-checklist) takes over: whether this specific
-deployment meets production sign-off conditions.
+| | |
+|---|---|
+| Harden it | [Production checklist](/operate/production-checklist) |
+| Backups, rotation, incidents | [Operations & recovery](/operate/operations-and-recovery) |
