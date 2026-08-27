@@ -60,6 +60,8 @@ jobs:
       - run: npm run check:status
       # 契约快照：齐不齐、是不是从干净工作区取的、页面有没有写出来源 commit。
       - run: npm run check:contracts
+      # 散文里提到的端点/配置项/权限名必须真实存在。
+      - run: npm run check:citations
 
       # enablement: true 让 workflow 自己开启 Pages。
       # 不加的话，仓库没在 Settings → Pages 里把 Source 选成 GitHub Actions 时，

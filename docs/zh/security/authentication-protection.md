@@ -30,8 +30,8 @@ LOCKOUT_IP_ENABLED=true      # 按来源地址
 被锁的响应是 `429`，带 `locked_until_seconds`，客户端因此可以显示倒计时而不是靠猜。
 
 ::: tip 这几项本来就是给你改的
-面向公众的服务与内部管理工具的容忍度确实不同。内部工具收紧 `MAX_ATTEMPTS`
-代价很小；面向公众的服务放宽 `DURATION_MINUTES`，能避免把一次忘记密码变成一张工单。
+面向公众的服务与内部管理工具的容忍度确实不同。内部工具收紧 `LOCKOUT_MAX_ATTEMPTS`
+代价很小；面向公众的服务放宽 `LOCKOUT_DURATION_MINUTES`，能避免把一次忘记密码变成一张工单。
 :::
 
 管理员可以解开任一维度——

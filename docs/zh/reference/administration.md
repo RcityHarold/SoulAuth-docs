@@ -10,7 +10,7 @@
 
 ::: tip `/api/users` 与 `/api/me` 的区别
 `/api/users/*` 按 id 作用于别人，需要权限。`/api/me/*` 作用于自己，只需一枚会话。
-它们曾经共用同一个前缀，于是产生了 `/api/users/users/:user_id` 这样的路径——
+它们曾经共用同一个前缀，于是产生了 `/api/users/users/:user_id` 这样的路径—— <!-- cite-exempt: 描述已修复的旧路径 -->
 <Status kind="tested" guard="conformance::j7" /> 现在会拒绝重复的路径段。
 :::
 
@@ -19,7 +19,7 @@
 角色、权限的管理以及对主体的分配都在 `/api/rbac` 下，已在上表中。
 
 两个端点值得单独点出来，因为它们便宜又实用：
-`/api/rbac/check/permission/:name` 与 `/api/rbac/check/role/:name`
+`/api/rbac/check/permission/:permission_name` 与 `/api/rbac/check/role/:role_name`
 回答的是**调用方自己**，只需一枚会话。
 
 ## 权限词汇表

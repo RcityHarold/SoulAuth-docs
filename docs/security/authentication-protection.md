@@ -36,8 +36,8 @@ countdown instead of guessing.
 
 ::: tip These are meant to be changed
 A public consumer service and an internal admin tool have genuinely different tolerances.
-Tightening `MAX_ATTEMPTS` on an internal tool costs little; loosening
-`DURATION_MINUTES` on a public one avoids turning a forgotten password into a support
+Tightening `LOCKOUT_MAX_ATTEMPTS` on an internal tool costs little; loosening
+`LOCKOUT_DURATION_MINUTES` on a public one avoids turning a forgotten password into a support
 ticket.
 :::
 

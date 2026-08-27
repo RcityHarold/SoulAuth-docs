@@ -12,8 +12,8 @@ endpoint names the permission it requires.
 ::: tip `/api/users` vs `/api/me`
 `/api/users/*` acts on somebody else by id and requires a permission. `/api/me/*` acts on
 yourself and needs only a session. They used to share a prefix, which produced paths like
-`/api/users/users/:user_id` — <Status kind="tested" guard="conformance::j7" /> now
-rejects duplicated path segments.
+`/api/users/users/:user_id` <!-- cite-exempt: 描述已修复的旧路径 --> —
+<Status kind="tested" guard="conformance::j7" /> now rejects duplicated path segments.
 :::
 
 ## Roles & permissions
@@ -22,7 +22,7 @@ Role and permission management, plus assignment to actors, live under `/api/rbac
 appear in the table above.
 
 Two endpoints are worth calling out because they are cheap and useful in a client:
-`/api/rbac/check/permission/:name` and `/api/rbac/check/role/:name` answer for the
+`/api/rbac/check/permission/:permission_name` and `/api/rbac/check/role/:role_name` answer for the
 **calling** actor and need only a session.
 
 ## The permission vocabulary
