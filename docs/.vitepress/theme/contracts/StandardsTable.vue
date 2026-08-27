@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useData } from 'vitepress'
 import STD from '../../data/contracts/standards.json'
+import { inlineMarkdown } from './inline'
 
 const { lang } = useData()
 const zh = computed(() => lang.value.startsWith('zh'))
@@ -18,6 +19,11 @@ interface Spec {
   scope?: string
   evidence?: string
   caveats?: { id: string; summary: string; detail: string; runtime?: string }[]
+}
+
+// 见 ConfigTable 里同名函数的说明。
+function loc(o: any, field: string): string | undefined {
+  return (zh.value ? o?.[`${field}_zh`] : undefined) ?? o?.[field]
 }
 
 const all = computed<Spec[]>(() => (STD as any).specifications ?? [])
@@ -47,11 +53,11 @@ function flagKind(s: Spec, f: (typeof FLAGS)[number]): string | null {
           <Status v-if="flagKind(s, f)" :kind="f" glossary />
         </template>
       </div>
-      <p v-if="s.scope" class="std-scope">{{ s.scope }}</p>
+      <p v-if="loc(s, 'scope')" class="std-scope" v-html="inlineMarkdown(loc(s, 'scope'))" />
       <p v-if="s.evidence" class="std-ev">{{ zh ? '证据' : 'Evidence' }}: <code>{{ s.evidence }}</code></p>
       <details v-for="c in s.caveats ?? []" :key="c.id" class="std-caveat">
-        <summary>{{ c.summary }}</summary>
-        <p>{{ c.detail }}</p>
+        <summary>{{ loc(c, 'summary') }}</summary>
+        <p v-html="inlineMarkdown(loc(c, 'detail'))" />
         <p v-if="c.runtime" class="std-ev"><code>{{ c.runtime }}</code></p>
       </details>
     </div>
@@ -67,7 +73,7 @@ function flagKind(s: Spec, f: (typeof FLAGS)[number]): string | null {
         <strong>{{ s.title }}</strong>
         <code>{{ s.id }}</code>
       </div>
-      <p v-if="s.scope" class="std-scope">{{ s.scope }}</p>
+      <p v-if="loc(s, 'scope')" class="std-scope" v-html="inlineMarkdown(loc(s, 'scope'))" />
     </div>
 
     <template v-if="local.length">
@@ -77,23 +83,23 @@ function flagKind(s: Spec, f: (typeof FLAGS)[number]): string | null {
           <strong>{{ m.title }}</strong>
           <code>{{ m.id }}</code>
         </div>
-        <p v-if="m.scope" class="std-scope">{{ m.scope }}</p>
+        <p v-if="loc(m, 'scope')" class="std-scope" v-html="inlineMarkdown(loc(m, 'scope'))" />
         <div v-if="m.not_this?.length" class="std-not">
           <div class="std-not-h">{{ zh ? '它不是：' : 'What it is not:' }}</div>
-          <ul><li v-for="n in m.not_this" :key="n">{{ n }}</li></ul>
+          <ul><li v-for="n in m.not_this" :key="n" v-html="inlineMarkdown(n)" /></ul>
         </div>
         <details v-if="m.frozen_surface">
           <summary>{{ zh ? '已冻结的表面（13 项）' : 'Frozen surface (13 items)' }}</summary>
           <dl class="std-frozen">
             <template v-for="(v, k) in m.frozen_surface" :key="k">
               <dt><code>{{ k }}</code></dt>
-              <dd>{{ Array.isArray(v) ? v.join(', ') : v }}</dd>
+              <dd v-html="inlineMarkdown(Array.isArray(v) ? v.join(', ') : String(v))" />
             </template>
           </dl>
         </details>
         <div v-if="m.limits?.length" class="std-limits">
           <div class="std-not-h">{{ zh ? '本 Release 的边界：' : 'Limits in this release:' }}</div>
-          <ul><li v-for="l in m.limits" :key="l">{{ l }}</li></ul>
+          <ul><li v-for="l in m.limits" :key="l" v-html="inlineMarkdown(l)" /></ul>
         </div>
       </div>
     </template>

@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useData } from 'vitepress'
 import PERMS from '../../data/contracts/permissions.json'
+import { inlineMarkdown } from './inline'
 
 const { lang } = useData()
 const zh = computed(() => lang.value.startsWith('zh'))
@@ -14,6 +15,11 @@ interface Perm {
   enforced_at?: string[]
 }
 const perms = computed<Perm[]>(() => (PERMS as any).permissions ?? [])
+
+// 见 ConfigTable 里同名函数的说明。
+function loc(o: any, field: string): string | undefined {
+  return (zh.value ? o?.[`${field}_zh`] : undefined) ?? o?.[field]
+}
 </script>
 
 <template>
@@ -30,7 +36,7 @@ const perms = computed<Perm[]>(() => (PERMS as any).permissions ?? [])
           <Status :kind="(p.status as any)" glossary />
         </dt>
         <dd>
-          <p>{{ p.description }}</p>
+          <p v-html="inlineMarkdown(loc(p, 'description'))" />
           <details v-if="p.enforced_at?.length">
             <summary>
               {{ zh ? `在 ${p.enforced_at.length} 个 handler 上被检查` : `Checked in ${p.enforced_at.length} handlers` }}

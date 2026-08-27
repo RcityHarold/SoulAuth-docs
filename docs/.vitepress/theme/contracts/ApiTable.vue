@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { useData } from 'vitepress'
 import OPENAPI from '../../data/contracts/openapi.json'
+import { inlineMarkdown } from './inline'
 
 const props = defineProps<{
   /** 只渲染这个 tag 下的端点；留空则全部。 */
@@ -32,7 +33,8 @@ const rows = computed<Row[]>(() => {
         method: method.toUpperCase(),
         path,
         operationId: op.operationId,
-        description: op.description,
+        // 见 ConfigTable：zh 优先 `_zh`，回落英文。
+        description: (zh.value ? op['description_zh'] : undefined) ?? op.description,
         // `security: []` 是「显式公开」，与「没写 security」不同 —— 前者是
         // 声明，后者是遗漏。契约里两者都不该出现在同一份表里而不加区分。
         schemes: (op.security ?? []).flatMap((s: any) => Object.keys(s)),
@@ -118,7 +120,7 @@ function toggle(id: string) {
             </tr>
             <tr v-if="openRow === r.operationId" class="api-detail">
               <td colspan="2">
-                <p v-if="r.description">{{ r.description }}</p>
+                <p v-if="r.description" v-html="inlineMarkdown(r.description)" />
                 <p v-else class="api-nodesc">
                   {{ zh
                     ? '契约里这一条还没有描述。它不是遗漏的能力，是遗漏的文字 —— 端点本身由 j4 守着确实存在。'
@@ -176,14 +178,14 @@ function toggle(id: string) {
 .api-m--post { color: #3b5bd0; }
 .api-m--put { color: #a4610a; }
 .api-m--delete { color: #b4342c; }
-:root:not([data-theme='light']) .api-m--get { color: #5fbf92; }
-:root:not([data-theme='light']) .api-m--post { color: #8ba3f5; }
-:root:not([data-theme='light']) .api-m--put { color: #d9a05b; }
-:root:not([data-theme='light']) .api-m--delete { color: #e88a82; }
-:root[data-theme='dark'] .api-m--get { color: #5fbf92; }
-:root[data-theme='dark'] .api-m--post { color: #8ba3f5; }
-:root[data-theme='dark'] .api-m--put { color: #d9a05b; }
-:root[data-theme='dark'] .api-m--delete { color: #e88a82; }
+.dark .api-m--get { color: #5fbf92; }
+.dark .api-m--post { color: #8ba3f5; }
+.dark .api-m--put { color: #d9a05b; }
+.dark .api-m--delete { color: #e88a82; }
+.dark .api-m--get { color: #5fbf92; }
+.dark .api-m--post { color: #8ba3f5; }
+.dark .api-m--put { color: #d9a05b; }
+.dark .api-m--delete { color: #e88a82; }
 
 .api-p { padding: 0; background: none; font-size: 13px; overflow-wrap: break-word; }
 .api-req { padding: 8px 0 8px 10px; white-space: nowrap; }

@@ -63,7 +63,42 @@ if (!existsSync(srcPath)) {
   }
 }
 
-// ③ 页面必须声明来源
+// ③ 英文可渲染字段里不得出现 CJK
+//
+// 契约是本仓库的产物，描述天然是中文写的。Reference 区改成从契约渲染之后，
+// 那些中文会**原样流到英文页面上** —— 而这在 HTML 层面的检查里完全看不出来：
+// 元素数量对、来源标记对，只有真的看一眼才会发现整页是中文。
+//
+// 约定：`description` / `note` / `scope` 等主字段是英文，中文放同名 `*_zh`。
+const CJK = /[\u4e00-\u9fff]/
+const LOCALISED = new Set(['description', 'note', 'scope', 'summary', 'detail', 'title'])
+function scan(node, path, out) {
+  if (Array.isArray(node)) {
+    node.forEach((v, i) => scan(v, `${path}[${i}]`, out))
+  } else if (node && typeof node === 'object') {
+    for (const [k, v] of Object.entries(node)) {
+      if (k.endsWith('_zh')) continue
+      scan(v, `${path}.${k}`, out)
+    }
+  } else if (typeof node === 'string' && CJK.test(node)) {
+    out.push(path)
+  }
+}
+for (const file of Object.keys(REGISTRIES)) {
+  const p = join(DATA, file)
+  if (!existsSync(p)) continue
+  const found = []
+  scan(JSON.parse(readFileSync(p, 'utf8')), file, found)
+  for (const where of found.slice(0, 5)) {
+    errors.push(
+      `${where} 是中文 —— 主字段必须是英文，中文放同名 \`_zh\` 字段。` +
+        '否则它会原样渲染到英文页面上。',
+    )
+  }
+  if (found.length > 5) errors.push(`${file} 另有 ${found.length - 5} 处同类问题`)
+}
+
+// ④ 页面必须声明来源
 const RENDERERS = ['<ApiTable', '<ConfigTable', '<PermissionTable', '<StandardsTable']
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {

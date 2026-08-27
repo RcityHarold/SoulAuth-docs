@@ -130,24 +130,21 @@ const open = ref(false)
 .st--muted   { --st-fg: #8a8f98; --st-bg: transparent;           --st-line: rgba(138,143,152,.42); }
 .st--warn    { --st-fg: #a4610a; --st-bg: rgba(164,97,10,.10);   --st-line: rgba(164,97,10,.32); }
 
-/* 深色：`prefers-color-scheme` 单独定义，且用 :not([data-theme="light"]) 兜住
-   —— 显式选了浅色时不能被系统偏好覆盖。 */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --st-d: 1;
-  }
-}
-:root:not([data-theme='light']) .st--live    { --st-fg: #5fbf92; }
-:root:not([data-theme='light']) .st--proven  { --st-fg: #8ba3f5; }
-:root:not([data-theme='light']) .st--strong  { --st-fg: #b98cf0; }
-:root:not([data-theme='light']) .st--warn    { --st-fg: #d9a05b; }
-:root:not([data-theme='light']) .st--neutral { --st-fg: #9aa1ad; }
+/* 深色。
+   VitePress 的主题切换是给 <html> 加 `.dark` 类，不是 data-theme 属性 ——
+   首版按后者写，24 条规则一条都没生效，浅色配色原样留在深底上。
+   这类错误只有真的切到深色看一眼才会发现。 */
+.dark .st--live    { --st-fg: #5fbf92; }
+.dark .st--proven  { --st-fg: #8ba3f5; }
+.dark .st--strong  { --st-fg: #b98cf0; }
+.dark .st--warn    { --st-fg: #d9a05b; }
+.dark .st--neutral { --st-fg: #9aa1ad; }
 
-:root[data-theme='dark'] .st--live    { --st-fg: #5fbf92; }
-:root[data-theme='dark'] .st--proven  { --st-fg: #8ba3f5; }
-:root[data-theme='dark'] .st--strong  { --st-fg: #b98cf0; }
-:root[data-theme='dark'] .st--warn    { --st-fg: #d9a05b; }
-:root[data-theme='dark'] .st--neutral { --st-fg: #9aa1ad; }
+.dark .st--live    { --st-fg: #5fbf92; }
+.dark .st--proven  { --st-fg: #8ba3f5; }
+.dark .st--strong  { --st-fg: #b98cf0; }
+.dark .st--warn    { --st-fg: #d9a05b; }
+.dark .st--neutral { --st-fg: #9aa1ad; }
 
 .st--bad .st-pill { border-color: var(--vp-c-danger-1); }
 </style>
