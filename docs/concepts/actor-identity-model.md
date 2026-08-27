@@ -1,374 +1,130 @@
-# Actor Identity Model
+# Actor identity model
 
-## How SoulAuth defines a stable Actor identity
+Five objects. They stay separate because merging any two of them destroys a property
+somebody depends on later.
 
-[AI-native Identity](./ai-native-identity) explained why an identity model organised
-around the human user has trouble accommodating an AIActor that persists and acts on
-its own. This page answers the more basic question underneath it:
+## The anchor
 
-> **In SoulAuth, what actually represents "who this Actor is"?**
+`ActorIdentity` answers one question — **who is this, durably** — and nothing else.
 
-When we designed SoulAuth at TRANTOR LABS, we did not make HumanAccount, Credential,
-Client or Session the root of every identity relationship. SoulAuth keeps them apart
-and puts **ActorIdentity** at the centre of the Identity Domain.
+| Field | Meaning |
+|---|---|
+| `subject_key` | The stable subject. Generated, never derived from email or username. |
+| `actor_kind` | `human` or `ai_actor` |
+| `identity_source` | `local`, `external`, or `soulseed` — how this identity entered |
+| `canonical_actor_ref` | Soulseed deployments only: a reference to an actor defined elsewhere |
+| `status` | `active`, `suspended`, `retired` |
 
-```text
-Human
-   \
-    → ActorIdentity
-   /
-AIActor
-```
+Two design decisions in that table are worth spelling out.
 
-Human and AIActor can both be first-class Actors. They may use different credentials,
-carry different extensions and run in different ways — none of that requires a second,
-parallel identity model.
+**`subject_key` is generated, not derived.** Deriving a subject from an email address is
+the single most common way identity systems paint themselves into a corner: the address
+changes, and now either the subject changes (breaking every historical record) or it
+doesn't (and the derivation was a lie).
 
-## 1 · ActorIdentity: the identity anchor
+**Only `active` can authenticate**, and an unrecognised status value is treated as
+suspended rather than active. A typo in the status column should stop authentication,
+not silently permit it.
 
-Inside the SoulAuth Identity Domain, **ActorIdentity is the only canonical Actor
-identity anchor**. It answers:
+::: tip Resource ID ≠ subject
+`ActorIdentity` has a record ID *and* a `subject_key`. They are different namespaces.
+An implementation may give them the same value; that is a choice, not an equivalence,
+and no API contract should assume it.
+:::
 
-> **Who is this Actor?**
+## What surrounds it
 
-What ActorIdentity carries first is identity continuity — not a login method, not an
-account, not a session, not a protocol representation. So:
+<Figure2 locale="en" />
 
-```text
-ActorIdentity  ≠  HumanAccount
-ActorIdentity  ≠  Credential
-ActorIdentity  ≠  Client
-ActorIdentity  ≠  AuthSession
-```
+### HumanAccount — how a person manages their login
 
-ActorIdentity can be related to all of those objects, but a change in any of them does
-not silently create a new Actor. This is one of the important differences between
-SoulAuth and the traditional model that collects account, password, profile and session
-state into a single `User` object.
+`email`, `username`, `username_normalized`, `email_verified`.
 
-### ActorIdentity is not a database schema
+Changing an email address changes this row. It does not change the actor. That
+separation is the reason an AI agent can exist without any of these fields —
+[AI-native identity](/concepts/ai-native-identity).
 
-ActorIdentity is a semantic contract. It defines who holds the identity, which Actor
-Kind it belongs to, how identity continuity is preserved, and which other objects may
-form relationships around it.
+::: warning Not yet fully separated
+<Status kind="planned" /> Password and TOTP still live on the legacy `user` table rather
+than behind a credential object. The `HumanAccount` split is real; the credential
+consolidation behind it is not finished. See
+[Project status](/project/status).
+:::
 
-It does not require the runtime to expose any particular field, table or JSON
-structure. The exact resource representation, identifier and lifecycle contract for
-ActorIdentity belong to the [Actors & Profiles](../reference/actors-and-profiles)
-reference.
+### Credential — what can prove the actor right now
 
-## 2 · Human and AIActor
+For AI actors this is a real, separate table: `ai_actor_credential`, holding
+`public_key`, `algorithm`, `label`, `status`, `last_used_at`. SoulAuth stores only public
+keys there, so reading that table grants nobody the ability to impersonate anyone.
 
-The canonical Actor Kinds in SoulAuth are:
+The property worth protecting: **an identity outlives any credential it holds.** Rotating
+a key, losing a key, revoking a key — none of these produce a new actor.
 
-```text
-Human
-AIActor
-```
+### IdentityBinding — which external subject is the same actor
 
-Both enter the same ActorIdentity contract, which means:
+`provider`, `provider_subject`, `binding_type`, `verification_state`, `revoked_at`.
 
-> **Human and AIActor have the same first-class ActorIdentity standing.**
+A binding resolves *correspondence*: "the GitHub user `4001` is this actor". It is not a
+credential and it is not an authentication.
 
-Equal identity standing does not force the other layers to be equal:
+::: details Why matching on the external subject alone is a real vulnerability
+`(provider, provider_subject)` must be matched as a pair. Matching on the subject alone
+means a GitHub account with numeric id `4001` resolves to the same actor as a Google
+account whose `sub` is the string `"4001"` — a cross-provider account takeover with no
+exploit code required.
+:::
 
-```text
-Same first-class ActorIdentity standing
-≠ Same credential
-≠ Same account extension
-≠ Same lifecycle details
-≠ Same authority
-```
+### Client — which application is asking
 
-A Human may have human-specific account capabilities. An AIActor does not have to
-fabricate an email address, a username, a password or a HumanAccount in order to exist
-in SoulAuth. Therefore:
+Registered OIDC clients. A client is a party in the protocol, never the subject of the
+authentication.
 
-```text
-No HumanAccount
-≠
-Incomplete AIActor identity
-```
+## How the pieces fail apart if merged
 
-An AIActor without a HumanAccount is still a complete ActorIdentity.
+This is the argument for the whole model, compressed:
 
-## 3 · Identity continuity: change around the Actor is not change of Actor
+| If you merge… | You lose |
+|---|---|
+| Identity into account | The ability for a non-human actor to exist without fake human attributes |
+| Identity into credential | Stable attribution across a key rotation |
+| Credential into binding | The distinction between "same person, another IdP" and "copied their secret" |
+| Profile into identity | Immutability — a display-name change becomes an identity change |
+| Client into subject | The ability to scope what any one integration can see |
 
-One of the core reasons ActorIdentity exists is so the system can distinguish
+## Continuity
 
-> *"this Actor changed"*
+An actor stays the same actor while everything around it moves: email changes, username
+changes, keys rotate, MFA is enabled and disabled, sign-ins arrive through different
+clients. None of that is an identity change.
 
-from
-
-> *"this has become a different Actor".*
-
-None of the following should automatically create a new ActorIdentity:
-
-| Change | New ActorIdentity? |
-| --- | ---: |
-| Profile attribute changes | No |
-| Credential rotation | No |
-| A credential is added or revoked | No |
-| An IdentityBinding changes | No |
-| A different Client is used | No |
-| An AuthSession is re-established | No |
-
-```text
-Credential change  ≠  Identity replacement
-Profile change     ≠  Identity replacement
-Session change     ≠  Identity replacement
-```
-
-What has to stay stable over the long term is **identity continuity**.
-
-SoulAuth may use stable identity semantics internally to support that continuity, but
-this does not by itself require a public `stable_subject_id`, a separate resource or a
-fixed database column.
-
-For the same reason, the OIDC `sub` is a downstream protocol subject projection. It is
-not another name for the ActorIdentity resource ID, and it is not the internal
-continuity foundation. Resource identifiers are defined by
-[Actors & Profiles](../reference/actors-and-profiles); subject policy and subject
-projection are defined by [OIDC & Clients](../reference/oidc-and-clients).
-
-## 4 · IdentityBinding: connecting two identity domains
-
-An Actor may also exist in another identity domain — a subject at an external identity
-provider, an identity in an enterprise identity source, or a canonical Actor defined in
-SoulseedAGI.
-
-SoulAuth expresses that governed cross-domain relation with an **IdentityBinding**:
-
-```text
-External Identity
-        ↕
-IdentityBinding
-        ↕
-ActorIdentity
-```
-
-IdentityBinding answers:
-
-> **Between two specific identity domains, does a controlled identity relation exist?**
-
-It does not mean the two ends have merged into one identity namespace:
-
-```text
-IdentityBinding  ≠  ActorIdentity
-IdentityBinding  ≠  Identity equivalence
-IdentityBinding  ≠  Credential
-```
-
-### A binding is not an authentication
-
-The existence of an IdentityBinding says only that an identity relation has been
-established. It does not prove that the authentication assertion arriving *now* from
-the external identity source is trustworthy.
-
-Federated authentication must still verify the current external authentication reality.
-Only once that verification holds may the IdentityBinding be used to resolve the
-external subject to a SoulAuth ActorIdentity. The federation and authentication runtime
-contract belongs to
-[Authentication & Sessions](../reference/authentication-and-sessions) and
-[OIDC & Clients](../reference/oidc-and-clients).
-
-## 5 · Credential: proving an Actor, not defining one
-
-A **Credential** is an authentication capability an Actor uses to prove itself. It
-answers:
-
-> **By what capability can this Actor prove who it is?**
-
-```text
-Credential
-≠
-ActorIdentity
-```
-
-One ActorIdentity may hold one or more credentials, and a credential has its own
-lifecycle — it can be created, rotated, revoked or expired. None of that changes
-ActorIdentity continuity:
-
-```text
-Credential lifecycle
-≠
-ActorIdentity lifecycle
-```
-
-Human and AIActor may use different credential types. Which credential types and
-authentication methods the current release formally supports is stated by
-[Authentication & Sessions](../reference/authentication-and-sessions) and
-[Project Status](../project/status).
-
-### Credential is not authentication evidence
-
-A credential is a relatively long-lived authentication capability. The input or proof
-actually verified during one specific authentication attempt is **authentication
-evidence**:
-
-```text
-Credential
-≠
-Authentication Evidence
-```
-
-What a credential *is* sits on the identity/authentication boundary. How it is verified
-and how it forms an authentication result belongs to the authentication runtime
-contract.
-
-### A SoulAuth credential is not an external access credential
-
-An Actor may also hold API credentials, connector credentials or access tokens for
-other systems. Those let the Actor *reach other systems*. A SoulAuth credential lets
-the Actor *prove itself to SoulAuth*. They live in different trust domains and should
-not be conflated just because both are called "credential".
-
-## 6 · The other concepts that work around ActorIdentity
-
-ActorIdentity is not the only important concept in the system — but every other concept
-has its own job.
-
-| Concept | Responsible for | Not |
-| --- | --- | --- |
-| **HumanAccount** | Human-specific account extension | ActorIdentity |
-| **Profile** | Describing and presenting an Actor | An identity anchor |
-| **Credential** | Providing authentication capability | An Actor |
-| **IdentityBinding** | Connecting two identity domains | Identity equivalence |
-| **Client** | An OAuth/OIDC protocol software participant | An Actor |
-| **AuthSession** | Bounded authentication continuity | ActorIdentity |
-| **Token / Claims** | Carrying bounded protocol facts | The upstream ActorIdentity |
-| **Audit** | Historical behaviour and attribution evidence | Current identity state |
-
-What matters in this table is not the number of objects but the boundaries between
-their responsibilities.
-
-### HumanAccount
-
-HumanAccount is a human-specific extension. It can carry human-facing account concerns,
-but `HumanAccount ≠ ActorIdentity`, and an AIActor does not need one. Its exact
-resource and lifecycle are defined by
-[Actors & Profiles](../reference/actors-and-profiles).
-
-### Profile
-
-A profile describes an Actor and is expected to change. `Profile ≠ ActorIdentity`:
-changing a display name, an avatar or other presentation data does not replace the
-ActorIdentity.
-
-### Client
-
-A Client is a protocol software participant. It answers *which software is talking to
-SoulAuth*, while ActorIdentity answers *who is being authenticated*:
-
-```text
-Client                 ≠  Actor
-Client Authentication  ≠  Actor Authentication
-```
-
-A single request can carry both an Actor context and a Client context, but the two must
-not be merged into one "super identity". Client registration, `client_id`, protocol
-metadata and the client authentication contract are defined by
-[OIDC & Clients](../reference/oidc-and-clients).
-
-### AuthSession
-
-An AuthSession keeps an already-established authentication reality continuous for a
-bounded period. `AuthSession ≠ ActorIdentity`: a session can expire or be revoked while
-the ActorIdentity still exists.
-
-### Tokens and claims
-
-Tokens and claims can carry a verified identity or authentication projection to a
-consumer. They do not replace the upstream ActorIdentity. After correct validation a
-consumer may rely on the projection within the declared protocol scope and validity
-boundary — that does not turn the projection into a new identity source.
-
-### Audit
-
-Audit records what happened. It may reference ActorIdentity, credentials, clients,
-sessions and other runtime context. A historical record never becomes a new
-ActorIdentity and never replaces current identity state.
-
-## 7 · Standalone SoulAuth and Soulseed
-
-The same Actor Identity Model applies to standalone SoulAuth and to Soulseed
-integration.
-
-### Standalone
-
-SoulAuth does not need Soulseed in order to establish an ActorIdentity. Humans and
-AIActors can both become first-class ActorIdentities directly. In particular:
-
-> **A standalone AIActor does not have to be bound to a Soulseed canonical Actor
-> before it can exist.**
-
-### Soulseed
-
-Within the Soulseed ecosystem, canonical Actor and Mind semantics are defined by
-**SoulseedAGI**. SoulAuth can use an IdentityBinding to establish an explicit
-cross-system relation between its own ActorIdentity and a Soulseed canonical Actor.
-That relation changes neither side's ownership:
-
-```text
-SoulseedAGI  defines Canonical Actor / Mind
-SoulAuth     authenticates ActorIdentity
-```
-
-So:
-
-```text
-IdentityBinding
-≠
-Permission to redefine Soulseed Canonical Actor
-```
-
-Creating a binding does not give SoulAuth the power to define or modify a Mind. The
-full architectural relationship is in [Soulseed & Mind OS](/spec/soulseed-and-mind-os);
-the runtime integration is in [Soulseed Integration](../integrate/soulseed).
-
-## 8 · The whole model, compressed into five boundaries
-
-### 1. ActorIdentity is the identity anchor
-
-```text
-ActorIdentity answers "Who is this Actor?"
-```
-
-### 2. Human and AIActor share one identity model
-
-```text
-Human + AIActor → first-class ActorIdentity
-```
-
-An AIActor does not have to disguise itself as a HumanAccount, a bot, a service account
-or an OAuth client.
-
-### 3. The surrounding objects are not the Actor
-
-HumanAccount, Credential, Client, Profile, AuthSession and Token all work *around*
-ActorIdentity. None of them can stand in for it.
-
-### 4. Relation and proof are separate
-
-```text
-IdentityBinding  → identity relation
-Credential       → authentication capability
-```
-
-They solve different problems.
-
-### 5. Identity continuity does not depend on the surroundings staying still
-
-When a credential, profile, binding, client or session changes in the ordinary course
-of operation, that must not silently create another Actor. That is what makes
-ActorIdentity a stable identity anchor.
+The one direction that is *not* reversible: a retired subject is never reassigned. An
+identity can stop authenticating; its identifier is not handed to somebody else
+afterwards. This is why retirement does not delete the row — the record staying put is
+what keeps the unique index blocking reuse.
+
+::: warning What `sub` is stable across, today
+<Status kind="planned" /> The OIDC `sub` currently carries the legacy `user` row key,
+not the identity root. So it is stable for the lifetime of that row — weaker than the
+"never reassigned" guarantee the model describes. If you need a subject identifier
+that survives account rebuilds, `sub` does not give it to you yet. Recorded in the
+[standards registry](/security/standards-and-conformance) as a named caveat.
+:::
+
+## Standalone and Soulseed
+
+Standalone is the default: SoulAuth is the whole identity domain, `identity_source` is
+`local`, and `canonical_actor_ref` is empty.
+
+In a Soulseed deployment the canonical actor is defined by SoulseedAGI, and
+`canonical_actor_ref` holds a reference to it. SoulAuth authenticates that actor; it does
+not gain the ability to define or modify it. The reference is a controlled integration
+claim and is not exposed to third-party OIDC clients by default.
+[Soulseed & Mind OS →](/spec/soulseed-and-mind-os)
 
 ## Next
 
-We now know how SoulAuth answers *who this Actor is*. That still does not answer:
-
-> **Why may this Actor perform a given operation?**
-
-A successful authentication does not make authority follow automatically.
-[Identity vs Authority](/spec/identity-vs-authority) takes up that boundary — why identity,
-authentication and authority must always stay apart.
+| | |
+|---|---|
+| The agent case end to end | [AI-native identity](/concepts/ai-native-identity) |
+| What a successful authentication does *not* grant | [Identity vs authority](/spec/identity-vs-authority) |
+| Why these objects exist at all | [Specification](/spec/) |

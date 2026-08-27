@@ -1,357 +1,118 @@
 # Actor 身份模型
 
-## SoulAuth 如何定义一个稳定的 Actor 身份
+五个对象。它们保持分开，是因为任意两个合并掉，都会毁掉某个后来有人依赖的性质。
 
-前一篇 [AI 原生身份](./ai-native-identity) 解释了为什么传统以 Human User 为中心的
-Identity Model，很难自然容纳持续存在并独立行动的 AIActor。
+## 锚点
 
-这一篇继续回答更基础的问题：
+`ActorIdentity` 只回答一个问题——**这是谁，持久地**——此外什么都不回答。
 
-> **在 SoulAuth 中，到底什么代表"这个 Actor 是谁"？**
+| 字段 | 含义 |
+|---|---|
+| `subject_key` | 稳定主体。生成的，绝不从邮箱或用户名派生。 |
+| `actor_kind` | `human` 或 `ai_actor` |
+| `identity_source` | `local`、`external`、`soulseed`——这个身份怎么进来的 |
+| `canonical_actor_ref` | 仅 Soulseed 部署：指向别处定义的 actor 的引用 |
+| `status` | `active`、`suspended`、`retired` |
 
-我们在 TRANTOR LABS 设计 SoulAuth 时，没有把 HumanAccount、Credential、Client 或
-Session 当作所有身份关系的根。SoulAuth 把它们分开，并把 **ActorIdentity** 放在
-Identity Domain 的中心。
+表里有两个设计决定值得说清楚。
 
-```text
-Human
-   \
-    → ActorIdentity
-   /
-AIActor
-```
+**`subject_key` 是生成的，不是派生的。** 从邮箱地址派生 subject，是身份系统把自己
+逼进死角最常见的一种方式：地址变了，要么 subject 跟着变（毁掉所有历史记录），
+要么不变（那这个"派生"从一开始就是假的）。
 
-Human 与 AIActor 都可以成为 first-class Actor。它们可以使用不同的 Credential、拥有
-不同的扩展和运行方式，但不需要因此建立两套平行的身份模型。
+**只有 `active` 能认证**，而且读不懂的状态值一律当作 suspended 而不是 active。
+状态列里一个拼写错误应该挡住认证，而不是悄悄放行。
 
-## 1 · ActorIdentity：SoulAuth 的身份锚点
+::: tip Resource ID ≠ subject
+`ActorIdentity` 既有 record ID，**也有** `subject_key`。它们是两个命名空间。
+实现上可以取同一个值，那是一种选择，不是等价关系，任何 API 契约都不该假定它。
+:::
 
-在 SoulAuth Identity Domain 内，**ActorIdentity 是唯一的 Canonical Actor Identity
-Anchor**。它回答：
+## 围绕它的那些
 
-> **这个 Actor 是谁？**
+<Figure2 locale="zh" />
 
-ActorIdentity 首先承担的是身份连续性，而不是某一种 Login Method、Account、Session
-或 Protocol representation。因此：
+### HumanAccount —— 一个人怎么管理自己的登录
 
-```text
-ActorIdentity  ≠  HumanAccount
-ActorIdentity  ≠  Credential
-ActorIdentity  ≠  Client
-ActorIdentity  ≠  AuthSession
-```
+`email`、`username`、`username_normalized`、`email_verified`。
 
-ActorIdentity 可以关联这些对象，但它们的变化不会自动创造一个新的 Actor。
+改邮箱改的是这一行，不改这个主体。正是这层拆分，让一个 AI Agent 可以完全不具备
+上面任何字段而存在——[AI 原生身份](/zh/concepts/ai-native-identity)。
 
-这也是 SoulAuth 与传统把 Account、Password、Profile、Session 等信息集中到一个
-`User` 对象中的模型之间，一个重要区别。
+::: warning 还没有完全拆干净
+<Status kind="planned" /> 口令与 TOTP 仍然住在遗留的 `user` 表上，而不是收在一个
+凭证对象后面。`HumanAccount` 这层拆分是真的，它背后的凭证收口还没做完。
+见[项目状态](/zh/project/status)。
+:::
 
-### ActorIdentity 不是数据库 Schema
+### Credential —— 此刻能拿什么证明这个主体
 
-ActorIdentity 是 Semantic Contract。它定义：谁拥有这个身份；这个身份属于哪一种
-Actor Kind；身份连续性如何被保持；哪些其它对象可以围绕它建立关系。
+对 AI 主体而言，这是一张真实存在的独立表：`ai_actor_credential`，存
+`public_key`、`algorithm`、`label`、`status`、`last_used_at`。SoulAuth 在那里
+只存公钥，所以读到这张表的人不因此获得冒充任何人的能力。
 
-它并不要求 Runtime 必须存在某个固定字段、数据库表或 JSON structure。
+要守住的性质是：**身份的寿命长于它持有的任何凭证。** 轮换一把钥匙、丢了一把钥匙、
+吊销一把钥匙——都不产生一个新主体。
 
-ActorIdentity 的 Exact Resource Representation、Identifier 和 Lifecycle Contract，
-由 [Actor 与档案](../reference/actors-and-profiles) 定义。
+### IdentityBinding —— 外部哪个主体与它是同一个
 
-## 2 · Human 与 AIActor
+`provider`、`provider_subject`、`binding_type`、`verification_state`、`revoked_at`。
 
-SoulAuth 当前的 Canonical Actor Kind 包括：
+绑定解析的是**对应关系**："GitHub 用户 `4001` 就是这个主体"。它不是凭证，
+也不是一次认证。
 
-```text
-Human
-AIActor
-```
+::: details 为什么只按外部 subject 匹配是个真漏洞
+`(provider, provider_subject)` 必须成对匹配。只按 subject 匹配的话，数字 id 为
+`4001` 的 GitHub 账号，会与 `sub` 是字符串 `"4001"` 的 Google 账号解析到同一个
+主体——一次不需要任何利用代码的跨 provider 账号接管。
+:::
 
-两者进入同一个 ActorIdentity Contract。这意味着：
+### Client —— 是哪个应用在问
 
-> **Human 与 AIActor 拥有同样的 first-class ActorIdentity standing。**
+已注册的 OIDC 客户端。客户端是协议里的一方，永远不是这次认证的主体。
 
-但 identity standing 相同，并不意味着其它层也必须相同：
+## 合并之后各自会塌掉什么
 
-```text
-Same first-class ActorIdentity standing
-≠ Same Credential
-≠ Same account extension
-≠ Same lifecycle details
-≠ Same Authority
-```
+这就是整套模型的论证，压缩版：
 
-Human 可以拥有 Human-specific 的账户能力。AIActor 不需要为了进入 SoulAuth 而伪造
-Email、Username、Password 或 HumanAccount。因此：
+| 如果把…合并 | 你失去 |
+|---|---|
+| 身份并进账户 | 非人主体不必伪造人类属性也能存在 |
+| 身份并进凭证 | 跨密钥轮换的稳定归因 |
+| 凭证并进绑定 | 「同一个人、换了 IdP」与「秘密被复制」的区别 |
+| 档案并进身份 | 不可变性——改个显示名就成了改身份 |
+| 客户端并进主体 | 限定任一集成能看到多少 |
 
-```text
-No HumanAccount
-≠
-Incomplete AIActor identity
-```
+## 连续性
 
-一个没有 HumanAccount 的 AIActor，仍然可以是完整的 ActorIdentity。
+一个主体在周围一切变动时保持为同一个主体：邮箱变、用户名变、密钥轮换、MFA 开了
+又关、登录经由不同客户端进来。这些都不是身份变更。
 
-## 3 · Identity Continuity：周边变化不等于身份变化
+唯一**不可逆**的方向是：退役的主体永不被重新分配。一个身份可以停止认证；
+它的标识符不会在之后被交给另一个人。这也是退役不删记录的原因——记录留着，
+唯一索引才继续挡住复用。
 
-ActorIdentity 存在的核心价值之一，是让系统能够区分：
+::: warning 今天的 `sub` 到底对什么稳定
+<Status kind="planned" /> OIDC 的 `sub` 目前带的是遗留 `user` 行的键，不是身份根。
+所以它在那一行的生命周期内稳定——弱于模型描述的「永不重新分配」。如果你需要一个
+能挺过账号重建的主体标识，`sub` 现在给不了你。这一条作为具名 caveat 记在
+[规范注册表](/zh/security/standards-and-conformance)里。
+:::
 
-> **"这个 Actor 发生了变化"**
+## Standalone 与 Soulseed
 
-和：
+Standalone 是默认：SoulAuth 就是整个身份域，`identity_source` 为 `local`，
+`canonical_actor_ref` 为空。
 
-> **"这已经变成另一个 Actor"。**
+在 Soulseed 部署里，canonical actor 由 SoulseedAGI 定义，`canonical_actor_ref` 持有
+指向它的引用。SoulAuth 认证那个主体，但不因此获得定义或修改它的能力。这个引用属于
+受控 Integration Claim，默认不暴露给第三方 OIDC 客户端。
+[Soulseed 与 Mind OS →](/zh/spec/soulseed-and-mind-os)
 
-下面这些变化通常不应该自动创建新的 ActorIdentity：
+## 接下来
 
-| 变化 | 是否自动产生新的 ActorIdentity |
-| --- | ---: |
-| Profile 属性变化 | 否 |
-| Credential 轮换 | 否 |
-| 增加或撤销 Credential | 否 |
-| IdentityBinding 变化 | 否 |
-| 使用不同 Client | 否 |
-| AuthSession 重新建立 | 否 |
-
-```text
-Credential change  ≠  Identity replacement
-Profile change     ≠  Identity replacement
-Session change     ≠  Identity replacement
-```
-
-真正需要长期稳定的是 **Identity Continuity**。
-
-SoulAuth 内部可以使用稳定的 identity semantics 来支撑这种连续性，但这并不自动要求
-存在一个公开的 `stable_subject_id`、独立 Resource 或固定数据库字段。
-
-同样，OIDC `sub` 是下游 Protocol Subject Projection，不是 ActorIdentity Resource ID
-的另一个名字，也不等于 ActorIdentity 内部的 continuity foundation。具体的 Resource
-Identifier 由 [Actor 与档案](../reference/actors-and-profiles) 定义，OIDC Subject
-Policy 与 Subject Projection Contract 由
-[OIDC 与 Client](../reference/oidc-and-clients) 定义。
-
-## 4 · IdentityBinding：连接两个 Identity Domain
-
-一个 Actor 可能同时存在于其它 Identity Domain —— External Identity Provider 中的
-Subject、Enterprise Identity Source 中的身份，或 SoulseedAGI 中定义的 Canonical
-Actor。
-
-SoulAuth 使用 **IdentityBinding** 表达这些身份与 SoulAuth ActorIdentity 之间经过
-治理的 cross-domain relation：
-
-```text
-External Identity
-        ↕
-IdentityBinding
-        ↕
-ActorIdentity
-```
-
-IdentityBinding 回答：
-
-> **两个明确 Identity Domain 之间，是否存在一条受控的身份关系？**
-
-它不表示两端已经成为同一个 Identity Namespace：
-
-```text
-IdentityBinding  ≠  ActorIdentity
-IdentityBinding  ≠  Identity Equivalence
-IdentityBinding  ≠  Credential
-```
-
-### Binding 不等于 Authentication
-
-IdentityBinding 存在，只说明一条身份关系已经建立。它并不证明当前来自 External
-Identity Source 的 Authentication Assertion 可信。
-
-Federated Authentication 仍然必须验证当前的外部 Authentication Reality；只有验证
-成立以后，IdentityBinding 才能用于把对应 External Subject 解析到 SoulAuth
-ActorIdentity。具体 Federation 与 Authentication Runtime Contract，由
-[认证与会话](../reference/authentication-and-sessions) 和
-[OIDC 与 Client](../reference/oidc-and-clients) 定义。
-
-## 5 · Credential：证明 Actor，而不是定义 Actor
-
-**Credential** 是 Actor 用于证明自身身份的 Authentication Capability。它回答：
-
-> **这个 Actor 可以通过什么能力证明自己？**
-
-```text
-Credential
-≠
-ActorIdentity
-```
-
-一个 ActorIdentity 可以拥有一个或多个 Credential。Credential 也拥有自己的
-Lifecycle —— 可以被创建、轮换、撤销或过期，但这些变化不会自动改变 ActorIdentity
-continuity：
-
-```text
-Credential lifecycle
-≠
-ActorIdentity lifecycle
-```
-
-Human 与 AIActor 可以使用不同类型的 Credential。哪些 Credential Type 和
-Authentication Method 在当前 Release 中被正式支持，由
-[认证与会话](../reference/authentication-and-sessions) 与
-[项目状态](../project/status) 定义。
-
-### Credential 不等于 Authentication Evidence
-
-Credential 是一种较长期存在的 Authentication Capability。一次具体 Authentication
-Attempt 中真正用于验证的输入或证明属于 **Authentication Evidence**：
-
-```text
-Credential
-≠
-Authentication Evidence
-```
-
-Credential 是什么，属于 Identity / Authentication 边界。它怎样被验证、怎样形成
-Authentication Result，则属于 Authentication Runtime Contract。
-
-### SoulAuth Credential 不等于外部访问凭证
-
-Actor 还可能持有其它系统的 API Credential、Connector Credential 或 Access Token。
-这些材料用于 Actor 访问其它系统；SoulAuth Credential 用于 Actor 向 SoulAuth 证明
-自身身份。两者属于不同 Trust Domain，不应因为都叫 Credential 而混在一起。
-
-## 6 · 围绕 ActorIdentity 工作的其它概念
-
-ActorIdentity 不是 SoulAuth Identity System 中唯一的重要 Concept，但其它 Concept
-都有自己的职责。
-
-| Concept | 负责什么 | 不是什么 |
-| --- | --- | --- |
-| **HumanAccount** | Human-specific account extension | ActorIdentity |
-| **Profile** | 描述和展示 Actor | Identity anchor |
-| **Credential** | 提供 Authentication capability | Actor |
-| **IdentityBinding** | 连接两个 Identity Domain | Identity equivalence |
-| **Client** | OAuth / OIDC Protocol software participant | Actor |
-| **AuthSession** | 保持有限时间内的 Authentication continuity | ActorIdentity |
-| **Token / Claims** | 携带或投影有界的 Protocol facts | Upstream ActorIdentity |
-| **Audit** | 保存历史行为与 Attribution evidence | Current identity state |
-
-这张表最重要的不是对象数量，而是职责边界。
-
-### HumanAccount
-
-HumanAccount 是 Human-specific extension。它可以承载 Human-facing account concern，
-但 `HumanAccount ≠ ActorIdentity`，AIActor 不需要 HumanAccount。它的 Exact Resource
-和 Lifecycle 由 [Actor 与档案](../reference/actors-and-profiles) 定义。
-
-### Profile
-
-Profile 描述 Actor，它可以变化。但 `Profile ≠ ActorIdentity` —— 改变 Display Name、
-Avatar 或其它 presentation data，不会自动替换 ActorIdentity。
-
-### Client
-
-Client 是 Protocol Software Participant。它回答的是"哪个软件正在与 SoulAuth
-交互"，而 ActorIdentity 回答"谁正在被认证"：
-
-```text
-Client                 ≠  Actor
-Client Authentication  ≠  Actor Authentication
-```
-
-一个 Request 可以同时具有 Actor Context 和 Client Context，但两者不能合并成一个
-"超级身份"。Client 的注册、`client_id`、Protocol Metadata 与 Client Authentication
-Contract，由 [OIDC 与 Client](../reference/oidc-and-clients) 定义。
-
-### AuthSession
-
-AuthSession 保持已经建立的 Authentication Reality 在有限时间内持续。因此
-`AuthSession ≠ ActorIdentity` —— AuthSession 可以过期或撤销，而 ActorIdentity 仍然
-存在。
-
-### Token 与 Claims
-
-Token 和 Claims 可以向 Consumer 携带经过验证的身份或 Authentication Projection。
-它们不会取代上游 ActorIdentity。经过正确验证以后，Consumer 可以在声明的 Protocol
-Scope 与 Validity Boundary 内依赖这些 Projection，但它们不会因此成为新的 Identity
-Source。
-
-### Audit
-
-Audit 记录过去发生了什么。它可以引用 ActorIdentity、Credential、Client、AuthSession
-以及其它 Runtime Context。但历史记录不会成为新的 ActorIdentity，也不会替代当前
-Identity State。
-
-## 7 · Standalone SoulAuth 与 Soulseed
-
-同一套 ActorIdentity Model 同时适用于 Standalone SoulAuth 和 Soulseed Integration。
-
-### Standalone
-
-SoulAuth 不依赖 Soulseed 才能建立 ActorIdentity。Human 和 AIActor 都可以直接成为
-SoulAuth 中的 first-class ActorIdentity。特别是：
-
-> **Standalone AIActor 不需要先绑定一个 Soulseed Canonical Actor 才能成立。**
-
-### Soulseed
-
-在 Soulseed 生态中，Canonical Actor 与 Mind semantics 由 **SoulseedAGI** 定义。
-SoulAuth 可以通过 IdentityBinding，把自己的 ActorIdentity 与 Soulseed Canonical
-Actor 建立明确的 cross-system relation。但这条关系不会改变双方的 Ownership：
-
-```text
-SoulseedAGI  defines Canonical Actor / Mind
-SoulAuth     authenticates ActorIdentity
-```
-
-因此：
-
-```text
-IdentityBinding
-≠
-Permission to redefine Soulseed Canonical Actor
-```
-
-SoulAuth 不会因为建立 Binding 而获得定义或修改 Mind 的权力。Soulseed 的完整
-Architecture Relationship 见 [Soulseed 与 Mind OS](/zh/spec/soulseed-and-mind-os)；具体
-Runtime Integration 见 [Soulseed 接入](../integrate/soulseed)。
-
-## 8 · 把整个模型压缩成五条边界
-
-### 1. ActorIdentity 是身份锚点
-
-```text
-ActorIdentity answers "Who is this Actor?"
-```
-
-### 2. Human 与 AIActor 共享同一个身份模型
-
-```text
-Human + AIActor → first-class ActorIdentity
-```
-
-AIActor 不需要伪装成 HumanAccount、Bot、Service Account 或 OAuth Client。
-
-### 3. 周边对象不是 Actor
-
-HumanAccount、Credential、Client、Profile、AuthSession、Token 都可以围绕
-ActorIdentity 工作，但都不能替代它。
-
-### 4. Relation 与 Proof 分开
-
-```text
-IdentityBinding  → identity relation
-Credential       → authentication capability
-```
-
-两者解决不同问题。
-
-### 5. Identity Continuity 不依赖周边对象保持不变
-
-Credential、Profile、Binding、Client 或 Session 发生正常变化，**不应该静默创造另一个
-Actor**。这就是 ActorIdentity 作为稳定身份锚点的意义。
-
-## 下一步
-
-到这里，我们已经知道 **SoulAuth 如何回答"这个 Actor 是谁"**。
-
-但知道是谁，还没有回答：**这个 Actor 为什么有权执行某个 Operation？**
-Authentication 成功，也不意味着 Authority 自动成立。
-
-下一篇 [身份与权限](/zh/spec/identity-vs-authority) 将继续处理这条边界：Identity、
-Authentication 与 Authority 为什么必须始终分开。
+| | |
+|---|---|
+| Agent 那条路径的全貌 | [AI 原生身份](/zh/concepts/ai-native-identity) |
+| 认证成功**不**授予什么 | [身份与权限的边界](/zh/spec/identity-vs-authority) |
+| 这些对象究竟为何存在 | [规范](/zh/spec/) |

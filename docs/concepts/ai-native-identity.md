@@ -1,367 +1,166 @@
-# AI-native Identity
+# AI-native identity
 
-## Why the AI era requires raising the subject of an identity system from User to Actor
+An AI agent here is a subject in its own right: it has an identity, it holds a
+credential, and it proves itself. There is no human account behind it.
 
-What SoulAuth calls **AI-native identity** is not "adding an AI login method" to a
-traditional identity system, and it is not:
+<Status kind="supported" /> <Status kind="tested" guard="conformance::a6" />
 
-```text
-User + type = ai
-```
+## The problem this solves
 
-The real problem happens earlier. Once an AI system needs to hold identity continuity over
-a long time span, be authenticated as itself, be clearly distinguished in system records,
-and be correctly attributed in the relevant security history, the identity infrastructure
-must answer again:
+You can already give a bot an identity in any system — create a user, invent an email,
+set a password, put it in a group. It works, until someone reads the audit log and asks
+*who did this?* The honest answer is "a service account somebody created in 2023, whose
+password is in a Slack thread."
 
-> **Who may be a subject the identity system genuinely recognises?**
+Three things went wrong there, and they are all the same mistake:
 
-SoulAuth's answer is **Actor-native identity**:
+- The bot's identity is shaped like a person's, so nothing in the model distinguishes
+  "a human logged in" from "an automated process ran".
+- The credential *is* the identity — lose control of the password and you have lost the
+  actor, permanently.
+- Attribution points at a row that a human created and humans share.
 
-```text
-AI-native requirement
-        ↓
-Actor-native architecture
-        ↓
-Human + AIActor
-        ↓
-ActorIdentity
-```
+SoulAuth separates the objects so none of that is forced on you.
 
-## 1 · AI-native is not a new authentication method
+## The objects
 
-Digital systems already have plenty of mechanisms for non-human access: API keys, service
-accounts, bots, OAuth clients, machine-oriented access patterns. None of them stops
-working because AIActors exist. The issue is that **they are not all answering the same
-question.**
+| Object | For an AI agent |
+|---|---|
+| `ActorIdentity` | Exists. `actor_kind: ai_actor`, its own durable `subject_key`. |
+| `HumanAccount` | **Does not exist.** No email, no username, no password. |
+| Credential | One or more Ed25519 public keys. SoulAuth holds only the public half. |
+| Session | Ordinary — the `session` table keys on the identity root, not on a user row. |
 
-An OAuth client answers *which software participant is in the protocol.* Access or
-authentication material answers *what proof the caller supplied.* A service account may
-carry a mature machine access identity. A bot may be only a product role or an interaction
-label.
-
-AI-native identity keeps asking:
-
-> **Who is the Actor actually being authenticated?**
-
-If an AI is merely a capability inside an application, the application may already be the
-only identity context the system needs to model. But once that AI must be distinguished,
-authenticated and attributed as itself over time, folding it entirely into the
-application, a HumanAccount or a credential starts losing identity semantics.
-
-```text
-Client      ≠  Actor
-Credential  ≠  Actor
-```
-
-External concepts such as API keys cannot be cast into a SoulAuth canonical credential by
-name alone; how they map is decided by the integration contract.
-
-## 2 · From User First to Actor First
-
-Many application-centric identity systems naturally begin from a human user and a human
-account. That was a reasonable historical starting point — for a long time, the subjects
-most in need of long-term identity continuity were humans. Identity, account, credential,
-session and business roles all clustered around `User`.
-
-The problem is not that this implementation worked. It is that:
-
-> **a successful human implementation is easily mistaken for the identity ontology
-> itself.**
-
-When an AIActor arrives, that assumption comes under pressure. If every identity must
-first become a "human-like user", the AI ends up disguised as a human account, folded into
-a service account, called a bot, or replaced in the identity model by the application
-client that carries it.
-
-SoulAuth raises the identity root one level:
-
-```text
-Human
-   \
-    → ActorIdentity
-   /
-AIActor
-```
-
-That is **Actor First.** It does not diminish humans, and it does not claim humans and AI
-are the same in every sense. It only refuses to let **HumanAccount** — a human-specific
-implementation — decide in advance what form every future identity subject must take:
-
-```text
-HumanAccount
-≠
-Entire Identity Ontology
-```
-
-HumanAccount continues to exist, as a human-specific identity extension — not as the
-identity root.
-
-## 3 · Figure 2: Actor-native identity
+That second row is the whole point, and it is asserted rather than promised: the
+conformance suite checks that the AI authentication path contains no reference to
+`human_account`, `password`, `email` or `username` at all.
 
 <Figure2 locale="en" />
 
-Figure 2 expresses one core relation:
+## How it authenticates
 
-```text
-             ActorIdentity
-             /           \
-          Human         AIActor
+Two steps. The agent's private key never leaves the agent, and nothing reusable ever
+travels over the wire.
+
+### 1 · Ask for a challenge
+
+```bash
+curl -X POST $SOULAUTH/api/actors/challenge \
+  -H 'Content-Type: application/json' \
+  -d '{"actor_id":"actor_identity:lnhl…"}'
 ```
 
-Human and AIActor here are **Actor Kinds.** What they share is **first-class identity
-standing** — both sit under the same ActorIdentity canonical identity contract. At the
-same time:
-
-```text
-Same Identity Standing  ≠  Same Implementation
-Same Identity Standing  ≠  Same Authority
+```json
+{
+  "actor_id": "actor_identity:lnhl…",
+  "nonce": "sp9kEQQT4evGROocexd1lw0Z5u7Bcmbpuahl9A-iPT4",
+  "expires_at": 1787739106,
+  "algorithm": "ed25519",
+  "payload": "soulauth-ai-actor-auth/v1\nhttp://localhost:8080\nactor_identity:lnhl…\nsp9kEQQ…"
+}
 ```
 
-First-class standing does not mean the same credential, the same authentication method,
-the same lifecycle extension, the same authority or the same legal status. What is shared
-is **the canonical identity semantics at the ActorIdentity layer.** How each proves
-itself, which extensions it holds and how runtime continuity is maintained remain with
-their own domain contracts.
+### 2 · Sign it, exchange it for a session
 
-## 4 · What first-class identity standing means
-
-For an AIActor it means at least four things.
-
-**1 · Representation.** An AIActor can hold its own ActorIdentity. It does not need to
-borrow a HumanAccount, borrow an OAuth client, or let a credential serve as the identity.
-
-**2 · Authentication.** Where an authentication contract applies to an AIActor, the Actor
-context authentication establishes can point at that AIActor itself — rather than
-authenticating a human first and then treating human and AI as one identity because the
-human started the agent.
-
-**3 · Identity continuity.** If the Actor itself has not changed, then credential change,
-application client change, runtime restart and infrastructure replacement must not, on
-their own, create a new ActorIdentity:
-
-```text
-Identity Continuity  ≠  Credential Continuity
-Identity Continuity  ≠  Client Continuity
-Identity Continuity  ≠  Runtime Continuity
+```bash
+curl -X POST $SOULAUTH/api/actors/authenticate \
+  -H 'Content-Type: application/json' \
+  -d '{"actor_id":"…","nonce":"…","algorithm":"ed25519","signature":"…"}'
 ```
 
-**4 · Attribution.** When an AIActor participates in an authentication or
-security-relevant context, the system should be able to point the Actor context at it.
-That does not mean every audit event has only one attribution dimension — audit still
-distinguishes initiator, runtime origin, target, Actor context and client context. What
-matters is:
+The session token comes back with `subject_type: agent` in its claims.
 
-> **an AIActor should not have to hide permanently behind a human or an application to be
-> recognised by the identity infrastructure.**
+## What exactly gets signed
 
-### First-class standing creates no authority
-
-"First-class" is not unlimited permission, and it does not mean humans and AIActors have
-the same right to act:
+Four lines, joined with `\n`, no trailing newline:
 
 ```text
-First-class Identity Standing
-≠
-Equal Authority
+soulauth-ai-actor-auth/v1        ← domain separator, versioned
+http://localhost:8080            ← the issuer
+actor_identity:lnhl…             ← the actor
+sp9kEQQT4evGROoc…                ← the nonce
 ```
 
-Identity answers *who is this Actor.* Authority answers *why may this Actor do something
-in this domain.* Different questions.
+Every line is load-bearing:
 
-## 5 · Equal standing does not require equal implementation
+- **Line 1** means a signature made for this purpose can never be replayed as a
+  signature for some future purpose. The version is in the string, so changing the
+  payload structure invalidates old signatures by construction.
+- **Line 2** stops a challenge captured from one deployment being replayed against
+  another that happens to share an actor id.
+- **Line 3** binds the proof to one actor. Line 4 binds it to one attempt.
 
-Human and AIActor may share the ActorIdentity canonical identity contract without sharing
-one credential type, one authentication method, one lifecycle or one extension.
+::: tip Why the server hands you the payload
+Letting every client library assemble those four lines itself is possible — and the
+failure mode when one gets it subtly wrong is "the signature just doesn't verify",
+which is miserable to debug. So the server returns the exact bytes.
 
-```text
-Who is the Actor?
-```
+This gives nothing away: the payload contains no secret, and the server **recomputes it
+independently** before verifying. The copy you send back is never used.
+:::
 
-and
+There is no JSON anywhere in the signed content, deliberately. JSON has no single byte
+representation — key order, whitespace, escaping and number formatting all vary — so
+"serialise then sign" always drags in a canonicalisation spec of its own. Four lines of
+text cannot disagree with themselves.
 
-```text
-How does this Actor prove itself?
-```
+## Replay, rotation, revocation
 
-must stay apart. The first is answered by ActorIdentity; the second by the credential and
-authentication contracts. What Actor-native identity unifies is **identity semantics** —
-not every implementation detail.
+**A challenge is consumed before the signature is checked.** Not after. Checking first
+would leave a window where two concurrent requests with the same nonce both verify. The
+cost is that a failed attempt burns the challenge too — which is what you want, since
+letting a client retry signatures against one nonce turns it into a target.
 
-## 6 · Why existing machine-identity concepts are not AIActors
+**Multiple keys can be active at once.** That is what makes rotation safe: add the new
+key, confirm the agent authenticates with it, then revoke the old one.
 
-Actor-native identity does not require discarding existing machine identity patterns. It
-requires being clear about which question each concept answers.
+**Revoking a key changes its status; it does not delete the record.** Otherwise the
+audit trail loses the answer to "which key was used for that action".
 
-| Concept / pattern | What it usually answers | Why it is not automatically an AIActor |
-| --- | --- | --- |
-| **Bot** | A product / interaction role | A bot label defines no canonical ActorIdentity |
-| **Service account** | A machine access identity pattern | It may serve machine access well; its semantics are not a persistent AIActor |
-| **OAuth / OIDC client** | Which software participant is in the protocol | A client does not say which Actor is authenticated |
-| **Credential** | How an Actor supplies authentication capability | A credential is not an Actor |
-| **AIActor** | An Actor Kind in Actor-native identity | It can exist as an independent ActorIdentity |
+## What this release does not do
 
-```text
-Bot              ≠  AIActor by definition
-Service Account  ≠  AIActor by definition
-Client           ≠  AIActor
-Credential       ≠  AIActor
-```
+<Status kind="planned" /> **Agent sessions carry no permissions.** RBAC is still keyed to
+human account rows, so an agent token works on `/api/actors/me` and is refused — with an
+explicit 403, not a confusing 401 — on human endpoints. The refusal is deliberate: a
+token silently passing through some extractor that happened to resolve it would be worse
+than a clear boundary.
 
-These are not mutually exclusive. One AI scenario may legitimately contain all of:
+<Status kind="planned" /> **Agents do not appear in OIDC flows.** `/authorize`
+authenticates a browser session.
 
-```text
-Application → Client
-AIActor     → ActorIdentity
-AIActor     → applicable Credential
-```
+Both limits are recorded in the machine-readable
+[standards registry](/security/standards-and-conformance), not only here.
 
-each answering its own question.
+## Common confusions
 
-## 7 · Modelling an AIActor is not a consciousness claim
+::: details This is not RFC 7523, mTLS, or client credentials
+The proof is not a JWT (7523), involves no transport-layer client certificate (8705),
+does not go through `/api/oidc/token` (client credentials grant), and does not sign the
+HTTP request itself (RFC 9421). It is a SoulAuth-native mechanism, and the registry says
+so explicitly so that nobody assumes a standard is in play.
+:::
 
-Treating AIActor as an Actor Kind is an **identity architecture judgment.** It is not a
-consciousness claim, a moral personhood claim or a legal personhood claim:
+::: details "AI actor" is not a claim about the agent's nature
+Giving something an identity says it can be recognised and held accountable. It says
+nothing about autonomy, agency or inner life. An identity system is not the right place
+to take a position on that, and this one does not.
+:::
 
-```text
-AIActor as Identity Actor  ≠  Claim of Consciousness
-AIActor as Identity Actor  ≠  Claim of Legal Personhood
-```
+::: details A machine identity is not automatically an AIActor
+A service account, an API key or a workload identity answers "which program is calling".
+An `ActorIdentity` answers "which actor is this, across time, independent of the
+credential it currently holds". A key rotation must not create a new subject.
+:::
 
-SoulAuth does not need to settle whether an AI has subjective experience in order to
-settle a separate engineering question: whether some AI system needs to be stably
-distinguished, authenticated and attributed over a long period. Identity infrastructure
-answers only the second.
-
-## 8 · Actor-native does not require deploying AIActors today
-
-Actor-native identity is not "every application adopting SoulAuth must support AI now". A
-system with only humans today can still adopt:
-
-```text
-ActorIdentity
-      ↓
-HumanAccount
-```
-
-For end users the product experience may not visibly change. What changes is the internal
-ontology: HumanAccount is no longer mistaken for the identity itself. That makes human
-identity clearer too:
-
-```text
-Email changed               ≠  ActorIdentity changed
-Credential changed          ≠  ActorIdentity changed
-Application Client changed  ≠  ActorIdentity changed
-```
-
-> **Actor-native is an architectural generality, not an AI feature requirement.**
-
-## 9 · Where AI-native identity stops
-
-It settles one basic question:
-
-> **Can the system recognise this AIActor as itself, and authenticate and attribute it
-> under the applicable contract?**
-
-It does not answer whether the AIActor may act on behalf of a human, may perform a
-high-risk operation, holds an application permission, holds Soulseed governance authority,
-or has any legal status:
-
-```text
-Identity  ≠  Authority  ≠  Legal Status
-```
-
-A successful authentication establishes only the authentication result the contract
-declares. It creates no application, governance or legal authority.
-
-## 10 · Standalone and Soulseed
-
-SoulAuth can run standalone, with ActorIdentity belonging to the SoulAuth identity domain.
-With Soulseed integration enabled, a SoulAuth ActorIdentity may form a controlled relation
-with a Soulseed canonical Actor through an IdentityBinding:
-
-```text
-IdentityBinding
-≠
-Ontology Ownership Merge
-```
-
-Integration does not make SoulAuth the owner of a Soulseed canonical Actor, and SoulAuth
-does not define or modify a Mind. Those ecosystem boundaries are defined by
-[Soulseed & Mind OS](/spec/soulseed-and-mind-os) and
-[Soulseed Integration](../integrate/soulseed).
-
-## AI-native identity at a glance
-
-| Boundary | Meaning |
-| --- | --- |
-| **AI-native ≠ Another AI login method** | It challenges the human-only identity assumption first |
-| **AI-native requirement ≠ Actor-native architecture** | One poses the problem; the other is the answer |
-| **ActorIdentity ≠ HumanAccount** | HumanAccount is a human-specific extension |
-| **Client ≠ Actor** | A software participant is not the authenticated subject |
-| **Credential ≠ Actor** | An authentication capability is not an identity |
-| **Bot ≠ AIActor by definition** | A product role is not a canonical Actor Kind |
-| **Service account ≠ AIActor by definition** | Machine access identity is not a persistent AIActor |
-| **First-class standing ≠ Same implementation** | Different credentials and methods are fine |
-| **First-class standing ≠ Equal authority** | Identity standing creates no right to act |
-| **Identity continuity ≠ Credential / client / runtime continuity** | Peripheral change creates no new Actor |
-| **AIActor as identity Actor ≠ Consciousness claim** | An engineering category is not a judgment about mind |
-| **AIActor as identity Actor ≠ Legal personhood** | Identity infrastructure does not adjudicate legal status |
-| **Identity ≠ Authority ≠ Legal status** | This page stops at the identity boundary |
-
-## SoulAuth's answer
-
-```text
-AI systems may increasingly need
-stable identity, authentication, continuity and attribution
-in their own right.
-        ↓
-A Human-only identity root is no longer general enough.
-        ↓
-SoulAuth adopts Actor-native Identity.
-        ↓
-ActorIdentity becomes the canonical identity anchor.
-        ↓
-Human and AIActor exist as Actor kinds
-with first-class identity standing.
-        ↓
-Their Credential, Authentication Method, Lifecycle,
-Authority and Legal Status may remain different.
-```
-
-> **AI-native identity poses the requirement: an identity system must be able to
-> recognise an AIActor as an independent Actor when needed.**
->
-> **Actor First gives the architectural principle: answer who the Actor is before
-> answering how that Actor proves itself.**
+::: details Equal standing is not equal implementation
+Human and AI actors share one identity contract. They do not share an authentication
+method, a lifecycle, or a set of account attributes — and they should not.
+:::
 
 ## Next
 
-To understand what ActorIdentity, HumanAccount, IdentityBinding, Credential and Client
-each are, continue to [Actor Identity Model](./actor-identity-model). To understand why a
-completed authentication still does not grant the right to act, continue to
-[Identity vs Authority](/spec/identity-vs-authority).
-
-## Exact semantic ownership
-
-This page owns the **AI-native problem framing, the Actor First motivation, the conceptual
-boundary of first-class identity standing, and why Actor-native identity exists.**
-
-It does not define the exact ActorIdentity or HumanAccount schema, AIActor or human
-credential types, AIActor or human authentication methods, the claims schema, AuthSession
-support, an AI-specific protocol flow, the AIActor wire representation or the current
-supported feature set. Those come from
-[Actor Identity Model](./actor-identity-model),
-[Actors & Profiles](../reference/actors-and-profiles),
-[Authentication & Sessions](../reference/authentication-and-sessions),
-[OIDC & Clients](../reference/oidc-and-clients), the machine-readable contracts and
-[Project Status](../project/status).
-
-```text
-Conceptual Possibility
-≠
-Current Supported Capability
-```
-
-This page explains why the ontology must leave a legitimate place for an AIActor to be an
-Actor. It does not announce how an AIActor authenticates today.
+| | |
+|---|---|
+| Register one and watch it authenticate | [Quickstart, step 7](/start/quickstart) |
+| The objects in full | [Actor identity model](/concepts/actor-identity-model) |
+| What a session token does *not* grant | [Identity vs authority](/spec/identity-vs-authority) |
