@@ -58,6 +58,8 @@ jobs:
       # 这两类错都不会让构建变红，只会让读者看到坏图或另一种语言。
       - run: npm run check:figures
       - run: npm run check:status
+      # 契约快照：齐不齐、是不是从干净工作区取的、页面有没有写出来源 commit。
+      - run: npm run check:contracts
 
       # enablement: true 让 workflow 自己开启 Pages。
       # 不加的话，仓库没在 Settings → Pages 里把 Source 选成 GitHub Actions 时，
