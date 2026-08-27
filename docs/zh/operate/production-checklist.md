@@ -159,7 +159,7 @@ curl https://auth.example.com/.well-known/openid-configuration   # issuer 等于
 
 <Status kind="planned" /> **吊销在副本之间有延迟**，最多一个缓存 TTL。
 
-**Docker Compose 未经验证。** 文件在，但没有人完整跑通过。
+**Docker Compose 只适合开发。** CI 端到端跑它，所以它能用——但它的数据库凭证是默认值，也没有 TLS。它不是一次部署。
 
 完整清单：[项目状态](/zh/project/status)。
 

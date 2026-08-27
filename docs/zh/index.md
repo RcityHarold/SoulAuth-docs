@@ -54,8 +54,9 @@ export JWT_SECRET=$(openssl rand -hex 32) APP_URL=http://localhost:8080 \
 cargo run
 ```
 
-仓库里也有 `docker-compose.yml`，但还没有人完整跑通过，所以本页与
-[快速上手](/zh/start/quickstart)带头给的都是**已验证**的那条路径。
+也可以 `docker compose up -d`——compose 文件做的是同一件事，而且
+[CI 每次推送都跑它](/zh/start/quickstart)。上面列出手工步骤，
+是因为那就是 compose 文件实际在做的事。
 
 没有默认账号。全新实例会在启动日志里打印一枚一次性引导令牌，
 用它创建第一个管理员，全程不碰数据库：

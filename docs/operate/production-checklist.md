@@ -170,7 +170,7 @@ hash chain. Do not present it as evidence.
 
 <Status kind="planned" /> **Revocation lags across replicas** by up to one cache TTL.
 
-**Docker Compose is unverified.** The file exists; nobody has run it end to end.
+**Docker Compose is development-only.** CI runs it end to end, so it works — but its database credentials are defaults and there is no TLS. It is not a deployment.
 
 The full list: [project status](/project/status).
 

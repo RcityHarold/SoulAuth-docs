@@ -57,8 +57,9 @@
 访问令牌当然也是它能查的一行——但 RFC 7009 与 RFC 7662 都没有作为 wire 协议实现。
 请对着 JWKS 在本地校验 ID Token。
 
-**Docker Compose 未经验证。** 文件在、经过复核，但没有人完整执行过一遍。
-所以[快速上手](/zh/start/quickstart)带头给的是已经跑通过的那条路径。
+**Docker Compose 只适合本地。** CI 每次推送都端到端跑它，所以它是能用的——
+但它的数据库凭证是开发默认值，SurrealDB 也没有 TLS。
+生产请走[生产清单](/zh/operate/production-checklist)。
 
 ## 状态词怎么读
 

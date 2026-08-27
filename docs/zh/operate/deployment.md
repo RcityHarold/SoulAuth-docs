@@ -90,12 +90,14 @@ curl -X POST http://localhost:8080/api/bootstrap/admin \
 
 ## Docker Compose
 
-`docker-compose.yml` 一条命令拉起 SurrealDB、导入 schema、启动 SoulAuth。
-它是 <Status kind="implemented" />——文件存在、经过复核，但没有人完整执行过一遍，
-所以本页不把它当作已验证的路径。
+`docker-compose.yml` 一条命令做完第 1–4 步。
 
-仓库在上面那次事故之后定的规矩：*可执行的文档必须真的被执行过*。
-等有人跑通，这一节就挪到最前面。
+<Status kind="tested" guard="ci.yml::docker" /> CI 每次推送都执行它，一直跑到拿出一个
+可用的管理员，并且重启一次确认 schema 导入是幂等的——第二次启动正是一个天真的
+导入会撞 `already exists` 的地方。
+
+它是给本地用的：口令是开发默认值，SurrealDB 也没有 TLS。生产走上面那些步骤，
+外加[生产清单](/zh/operate/production-checklist)。
 
 ## systemd
 

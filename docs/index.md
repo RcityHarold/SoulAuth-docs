@@ -54,8 +54,9 @@ export JWT_SECRET=$(openssl rand -hex 32) APP_URL=http://localhost:8080 \
 cargo run
 ```
 
-A `docker-compose.yml` exists too, but nobody has run it end to end yet, so this page
-and the [quickstart](/start/quickstart) lead with the path that is actually verified.
+Or `docker compose up -d` — the compose file does the same thing, and
+[CI runs it on every push](/start/quickstart). The steps above are shown because they
+are what the compose file actually does.
 
 There is no default account. A fresh instance prints a one-time bootstrap token in its
 startup log — use it to create the first administrator without touching the database:

@@ -95,12 +95,15 @@ public documentation forbids it.
 
 ## Docker Compose
 
-`docker-compose.yml` brings up SurrealDB, imports the schema and starts SoulAuth in one
-command. It is <Status kind="implemented" /> — the file exists and has been reviewed, but
-nobody has executed it end to end, so this page does not present it as verified.
+`docker-compose.yml` does steps 1–4 in one command.
 
-The repository's rule after the incident above: *executable documentation must have been
-executed.* When someone runs it through, this section moves to the top.
+<Status kind="tested" guard="ci.yml::docker" /> CI executes it on every push, all the way
+through to a working administrator, and restarts once to confirm the schema import stays
+idempotent — that second start is where a naive import would fail with `already exists`.
+
+It is for local use: the passwords are development defaults and SurrealDB has no TLS.
+Production goes through the steps above plus the
+[production checklist](/operate/production-checklist).
 
 ## systemd
 

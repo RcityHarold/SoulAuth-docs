@@ -59,9 +59,9 @@ Single-instance deployments are unaffected.
 tokens are of course rows it can look up — but neither RFC 7009 nor RFC 7662 is
 implemented as a wire protocol. Verify ID tokens locally against JWKS.
 
-**Docker Compose is unverified.** The file exists and has been reviewed; nobody has
-executed it end to end. The [quickstart](/start/quickstart) therefore leads with the
-path that has been.
+**Docker Compose is for local use only.** CI runs it end to end on every push, so it
+works — but its database credentials are development defaults and SurrealDB has no TLS.
+Production goes through the [production checklist](/operate/production-checklist).
 
 ## How to read a status word
 

@@ -13,15 +13,25 @@ around. [Tell us.](https://github.com/RcityHarold/SoulAuth/issues)
 - A Rust toolchain (to build the binary), or a prebuilt `soulauth` binary
 - `curl` and `openssl`
 
-::: details Prefer Docker Compose?
-`docker-compose.yml` is in the repository and brings up SurrealDB, imports the schema,
-and starts SoulAuth in one command. It is <Status kind="implemented" /> — the file
-exists and has been reviewed, but **nobody has executed it end to end yet**, so this page
-does not present it as the verified path.
+::: tip Docker Compose is faster
+One command instead of steps 1–4:
 
-The repository holds itself to a rule after an earlier incident where deployment docs
-did not actually work: *executable documentation must have been executed*. When someone
-runs it through, this section becomes the first step instead of a footnote.
+```bash
+git clone https://github.com/RcityHarold/SoulAuth && cd SoulAuth
+printf 'JWT_SECRET=%s\nAPP_URL=http://localhost:8080\nSMTP_HOST=127.0.0.1\nSMTP_FROM=noreply@example.com\n' \
+  "$(openssl rand -hex 32)" > .env
+docker compose up -d
+```
+
+Then continue from [step 5](#_5-create-the-first-administrator) — the bootstrap token is
+in `docker compose logs soulauth`.
+
+<Status kind="tested" guard="ci.yml::docker" /> CI runs exactly this path on every push:
+up, health check, bootstrap, login, protected endpoint, then a restart to confirm the
+schema import stays idempotent.
+
+The manual steps below remain the reference: they show what the compose file actually
+does, which matters the moment your deployment stops looking like the compose file.
 :::
 
 ## 1 · Start the database

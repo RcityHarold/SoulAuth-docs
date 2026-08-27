@@ -13,13 +13,24 @@
 - Rust 工具链（用来构建二进制），或者一个已编好的 `soulauth`
 - `curl` 与 `openssl`
 
-::: details 想用 Docker Compose？
-仓库里有 `docker-compose.yml`，一条命令拉起 SurrealDB、导入 schema、启动 SoulAuth。
-它是 <Status kind="implemented" />——文件存在、经过人工复核，但
-**还没有人完整执行过一遍**，所以本页不把它当作已验证的路径。
+::: tip 用 Docker Compose 更快
+一条命令顶下面的第 1–4 步：
 
-本仓库在一次「部署文档照着做跑不通」的事故之后定了条规矩：
-*可执行的文档必须真的被执行过*。等有人完整跑通，这一节会从脚注变成第一步。
+```bash
+git clone https://github.com/RcityHarold/SoulAuth && cd SoulAuth
+printf 'JWT_SECRET=%s\nAPP_URL=http://localhost:8080\nSMTP_HOST=127.0.0.1\nSMTP_FROM=noreply@example.com\n' \
+  "$(openssl rand -hex 32)" > .env
+docker compose up -d
+```
+
+然后从[第 5 步](#_5-创建第一个管理员)继续——引导令牌在
+`docker compose logs soulauth` 里。
+
+<Status kind="tested" guard="ci.yml::docker" /> CI 每次推送都跑这条路径：起服务、
+健康检查、引导、登录、访问受保护端点，再重启一次确认 schema 导入是幂等的。
+
+下面的手工步骤仍然是参考：它们展示 compose 文件到底做了什么——
+而这在你的部署不再长得像那个 compose 文件的那一刻就变得要紧。
 :::
 
 ## 1 · 启动数据库
