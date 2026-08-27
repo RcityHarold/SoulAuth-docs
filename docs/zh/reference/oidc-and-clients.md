@@ -10,8 +10,8 @@
 implicit 与 hybrid 流程未实现。client credentials、device code、
 resource owner password credentials 也都没有。
 
-发现文档广播的正是已实现的那些——没有任何"愿景性"内容——
-<Status kind="tested" guard="conformance::h10" /> 守住这一点。
+发现文档广播的正是已实现的那些能力，不含任何前瞻性内容，
+由 <Status kind="tested" guard="conformance::h10" /> 守住。
 
 ## 协议端点
 
@@ -35,8 +35,8 @@ resource owner password credentials 也都没有。
 
 轮换是强制的：每次刷新消费掉旧令牌并签发新的，同时吊销旧的访问令牌。
 
-出示一枚已被消费的刷新令牌，会被当作**泄露证据**而不是重试——
-该客户端与该用户名下的**整个令牌族**被吊销。
+出示一枚已被消费的刷新令牌，会被当作**泄露证据**而不是重试：
+该客户端与该用户名下的**整个令牌族**都会被吊销。
 
 刷新不允许提权：新 scope 必须是原 scope 的子集。
 
@@ -44,7 +44,7 @@ resource owner password credentials 也都没有。
 
 ::: warning 弱于模型所描述的
 <Status kind="planned" /> `sub` 目前带的是遗留 `user` 行的键，不是身份根。
-因此它在那一行的生命周期内稳定——**弱于** OIDC Core 期待的「永不重新分配」。
+因此它只在那一行的生命周期内稳定，**弱于** OIDC Core 期待的「永不重新分配」。
 
 如果你需要一个能挺过账号重建的主体标识，`sub` 今天给不了你。
 这一条作为具名 caveat 记在[规范与符合性](/zh/security/standards-and-conformance)里。
@@ -55,8 +55,8 @@ resource owner password credentials 也都没有。
 - **不是 `ActorIdentity` 的 resource ID。** 不同命名空间。
 - **不是邮箱地址。** 邮箱会变，subject 不能变。
 
-一个 OIDC subject 只有连同它的 issuer 才有意义。`(iss, sub)` 才是标识用户的那一对
-——单拿 `sub` 跨 issuer 比对，是一次等着发生的跨 provider 账号接管。
+一个 OIDC subject 只有连同它的 issuer 才有意义。`(iss, sub)` 才是标识用户的那一对；
+单拿 `sub` 跨 issuer 比对，等于一次随时会发生的跨 provider 账号接管。
 
 ## 校验令牌
 

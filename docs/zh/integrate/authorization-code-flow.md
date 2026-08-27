@@ -6,7 +6,7 @@
 
 ## 1 · 读发现文档
 
-永远不要把端点 URL 写死——启动时读一次：
+不要把端点 URL 写死，启动时读取一次即可：
 
 ```bash
 curl $SOULAUTH/.well-known/openid-configuration
@@ -93,8 +93,8 @@ curl -X POST $SOULAUTH/api/oidc/token \
   -d client_id=$CLIENT_ID
 ```
 
-客户端凭证放在 `Authorization: Basic` 头里（`client_secret_basic`）**或**表单体里
-（`client_secret_post`）——不能两处都放。两处都送会被拒，而不是默默取其中一个。
+客户端凭证放在 `Authorization: Basic` 头中（`client_secret_basic`）**或**表单体中
+（`client_secret_post`），二者只能选其一。两处都送会被拒绝，而不是默默取用其中一个。
 
 ```json
 {
@@ -129,7 +129,7 @@ curl -X POST $SOULAUTH/api/oidc/token \
 }
 ```
 
-`sid` 总是存在——取不到会话引用时 SoulAuth 拒绝签名，而不是签发一枚残缺的令牌。
+`sid` 总是存在：取不到会话引用时 SoulAuth 拒绝签名，而不是签发一枚残缺的令牌。
 
 Claims 按授予的 scope 裁剪：没有 `email` scope 就没有 `email`，
 没有 `profile` 就没有 `preferred_username`。
@@ -138,7 +138,7 @@ Claims 按授予的 scope 裁剪：没有 `email` scope 就没有 `email`，
 
 ::: warning `sub` 到底对什么稳定
 <Status kind="planned" /> `sub` 带的是遗留 user 行的键，所以只在那一行的生命周期内
-稳定——弱于 OIDC Core 期待的「永不重新分配」。把你的记录键在 `(iss, sub)` 上，
+稳定，弱于 OIDC Core 期待的「永不重新分配」。请把记录键在 `(iss, sub)` 上，
 并在假定更多之前先读[这条 caveat](/zh/security/standards-and-conformance)。
 :::
 
@@ -154,7 +154,7 @@ curl -X POST $SOULAUTH/api/oidc/token \
 
 ::: danger 复用被当作泄露处理
 出示一枚已被消费的刷新令牌不是重试。SoulAuth 会吊销该客户端与该用户名下的
-**整个令牌族**——那一支产生的所有会话。
+**整个令牌族**，也就是那一支派生出的所有会话。
 
 最常见的原因是客户端并发发起了两次刷新，然后留下了输的那一枚。请按会话串行化刷新。
 :::

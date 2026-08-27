@@ -4,7 +4,7 @@
 
 ## 备份
 
-只有一样东西要备份——SurrealDB 数据目录。身份、凭证、会话、客户端、审计行都在里面。
+需要备份的只有一样：SurrealDB 数据目录。身份、凭证、会话、客户端、审计行都在其中。
 
 ```bash
 systemctl stop soulauth
@@ -25,12 +25,12 @@ systemctl start soulauth
 
 ### `JWT_SECRET`
 
-轮换它会让所有会话失效——所有人被登出。这是预期代价，不是故障。
+轮换它会让所有会话失效，所有人被登出。这是预期代价，不是故障。
 
 ::: danger 先轮换 MFA 密钥，否则别动
 如果 `MFA_SECRET_ENCRYPTION_KEY` 从未被显式设置，MFA 密钥是**从 `JWT_SECRET` 派生**
-的。此时轮换 `JWT_SECRET` 会把每个 MFA 用户永久锁死——他们存着的 TOTP 密钥再也
-解不开，除了让他们重新绑定之外没有恢复手段。
+的。此时轮换 `JWT_SECRET` 会把每个 MFA 用户永久锁死：他们存着的 TOTP 密钥再也
+解不开，除了让他们重新绑定之外没有任何恢复手段。
 
 在你动 `JWT_SECRET` 之前，先设一个专用的 `MFA_SECRET_ENCRYPTION_KEY`。
 非环回的 `APP_URL` 已经强制要求它，闸门存在的理由正是这个。
@@ -38,8 +38,8 @@ systemctl start soulauth
 
 ### OIDC 签名密钥
 
-轮换它会让在途的 ID Token 失效。客户端靠重新拉取 JWKS 恢复——它们在看到未知 `kid`
-时会这么做，所以如果可能，让新旧密钥并存至少一个令牌生命周期。
+轮换它会让在途的 ID Token 失效。客户端靠重新拉取 JWKS 恢复，而它们在看到未知 `kid`
+时就会这么做。因此如果条件允许，让新旧密钥并存至少一个令牌生命周期。
 
 ### 客户端密钥
 
@@ -62,8 +62,8 @@ curl -X POST $SOULAUTH/api/security/unlock \
   -d '{"identifier":"user@example.com","lockout_type":"User"}'
 ```
 
-两个维度都能解——`User` 与 `Ip`。上锁与解锁都写审计；只记上锁会留下一串永远没有
-下文的事件。
+两个维度都能解锁：`User` 与 `Ip`。上锁与解锁都会写审计；只记上锁会留下一串永远
+没有下文的事件。
 
 需要 `soulauth:security.write`。
 
@@ -85,11 +85,11 @@ curl -X PUT $SOULAUTH/api/users/$USER_ID/status \
 
 **某个用户的口令。** 停用、强制重置、恢复。改密时他的会话会失效。
 
-**某个客户端密钥。** 重新生成。已有的访问令牌在过期前仍然有效——那个窗口是
-`access_token_lifetime`，默认 3600 秒。
+**某个客户端密钥。** 重新生成即可。已有的访问令牌在过期前仍然有效，
+这个窗口是 `access_token_lifetime`，默认 3600 秒。
 
-**某个 AI 主体的密钥。** 吊销那一枚凭证。主体保留身份和其它仍然有效的密钥——
-允许多枚密钥的全部理由就在这里。
+**某个 AI 主体的密钥。** 吊销那一枚凭证即可。主体保留身份，以及其它仍然有效的密钥；
+允许多枚密钥并存的全部理由就在这里。
 
 ```bash
 curl -X DELETE $SOULAUTH/api/actors/$ACTOR_ID/credentials/$CREDENTIAL_ID \
@@ -100,8 +100,8 @@ curl -X DELETE $SOULAUTH/api/actors/$ACTOR_ID/credentials/$CREDENTIAL_ID \
 
 **数据库。** 会话、访问令牌、刷新令牌、授权码、重置与验证令牌全部以 SHA-256 指纹
 存储，所以读一次数据库拿不到任何可用凭证。
-<Status kind="tested" guard="conformance::b4b" /> 口令是 Argon2。TOTP 密钥是加密的
-——用的那把密钥，如果你从未显式设置，来自 `JWT_SECRET` 派生。
+<Status kind="tested" guard="conformance::b4b" /> 口令用 Argon2。TOTP 密钥是加密的，
+而所用的那把密钥若从未显式设置，则来自 `JWT_SECRET` 派生。
 
 ## 清理
 

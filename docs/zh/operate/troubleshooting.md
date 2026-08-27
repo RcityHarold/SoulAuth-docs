@@ -27,8 +27,8 @@ surreal sql --endpoint http://127.0.0.1:8000 --user root --pass root \
 | `OIDC_RSA_PRIVATE_KEY_PEM … required when APP_URL is not a loopback address` | 生成并持久化一把签名密钥 |
 | `MFA_SECRET_ENCRYPTION_KEY … required when APP_URL is not a loopback address` | `openssl rand -base64 32` |
 
-后两条只在 `APP_URL` 不再是环回地址时出现——也就是你第一次真正部署的时候。
-这是刻意的：两个默认值都"能用"，直到它们摧毁凭证。
+后两条只在 `APP_URL` 不再是环回地址时出现，也就是第一次真正部署的时候。
+这是刻意的：两个默认值都「能用」，直到它们摧毁凭证。
 
 ## 日志里没有引导令牌
 
@@ -45,8 +45,8 @@ INFO Bootstrap path closed: an administrator already exists
 
 按这个顺序查：
 
-- **`Client secret required for confidential client`**——客户端注册成了
-  `confidential` 而你没送密钥。
+- **`Client secret required for confidential client`**：客户端注册成了
+  `confidential`，而请求里没有送密钥。
 - **`redirect_uri` 不同**，与授权请求里那个哪怕差一个字符。精确匹配，不做归一化。
 - **码已被使用。** 它是一次性的，而且消费发生在其它一切之前。
 - **码已过期。**
@@ -92,8 +92,8 @@ curl -X POST $SOULAUTH/api/security/unlock \
 
 ## 邮件从来收不到
 
-发信失败只记日志、不抛出——这是刻意的，免得一台坏掉的 SMTP 主机把"忘记密码"
-变成 500，或者通过时间差泄露某个地址是否已注册。代价是它很安静。
+发信失败只记日志、不抛出。这是刻意的，免得一台坏掉的 SMTP 主机把「忘记密码」
+变成 500，或者通过时间差泄露某个地址是否已注册。代价是它非常安静。
 
 ```bash
 grep -i 'smtp\|mail' /var/log/soulauth.log
@@ -115,7 +115,7 @@ grep -i 'smtp\|mail' /var/log/soulauth.log
 在代理之后而没设 `TRUST_PROXY_HEADERS=true`，于是每个请求看起来都来自代理，
 一个客户端的失败会把所有人限流。
 
-打开它——但**只有在** SoulAuth 无法被直连时。如果能，这个头就是可伪造的，
+请打开它，但**仅限于** SoulAuth 无法被直连的情况。若能被直连，这个头就是可伪造的，
 限流会彻底失效。
 
 ## 怎么读错误
@@ -126,13 +126,13 @@ grep -i 'smtp\|mail' /var/log/soulauth.log
 { "error": "account_locked", "message": "…", "locked_until_seconds": 743 }
 ```
 
-按 `error` 分支，永远不要按 `message`。码的清单在 `contracts/openapi.yaml` 里。
-OIDC 端点用的是 RFC 6749 的形状——
+按 `error` 分支，永远不要按 `message`。码的清单在 `contracts/openapi.yaml` 中。
+OIDC 端点用的是 RFC 6749 的形状，见
 [API 约定](/zh/reference/api-conventions#错误)。
 
 ## 还是卡住
 
-跑一遍那几套测试——它们对照契约检查系统，通常比读日志更快定位问题：
+跑一遍那几套测试。它们对照契约检查系统，通常比读日志更快定位问题：
 
 ```bash
 cargo test

@@ -1,12 +1,12 @@
 # 部署
 
-下面这条路径是仓库在 CI 里**真的执行**的那一条——
-`tests/deployment_walkthrough.sh` 从空库跑到一个可用的管理员，走的就是这些步骤。
+下面这条路径是仓库在 CI 中**真正执行**的那一条：
+`tests/deployment_walkthrough.sh` 从空库跑到一个可用的管理员，走的正是这些步骤。
 <Status kind="tested" guard="deployment_walkthrough.sh" />
 
 那个脚本之所以存在，是因为本文档曾经是错的。`surreal import` 被写成了一个不存在的
-参数，schema 导进了进程不会读的 namespace——服务照常启动、`/health` 照常返回
-`ok`，第一次写入才失败。三处失败全是照着说明做出来的，而且重读多少遍都发现不了。
+参数，schema 又导进了进程不会读的 namespace。服务照常启动，`/health` 照常返回
+`ok`，直到第一次写入才失败。三处失败全都是照着说明做出来的，重读多少遍也发现不了。
 
 ## 你部署的是什么
 
@@ -20,7 +20,7 @@ surreal start --bind 0.0.0.0:8000 --user root --pass root \
   file:/var/lib/surrealdb/soulauth.db
 ```
 
-生产环境请给 SoulAuth 一个限定账号而不是 `root`，并在前面放 TLS——
+生产环境请给 SoulAuth 一个限定账号而不是 `root`，并在前面放 TLS，
 见[生产清单](/zh/operate/production-checklist)。
 
 ## 2 · Schema
@@ -85,16 +85,16 @@ curl -X POST http://localhost:8080/api/bootstrap/admin \
   -d '{"token":"7f3a…","email":"admin@example.com","username":"admin","password":"CorrectHorse42!"}'
 ```
 
-一旦存在管理员，这道门永久关闭。**不要靠写数据库来创建第一个管理员**——
-那条做法早于引导端点，而公开文档明确禁止它。
+一旦存在管理员，这道门永久关闭。**不要通过写数据库来创建第一个管理员**：
+那种做法早于引导端点存在，公开文档已明确禁止。
 
 ## Docker Compose
 
 `docker-compose.yml` 一条命令做完第 1–4 步。
 
-<Status kind="tested" guard="ci.yml::docker" /> CI 每次推送都执行它，一直跑到拿出一个
-可用的管理员，并且重启一次确认 schema 导入是幂等的——第二次启动正是一个天真的
-导入会撞 `already exists` 的地方。
+<Status kind="tested" guard="ci.yml::docker" /> CI 每次推送都会执行它，一直跑到拿出
+一个可用的管理员，并且重启一次以确认 schema 导入是幂等的。第二次启动，
+正是一个未做探测的导入会撞上 `already exists` 的地方。
 
 它是给本地用的：口令是开发默认值，SurrealDB 也没有 TLS。生产走上面那些步骤，
 外加[生产清单](/zh/operate/production-checklist)。
@@ -124,7 +124,7 @@ ReadWritePaths=/var/lib/soulauth
 WantedBy=multi-user.target
 ```
 
-`/etc/soulauth/env` 保持 `0600`——它里面有 `JWT_SECRET`。
+`/etc/soulauth/env` 保持 `0600`：里面有 `JWT_SECRET`。
 
 ## 反向代理
 

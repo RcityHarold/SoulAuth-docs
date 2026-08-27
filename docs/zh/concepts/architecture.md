@@ -6,8 +6,8 @@
 
 <Figure3 locale="zh" />
 
-这张图画的是**逻辑职责**。它不是调用时序，也不是部署图——今天图里的一切都跑在
-同一个进程里。
+这张图画的是**逻辑职责**，既不是调用时序，也不是部署图。图中的一切目前都运行在
+同一个进程内。
 
 ## 每一部分拒绝做什么
 
@@ -22,7 +22,7 @@ OIDC 端点、客户端 API、管理 API 的 HTTP handler。它把 wire 格式�
 
 ### 身份域
 
-`ActorIdentity` 与围绕它的那些对象——[模型在这里](/zh/concepts/actor-identity-model)。
+`ActorIdentity` 以及围绕它的那些对象，参见[Actor 身份模型](/zh/concepts/actor-identity-model)。
 
 它不校验凭证。解析「一个主体是谁」与验证「我是他这句话此刻是否成立」是**两个问题**；
 回答第一个的对象必须没有能力回答第二个，否则每一条读路径都成了潜在的认证绕过。
@@ -31,7 +31,7 @@ OIDC 端点、客户端 API、管理 API 的 HTTP handler。它把 wire 格式�
 
 口令校验、TOTP、AI 主体的挑战—应答、联邦回调、账号锁定。
 
-它不授予权限。出来的是一句关于身份的陈述，仅此而已——
+它不授予权限。产出的只是一句关于身份的陈述，仅此而已。参见
 [身份与权限的边界](/zh/spec/identity-vs-authority)。
 
 ### 会话与令牌
@@ -48,10 +48,10 @@ OIDC 端点、客户端 API、管理 API 的 HTTP handler。它把 wire 格式�
 
 | 边界 | 守卫 |
 |---|---|
-| 任何明文 bearer 凭证都不落库——会话、访问令牌、刷新令牌、授权码、口令重置与邮箱验证令牌，全部以 SHA-256 指纹持久化 | <Status kind="tested" guard="conformance::b4b" /> |
+| 任何明文 bearer 凭证都不落库。会话、访问令牌、刷新令牌、授权码、口令重置与邮箱验证令牌，全部以 SHA-256 指纹持久化 | <Status kind="tested" guard="conformance::b4b" /> |
 | 全 API 只有一种错误形状：稳定机器码加人话，绝不出现空体的裸状态码 | <Status kind="tested" guard="conformance::j6" /> |
 | AI 主体路径完全不碰人类账户结构 | <Status kind="tested" guard="conformance::a6" /> |
-| 已发布契约里的每个端点、配置项、权限名都在运行代码里存在——反过来运行代码里也没有契约漏掉的 | <Status kind="tested" guard="conformance::j4" /> |
+| 已发布契约里的每个端点、配置项、权限名都在运行代码中存在；反过来，运行代码里也没有契约遗漏的 | <Status kind="tested" guard="conformance::j4" /> |
 | 服务无法修改自己的表结构 | schema 导入是运维步骤 |
 
 最后一条没有测试，因为它是结构性的：SoulAuth 不发出任何 DDL。两个 SQL 文件由部署者
@@ -59,8 +59,8 @@ OIDC 端点、客户端 API、管理 API 的 HTTP handler。它把 wire 格式�
 
 ## 持久化
 
-SurrealDB，一对 namespace 与 database，一起配置。图里的逻辑存储——身份、凭证、
-会话、审计——是职责划分，不是独立的数据库。
+SurrealDB，一对 namespace 与 database，一同配置。图中的逻辑存储（身份、凭证、
+会话、审计）是职责划分，并非各自独立的数据库。
 
 ::: warning namespace/database 这一对是个真实的失败模式
 把 schema 导进与进程连接时不同的一对，服务照常启动、`/health` 照常返回 `ok`，
@@ -77,8 +77,8 @@ SurrealDB，一对 namespace 与 database，一起配置。图里的逻辑存储
 `AUTH_SESSION_CACHE_TTL_SECONDS` 之内观察到。限流与锁定计数器**是**共享的，
 因为它们住在数据库里。
 
-这段延迟被明说而不是藏起来，因为另一种做法——声称全局即时传播——正是那种
-只会在事故当中才被发现是假的承诺。
+这段延迟写在明处而不是藏起来。另一种做法是声称全局即时传播，而那种承诺
+往往只在事故当中才被发现是假的。
 
 ## 架构描述了但本 Release 没有的
 

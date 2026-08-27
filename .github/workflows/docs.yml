@@ -62,6 +62,8 @@ jobs:
       - run: npm run check:contracts
       # 散文里提到的端点/配置项/权限名必须真实存在。
       - run: npm run check:citations
+      # 中文页的写作约定（破折号预算、引号、术语），见 STYLE.zh.md。
+      - run: npm run check:zh-style
 
       # enablement: true 让 workflow 自己开启 Pages。
       # 不加的话，仓库没在 Settings → Pages 里把 Source 选成 GitHub Actions 时，

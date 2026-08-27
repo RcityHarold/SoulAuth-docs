@@ -4,12 +4,12 @@
 
 | 你在做的 | 用 | 从哪开始 |
 |---|---|---|
-| 有服务器的 Web 应用 | **BFF**——令牌留在你服务器上，浏览器只拿 cookie | [浏览器与 BFF](/zh/integrate/browser-and-bff) |
+| 有服务器的 Web 应用 | **BFF**。令牌留在服务器一侧，浏览器只持有 cookie | [浏览器与 BFF](/zh/integrate/browser-and-bff) |
 | 没有后端的 SPA 或原生应用 | **公开客户端 + PKCE** | [浏览器与 BFF](/zh/integrate/browser-and-bff#公开客户端-pkce) |
-| 接收令牌的 API | **资源服务器**——只校验，不获取 | [校验令牌](/zh/integrate/verify-tokens) |
-| 自动化 Agent 或任务 | **AI 主体**——一把密钥，不是一个账户 | [AI 原生身份](/zh/concepts/ai-native-identity) |
+| 接收令牌的 API | **资源服务器**。只校验，不获取 | [校验令牌](/zh/integrate/verify-tokens) |
+| 自动化任务或 AI 主体 | **AI 主体**。持有一把密钥，而不是一个账户 | [AI 原生身份](/zh/concepts/ai-native-identity) |
 
-已经会说 OIDC 的东西——Grafana、Kubernetes 面板、某个现成应用——根本不需要写代码：
+已经支持 OIDC 的系统（Grafana、Kubernetes 面板、各类现成应用）不需要写任何代码：
 [注册一个客户端](/zh/integrate/register-a-client)，把发现 URL 给它，完事。
 
 ## 最该先问的那个问题
@@ -32,12 +32,12 @@
 
 ## Agent 不一样
 
-AI 主体根本不走 OIDC。它持有一枚 Ed25519 密钥，对一次性挑战签名——
-没有账户、没有口令、没有重定向。
+AI 主体不走 OIDC。它持有一枚 Ed25519 密钥，对一次性挑战签名，
+不需要账户，不需要口令，也没有重定向。
 
-<Status kind="planned" /> 它的会话只到得了 `/api/actors/me`：RBAC 仍然挂在人类账户行
-上。如果你的 Agent 需要调用受权限管控的端点，那还没有——
-[项目状态](/zh/project/status)如实写着这一点，而不是让本页暗示相反的事。
+<Status kind="planned" /> AI 主体的会话只能访问 `/api/actors/me`，因为 RBAC 仍然
+建立在人类账户行之上。如果它需要调用受权限管控的端点，本 Release 还做不到；
+[项目状态](/zh/project/status)如实记录了这一点，本页不作相反的暗示。
 
 ## 接下来
 
