@@ -7,8 +7,8 @@
 // 更新纪律：跑完那四条命令，把数字誊过来，同时更新 `capturedAt`。
 // 不要手改单个数字 —— 那正是这份读数存在要防止的事。
 
-export const CAPTURED_AT = '2026-08-26'
-export const COMMIT = '0acb617'
+export const CAPTURED_AT = '2026-08-28'
+export const COMMIT = '55ce8c1'
 
 export interface Gate {
   id: string
@@ -42,7 +42,7 @@ export const GATES: Gate[] = [
   {
     id: 'unit',
     kind: 'count',
-    command: 'cargo test',
+    command: 'cargo test --bins',
     passed: 170,
     failed: 0,
     note: {
@@ -54,7 +54,7 @@ export const GATES: Gate[] = [
     id: 'conformance',
     kind: 'count',
     command: 'cargo test --test conformance',
-    passed: 51,
+    passed: 54,
     failed: 0,
     ignored: 10,
     note: {
@@ -66,11 +66,22 @@ export const GATES: Gate[] = [
     id: 'integration',
     kind: 'count',
     command: './tests/integration.sh',
-    passed: 352,
+    passed: 353,
     failed: 0,
     note: {
       en: 'End-to-end against a real SurrealDB and a real server process, including a second replica for cross-replica rate limiting.',
       zh: '对真实 SurrealDB 与真实服务进程跑端到端，含第二副本用于验证跨副本限流合账。',
+    },
+  },
+  {
+    id: 'deployment',
+    kind: 'clean',
+    command: './tests/deployment_walkthrough.sh',
+    passed: 0,
+    failed: 0,
+    note: {
+      en: 'The deployment page executed from an empty database to a usable administrator. Zero failing steps. It is a gate, not a demo: CI runs it on every push, and it once caught three defects that reading the page could not.',
+      zh: '把部署页从空库执行到一个可用的管理员，失败步骤为 0。它是闸门不是演示：CI 每次推送都跑，而它曾经一次抓出三处只靠读发现不了的缺陷。',
     },
   },
 ]
