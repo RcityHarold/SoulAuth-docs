@@ -10,6 +10,7 @@ import ApiTable from './contracts/ApiTable.vue'
 import ConfigTable from './contracts/ConfigTable.vue'
 import PermissionTable from './contracts/PermissionTable.vue'
 import StandardsTable from './contracts/StandardsTable.vue'
+import SchemaBlock from './contracts/SchemaBlock.vue'
 import './custom.css'
 import './figures/diagram.css'
 
@@ -44,5 +45,7 @@ export default {
     app.component('ConfigTable', ConfigTable)
     app.component('PermissionTable', PermissionTable)
     app.component('StandardsTable', StandardsTable)
+    // SchemaBlock 递归渲染嵌套类型，必须注册全局名才能自引用。
+    app.component('SchemaBlock', SchemaBlock)
   },
 } satisfies Theme

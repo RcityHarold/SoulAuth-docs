@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useData } from 'vitepress'
 import OPENAPI from '../../data/contracts/openapi.json'
 import { inlineMarkdown } from './inline'
+import SchemaBlock from './SchemaBlock.vue'
 
 const props = defineProps<{
   /** 只渲染这个 tag 下的端点；留空则全部。 */
@@ -12,6 +13,13 @@ const props = defineProps<{
 const { lang } = useData()
 const zh = computed(() => lang.value.startsWith('zh'))
 
+interface Param {
+  name: string
+  in: string
+  required: boolean
+  type: string
+}
+
 interface Row {
   method: string
   path: string
@@ -19,6 +27,10 @@ interface Row {
   description?: string
   schemes: string[]
   permission?: string
+  params: Param[]
+  requestSchema: any | null
+  responseSchema: any | null
+  responseCode: string
 }
 
 const METHOD_ORDER = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
@@ -39,6 +51,19 @@ const rows = computed<Row[]>(() => {
         // 声明，后者是遗漏。契约里两者都不该出现在同一份表里而不加区分。
         schemes: (op.security ?? []).flatMap((s: any) => Object.keys(s)),
         permission: (op['x-required-permissions'] ?? [])[0],
+        params: (op.parameters ?? []).map((x: any) => ({
+          name: x.name,
+          in: x.in,
+          required: !!x.required,
+          type: x.schema?.type ?? 'string',
+        })),
+        requestSchema: op.requestBody?.content?.['application/json']?.schema ?? null,
+        // 只渲染成功响应。错误形状全站统一，重复 84 遍没有信息量 ——
+        // 它写在 API 约定那一页。
+        responseSchema:
+          (op.responses?.['200'] ?? op.responses?.[200])?.content?.['application/json']?.schema ??
+          null,
+        responseCode: op.responses?.['204'] || op.responses?.[204] ? '204' : '200',
       })
     }
   }
@@ -118,13 +143,48 @@ function toggle(id: string) {
                 </template>
               </td>
             </tr>
-            <tr v-if="openRow === r.operationId" class="api-detail">
+            <!-- v-show 而不是 v-if：详情要留在 DOM 里。
+                 用 v-if 的话，参数与 schema 不进静态 HTML —— 既无法在构建产物上
+                 核验，禁用 JS 的读者也完全看不到这份 API 参考的实质内容。 -->
+            <tr v-show="openRow === r.operationId" class="api-detail">
               <td colspan="2">
                 <p v-if="r.description" v-html="inlineMarkdown(r.description)" />
-                <p v-else class="api-nodesc">
+
+                <div v-if="r.params.length" class="api-sec">
+                  <div class="api-h">{{ zh ? '参数' : 'Parameters' }}</div>
+                  <table class="api-params">
+                    <tbody>
+                      <tr v-for="p in r.params" :key="p.in + p.name">
+                        <td><code>{{ p.name }}</code><span v-if="p.required" class="api-star">*</span></td>
+                        <td class="api-dim">{{ p.in }}</td>
+                        <td class="api-dim">{{ p.type }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div v-if="r.requestSchema" class="api-sec">
+                  <div class="api-h">{{ zh ? '请求体' : 'Request body' }}</div>
+                  <SchemaBlock :schema="r.requestSchema" />
+                </div>
+
+                <div class="api-sec">
+                  <div class="api-h">
+                    {{ zh ? '响应' : 'Response' }}
+                    <code class="api-code">{{ r.responseCode }}</code>
+                  </div>
+                  <SchemaBlock v-if="r.responseSchema" :schema="r.responseSchema" />
+                  <p v-else class="api-dim">
+                    {{ r.responseCode === '204'
+                      ? (zh ? '无响应体。' : 'No body.')
+                      : (zh ? '响应体形状未在契约中细分。' : 'Body shape is not further specified in the contract.') }}
+                  </p>
+                </div>
+
+                <p class="api-errnote">
                   {{ zh
-                    ? '契约里这一条还没有描述。它不是遗漏的能力，是遗漏的文字 —— 端点本身由 j4 守着确实存在。'
-                    : 'No description in the contract yet. That is missing prose, not a missing capability — j4 guarantees the endpoint exists.' }}
+                    ? '错误响应全站同形，见 API 约定。'
+                    : 'Errors share one shape across the API — see API conventions.' }}
                 </p>
                 <code class="api-oid">operationId: {{ r.operationId }}</code>
               </td>
@@ -195,7 +255,21 @@ function toggle(id: string) {
 
 .api-detail td { padding: 0 0 12px 10px; }
 .api-detail p { margin: 0 0 6px; color: var(--vp-c-text-2); font-size: 14px; line-height: 1.6; }
-.api-nodesc { color: var(--vp-c-text-3); font-style: italic; }
+.api-sec { margin-top: 10px; }
+.api-h {
+  color: var(--vp-c-text-3);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 3px;
+}
+.api-code { padding: 0 4px; font-size: 11px; }
+.api-params { width: auto; border-collapse: collapse; font-size: 13px; }
+.api-params td { padding: 2px 16px 2px 0; border: 0; }
+.api-params code { padding: 0; background: none; font-size: 12.5px; }
+.api-star { color: var(--vp-c-danger-1); font-weight: 700; }
+.api-dim { color: var(--vp-c-text-3); font-size: 12.5px; font-family: var(--vp-font-family-mono); }
+.api-errnote { margin: 10px 0 4px !important; color: var(--vp-c-text-3) !important; font-size: 12.5px !important; }
 .api-oid { padding: 0; background: none; font-size: 11.5px; color: var(--vp-c-text-3); }
 
 @media (max-width: 620px) {
