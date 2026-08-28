@@ -29,3 +29,9 @@ The full license text is available at:
 SoulAuth itself — the software in the SoulAuth repository — is licensed
 separately under the Apache License 2.0. This CC BY 4.0 license covers the
 documentation only.
+
+The build tooling in this repository — `scripts/`, `.github/`, and the Vue and
+TypeScript sources under `docs/.vitepress/theme/` — is software, not
+documentation, and is likewise licensed under the Apache License 2.0:
+
+  http://www.apache.org/licenses/LICENSE-2.0

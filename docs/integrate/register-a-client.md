@@ -55,8 +55,15 @@ The one decision that matters:
 | `confidential` | Your server keeps the secret — a backend, a BFF, a server-rendered app | The token endpoint requires the secret. A browser-side app **cannot** be one, because shipping a secret to a browser publishes it. |
 | `public` | Native app, SPA with no backend | No secret. PKCE is the only thing preventing code interception, which is why it is not optional. |
 
-`require_pkce` defaults to `true` for both and only `S256` is accepted. `plain` does not
-stop an intercepted code from being redeemed, so it is not offered.
+`require_pkce` is **forced on** for a `public` client — send `false` and the server
+overrides it, because PKCE is that client's only binding to the code. For a
+`confidential` client it defaults to on and you *may* turn it off; the client secret is a
+second binding, which is why the choice exists at all.
+
+Turn it off only if you have a reason you can state. The secret being there is not one.
+
+Whenever PKCE is in play, only `S256` is accepted — `plain` is rejected at the authorize
+step, since a `plain` challenge equals the verifier and stops nothing.
 
 ## Redirect URIs
 

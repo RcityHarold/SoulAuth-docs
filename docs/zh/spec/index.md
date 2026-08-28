@@ -19,7 +19,7 @@
 
 | 对象 | 回答什么 | 合并掉会失去 |
 |---|---|---|
-| **ActorIdentity** | 这是谁，持久地 | 当这个主体的其它一切都变了之后，归因还能保持稳定 |
+| **ActorIdentity** | 这是谁，且持久不变 | 当这个主体的其它一切都变了之后，归因还能保持稳定 |
 | **HumanAccount** | 一个人怎么管理自己的登录 | 非人主体不必伪造人类属性也能存在 |
 | **Credential** | 此刻能拿什么证明 | 轮换或吊销证明手段而不摧毁身份 |
 | **IdentityBinding** | 外部哪个主体与它是同一个 | 分得清「同一个人、不同 IdP」和「同一份凭证」 |
@@ -61,11 +61,17 @@ X」这句话只能自下而上地挣来：要有一个真这么做的 runtime�
 所以端点、配置项、权限名、规范声称都**不是**在这几页上手写的。它们住在机器可读
 的注册表里，由测试套件对照运行中的代码核对，站点只负责渲染。
 
-## 六个状态词的含义
+## 状态词的含义
 
-这是一套词汇，而不是形容词。**其中任何一个都不蕴含另一个。**
+这是一套词汇，而不是形容词。其中五个构成一条强度阶梯，
+**而任何一个都不蕴含另一个**：
 
-<Status kind="implemented" glossary /> <Status kind="supported" glossary /> <Status kind="tested" guard="conformance::j1" /> <Status kind="conformant" glossary /> <Status kind="certified" glossary /> <Status kind="deprecated" glossary />
+<Status kind="implemented" glossary /> <Status kind="supported" glossary /> <Status kind="tested" glossary /> <Status kind="conformant" glossary /> <Status kind="certified" glossary />
+
+另有两个词不在这条强度阶梯上：
+
+<Status kind="planned" glossary /> 架构描述了它，本 Release 里不存在 ·
+<Status kind="deprecated" glossary /> 仍然存在，但已列入移除计划
 
 点任意徽章看它的精确含义。两条后果值得直说：
 

@@ -8,6 +8,7 @@ import Conformance from './status/Conformance.vue'
 import ContractNote from './contracts/ContractNote.vue'
 import ApiTable from './contracts/ApiTable.vue'
 import ConfigTable from './contracts/ConfigTable.vue'
+import ErrorTable from './contracts/ErrorTable.vue'
 import PermissionTable from './contracts/PermissionTable.vue'
 import StandardsTable from './contracts/StandardsTable.vue'
 import SchemaBlock from './contracts/SchemaBlock.vue'
@@ -47,5 +48,10 @@ export default {
     app.component('StandardsTable', StandardsTable)
     // SchemaBlock 递归渲染嵌套类型，必须注册全局名才能自引用。
     app.component('SchemaBlock', SchemaBlock)
+
+    // 错误码同理。这一条曾经是「完整枚举在 contracts/openapi.yaml 里」一句话
+    // 打发掉的 —— 而那是全站唯一明确要求调用方 branch on it 的数据，
+    // 却是唯一没有渲染出来的一份。
+    app.component('ErrorTable', ErrorTable)
   },
 } satisfies Theme

@@ -40,10 +40,11 @@ token creates the first administrator without touching the database.
 
 <ApiTable tag="Bootstrap" />
 
-The gate closes permanently once an administrator exists — and it then returns the **same
-status** for a correct token as for a wrong one, so a stale token cannot be used to probe
-whether an instance has been initialised. The password policy is not relaxed for this
-path.
+The gate closes permanently once an administrator exists. Every rejection — wrong token,
+right token after the gate closed, wrong token after the gate closed — returns the **same
+status and the same body**, so a stale token cannot be used to probe whether an instance
+has been initialised. <Status kind="tested" guard="conformance::h12" /> The password
+policy is not relaxed for this path.
 
 ## Health
 

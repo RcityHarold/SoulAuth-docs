@@ -40,8 +40,16 @@ session appearing from an implausible address.
 **An attacker captures the code from the redirect.**
 
 PKCE stops it. The code is worthless without the `code_verifier`, which never leaves the
-legitimate client. `S256` is mandatory and `plain` is not offered, because `plain`
-provides no protection against exactly this.
+legitimate client. Only `S256` is accepted — `plain` is rejected at the authorize step,
+because a `plain` challenge equals the verifier and provides no protection against
+exactly this.
+
+Which binding is load-bearing depends on the client type. For a **public** client PKCE is
+the only one, so the server forces it on and an administrator cannot turn it off. A
+**confidential** client also has its secret: PKCE defaults to on and *may* be disabled, in
+which case an intercepted code is worthless without the client secret rather than without
+the verifier. Both bindings is the right answer;
+[registering a client](/integrate/register-a-client#confidential-or-public) says so too.
 
 Also required: exact-match redirect URIs, so a code cannot be sent somewhere else in the
 first place.

@@ -25,7 +25,8 @@ but a little security margin. Getting it wrong the other way publishes a secret.
 
 ## What every path shares
 
-- **PKCE is mandatory**, `S256` only, public and confidential alike.
+- **PKCE**, `S256` only — forced on for public clients, on by default for confidential
+  ones. Leave it on either way.
 - **Redirect URIs match exactly.** No wildcards, no prefixes.
 - **Compare `state`** before exchanging a code. It is the CSRF defence.
 - **Validate `iss` and `aud`** on every ID token, and pin `alg` yourself.

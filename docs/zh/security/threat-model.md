@@ -38,7 +38,14 @@ TOTP 验证码。非环回的 `APP_URL` 强制要求专用密钥，理由正在�
 **攻击者从重定向中截获了授权码。**
 
 PKCE 挡住它。没有 `code_verifier` 这个码毫无用处，而 verifier 从不离开合法客户端。
-`S256` 是强制的，且不提供 `plain`，因为 `plain` 对这件事完全不提供保护。
+只接受 `S256`——`plain` 在下发阶段即被拒绝，因为 `plain` 的 challenge 就等于
+verifier 本身，对这件事完全不提供保护。
+
+哪一重绑定在承重，取决于客户端类型。**public** 客户端只有 PKCE 这一重，因此服务端
+强制开启，管理员关不掉。**confidential** 客户端另有 client_secret：PKCE 默认开启、
+**可以**关掉；关掉之后，被截获的授权码是「没有 client_secret 就没用」，
+而不是「没有 verifier 就没用」。两重都留着才是对的，
+[注册 Client](/zh/integrate/register-a-client#选-confidential-还是-public) 那页也是这么说的。
 
 同样必需的是精确匹配的重定向 URI，这样码从一开始就送不到别处去。
 

@@ -14,8 +14,11 @@
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, relative } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const ROOT = new URL('..', import.meta.url).pathname
+// fileURLToPath，不是 .pathname —— 后者在 Windows 上返回 "/C:/…"，
+// join 之后变成 "C:\C:\…"，脚本直接 ENOENT 崩掉。
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const DATA = join(ROOT, 'docs/.vitepress/data/contracts')
 const DOCS = join(ROOT, 'docs')
 
@@ -27,6 +30,30 @@ const REGISTRIES = {
 }
 
 const errors = []
+const warnings = []
+
+// ⓪ 一致性读数与契约快照的来源 commit 是否一致 —— 报警告，不阻断
+//
+// 站上有两处「来源 commit」：Reference 各页脚的契约快照（SOURCE.json），
+// 和 Project Status 那份一致性读数（conformance-data.ts）。它们各自更新，
+// 于是同一个站可以同时挂着两个不同的 commit —— 实际发生过，差了三个提交，
+// 期间新增的一条 conformance 断言没有反映到读数里，页面上那句
+// 「Every number above came from running those four commands」就不成立了。
+//
+// # 为什么是警告而不是错误
+//
+// 这一条**在本仓库内无法被满足**：要对齐它，得去 SoulAuth 的工作区跑
+// `cargo test` / `cargo test --test conformance` / `./tests/integration.sh`，
+// 把数字誊回来。文档仓库的 CI 既没有 Rust 工具链，也没有那份源码。
+//
+// 一道你在本仓库里怎么做都过不了的闸门，最终只会训练人去绕过它 —— 而被绕过的
+// 检查和空转的检查是一回事。所以这里只把事实摆出来，让下一个改契约的人看见，
+// 不拦住与它无关的改动。
+const readout = readFileSync(join(ROOT, 'docs/.vitepress/theme/status/conformance-data.ts'), 'utf8')
+const readoutCommit = readout.match(/export const COMMIT = '([^']+)'/)?.[1]
+if (!readoutCommit) {
+  errors.push('conformance-data.ts 里读不到 `export const COMMIT` —— 读数没有来源 commit')
+}
 
 // ① 注册表
 const sizes = {}
@@ -59,6 +86,17 @@ if (!existsSync(srcPath)) {
     errors.push(
       'SOURCE.json 标记 dirty —— 快照取自有未提交改动的工作区，' +
         '它对应的契约在 git 历史里找不到。提交 SoulAuth 那边的改动后重新同步。',
+    )
+  }
+  // ⓪ 见文件开头：只报警告，不阻断。
+  if (readoutCommit && src.short && readoutCommit !== src.short) {
+    warnings.push(
+      `一致性读数落后于契约快照：` +
+        `conformance-data.ts 是 ${readoutCommit}，SOURCE.json 是 ${src.short}。\n` +
+        `      站上因此挂着两个来源 commit，而 Project Status 那页写着「Nothing here is an estimate」。\n` +
+        `      在 ${src.short} 的 SoulAuth 工作区跑：\n` +
+        `        cargo test  ·  cargo test --test conformance  ·  ./tests/integration.sh\n` +
+        `      把三个数字连同 CAPTURED_AT / COMMIT 誊进 conformance-data.ts。`,
     )
   }
 }
@@ -99,7 +137,13 @@ for (const file of Object.keys(REGISTRIES)) {
 }
 
 // ④ 页面必须声明来源
-const RENDERERS = ['<ApiTable', '<ConfigTable', '<PermissionTable', '<StandardsTable']
+const RENDERERS = [
+  '<ApiTable',
+  '<ConfigTable',
+  '<ErrorTable',
+  '<PermissionTable',
+  '<StandardsTable',
+]
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
     if (name === 'node_modules' || name === '.vitepress') continue
@@ -132,3 +176,5 @@ console.log(
     `${sizes['configuration.json']} 配置项 / ${sizes['standards.json']} 规范，` +
     `${pages} 个渲染页面均已声明来源`,
 )
+// 警告在成功行之后打印，这样它不会被误读成失败，也不会被滚屏吞掉。
+for (const w of warnings) console.warn('\n⚠ ' + w)

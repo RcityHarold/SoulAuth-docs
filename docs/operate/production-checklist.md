@@ -53,6 +53,12 @@ APP_URL=https://auth.example.com     # public
 BIND_ADDR=127.0.0.1:8080             # behind the proxy
 ```
 
+::: warning `BIND_ADDR` defaults to `0.0.0.0:8080`
+Leave it unset and the process listens on **every interface**. Behind a proxy that is
+rarely what you want, and it is what makes `TRUST_PROXY_HEADERS` dangerous below: the
+header is only safe when SoulAuth cannot be reached except through the proxy.
+:::
+
 A trailing slash mismatch between `APP_URL` and what a client expects for `issuer` is a
 genuinely common and genuinely confusing failure.
 

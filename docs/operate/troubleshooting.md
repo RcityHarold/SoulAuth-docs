@@ -134,9 +134,9 @@ Every non-OIDC error carries a stable machine code:
 { "error": "account_locked", "message": "…", "locked_until_seconds": 743 }
 ```
 
-Branch on `error`, never on `message`. Codes are listed in
-`contracts/openapi.yaml`. OIDC endpoints use the RFC 6749 shape instead —
-[API conventions](/reference/api-conventions#errors).
+Branch on `error`, never on `message`. Every code is listed in
+[API conventions](/reference/api-conventions#codes); OIDC endpoints use the RFC 6749
+shape instead.
 
 ## Still stuck
 

@@ -1,7 +1,8 @@
 # Authorization Code flow
 
-The whole flow, with real values from a running instance. PKCE is mandatory and only
-`S256` is accepted.
+The whole flow, with real values from a running instance. PKCE is forced on for public
+clients and on by default for confidential ones; whenever it is used, only `S256` is
+accepted.
 
 You need a [registered client](/integrate/register-a-client) first.
 

@@ -59,8 +59,10 @@ OIDC 协议端点用 RFC 6749 §5.2 规定的形状：
 
 ### 错误响应码
 
-完整枚举在 `contracts/openapi.yaml` 的 `components.schemas.Error` 里。码是
-snake_case，而且绝不由字符串格式化生成，所以可以放心逐字比较。
+完整枚举，从契约的 `components.schemas.Error` 渲染而来。码是 snake_case，
+而且绝不由字符串格式化生成，所以可以放心逐字比较。
+
+<ErrorTable />
 
 ## 状态码
 

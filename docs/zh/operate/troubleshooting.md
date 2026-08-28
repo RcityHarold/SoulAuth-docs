@@ -68,7 +68,7 @@ curl -s $SOULAUTH/.well-known/openid-configuration | grep issuer
 身份提供方会话，用户因此没有被问任何问题就回到了同一个账号。
 
 重定向到 `end_session_endpoint` 并带上 `id_token_hint`。见
-[浏览器与 BFF](/zh/integrate/browser-and-bff#登出)。
+[浏览器与 BFF](/zh/integrate/browser-and-bff#登出处理)。
 
 ## 用户被停用后还登着
 
@@ -125,9 +125,8 @@ grep -i 'smtp\|mail' /var/log/soulauth.log
 { "error": "account_locked", "message": "…", "locked_until_seconds": 743 }
 ```
 
-按 `error` 分支，永远不要按 `message`。码的清单在 `contracts/openapi.yaml` 中。
-OIDC 端点用的是 RFC 6749 的形状，见
-[API 约定](/zh/reference/api-conventions#错误)。
+按 `error` 分支，永远不要按 `message`。完整的码清单在
+[API 约定](/zh/reference/api-conventions#错误响应码)；OIDC 端点用的是 RFC 6749 的形状。
 
 ## 仍未解决
 
