@@ -8,7 +8,7 @@
 
 | 字段 | 含义 |
 |---|---|
-| `subject_key` | 稳定主体。生成的，绝不从邮箱或用户名派生。 |
+| `subject_key` | 稳定的 subject 值。生成的，绝不从邮箱或用户名派生。 |
 | `actor_kind` | `human` 或 `ai_actor` |
 | `identity_source` | `local`、`external`、`soulseed`。标明这个身份的来源 |
 | `canonical_actor_ref` | 仅 Soulseed 部署：指向别处定义的 actor 的引用 |
@@ -95,7 +95,7 @@ MFA 启用又关闭、经由不同客户端登录。这些都不构成身份变�
 ::: warning 今天的 `sub` 到底对什么稳定
 <Status kind="planned" /> OIDC 的 `sub` 目前带的是遗留 `user` 行的键，不是身份根。
 因此它只在那一行的生命周期内稳定，弱于模型描述的「永不重新分配」。如果需要一个
-能挺过账号重建的主体标识，`sub` 现在给不了你。这一条作为具名 caveat 记在
+能挺过账号重建的 subject 标识，`sub` 现在给不了你。这一条作为具名 caveat 记在
 [规范注册表](/zh/security/standards-and-conformance)里。
 :::
 

@@ -27,6 +27,11 @@
 | 凭证 | credential（正文中） |
 | 令牌 | token（正文中） |
 
+**`subject` 一律不译。** 上表把「主体」定给了 Actor，而 OIDC 的 subject 是另一个
+东西 —— 一个 issuer 命名空间内的标识符，不是行动的那一方。两者都叫「主体」时，
+「能挺过账号重建的主体标识」这种句子会同时读成两个意思，而它们在模型里恰好
+分属两层。散文里保留英文 `subject`，与已经保留的 `sub` / `iss` 一致。
+
 代码标识符保持原样并加反引号：`ActorIdentity`、`HumanAccount`、`subject_key`。
 它们是标识符，不是术语，不翻译。
 

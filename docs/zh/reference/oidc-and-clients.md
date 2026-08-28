@@ -46,7 +46,7 @@ resource owner password credentials 也都没有。
 <Status kind="planned" /> `sub` 目前带的是遗留 `user` 行的键，不是身份根。
 因此它只在那一行的生命周期内稳定，**弱于** OIDC Core 期待的「永不重新分配」。
 
-如果你需要一个能挺过账号重建的主体标识，`sub` 今天给不了你。
+如果你需要一个能挺过账号重建的 subject 标识，`sub` 今天给不了你。
 这一条作为具名 caveat 记在[规范与符合性](/zh/security/standards-and-conformance)里。
 :::
 

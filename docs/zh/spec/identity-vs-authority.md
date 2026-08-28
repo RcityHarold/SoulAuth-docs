@@ -65,7 +65,7 @@
 
 ## Claims 与令牌只在各自的契约内有效
 
-**Claims** 描述的是认证事件与主体本身：`sub`、`iss`、`auth_time`、`sid`，
+**Claims** 描述的是认证事件与 subject 本身：`sub`、`iss`、`auth_time`、`sid`，
 以及 scope 允许的档案字段。其中没有一项是授权陈述。一个把 `email_verified` 读成
 「可以访问计费」的客户端，是在自行发明签发方从未做出的规则。
 
