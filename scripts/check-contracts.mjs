@@ -30,8 +30,9 @@ const REGISTRIES = {
 }
 
 const errors = []
+const warnings = []
 
-// ⓪ 一致性读数必须与契约快照同一个 commit
+// ⓪ 一致性读数与契约快照的来源 commit 是否一致 —— 报警告，不阻断
 //
 // 站上有两处「来源 commit」：Reference 各页脚的契约快照（SOURCE.json），
 // 和 Project Status 那份一致性读数（conformance-data.ts）。它们各自更新，
@@ -39,8 +40,15 @@ const errors = []
 // 期间新增的一条 conformance 断言没有反映到读数里，页面上那句
 // 「Every number above came from running those four commands」就不成立了。
 //
-// 这里把两者钉在一起：要刷新就一起刷新。跑完那四条命令、誊完数字，
-// 顺手把 COMMIT 改成 SOURCE.json 的 short，否则这道检查红。
+// # 为什么是警告而不是错误
+//
+// 这一条**在本仓库内无法被满足**：要对齐它，得去 SoulAuth 的工作区跑
+// `cargo test` / `cargo test --test conformance` / `./tests/integration.sh`，
+// 把数字誊回来。文档仓库的 CI 既没有 Rust 工具链，也没有那份源码。
+//
+// 一道你在本仓库里怎么做都过不了的闸门，最终只会训练人去绕过它 —— 而被绕过的
+// 检查和空转的检查是一回事。所以这里只把事实摆出来，让下一个改契约的人看见，
+// 不拦住与它无关的改动。
 const readout = readFileSync(join(ROOT, 'docs/.vitepress/theme/status/conformance-data.ts'), 'utf8')
 const readoutCommit = readout.match(/export const COMMIT = '([^']+)'/)?.[1]
 if (!readoutCommit) {
@@ -80,13 +88,15 @@ if (!existsSync(srcPath)) {
         '它对应的契约在 git 历史里找不到。提交 SoulAuth 那边的改动后重新同步。',
     )
   }
-  // ⓪ 的断言（见文件开头）：两处来源 commit 必须一致。
+  // ⓪ 见文件开头：只报警告，不阻断。
   if (readoutCommit && src.short && readoutCommit !== src.short) {
-    errors.push(
-      `一致性读数与契约快照不是同一个 commit：` +
+    warnings.push(
+      `一致性读数落后于契约快照：` +
         `conformance-data.ts 是 ${readoutCommit}，SOURCE.json 是 ${src.short}。\n` +
-        `      同一个站上挂着两个来源，读者无从判断该信哪一个。\n` +
-        `      在 ${src.short} 上重跑 README 里那四条命令，把数字与 CAPTURED_AT / COMMIT 一起誊过来。`,
+        `      站上因此挂着两个来源 commit，而 Project Status 那页写着「Nothing here is an estimate」。\n` +
+        `      在 ${src.short} 的 SoulAuth 工作区跑：\n` +
+        `        cargo test  ·  cargo test --test conformance  ·  ./tests/integration.sh\n` +
+        `      把三个数字连同 CAPTURED_AT / COMMIT 誊进 conformance-data.ts。`,
     )
   }
 }
@@ -166,3 +176,5 @@ console.log(
     `${sizes['configuration.json']} 配置项 / ${sizes['standards.json']} 规范，` +
     `${pages} 个渲染页面均已声明来源`,
 )
+// 警告在成功行之后打印，这样它不会被误读成失败，也不会被滚屏吞掉。
+for (const w of warnings) console.warn('\n⚠ ' + w)
