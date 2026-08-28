@@ -4,8 +4,8 @@
 
 ## What is supported
 
-Authorization Code flow with mandatory PKCE (`S256`), RS256 ID tokens, discovery, JWKS,
-and refresh-token rotation with reuse detection.
+Authorization Code flow with PKCE (`S256` only, forced for public clients), RS256 ID
+tokens, discovery, JWKS, and refresh-token rotation with reuse detection.
 
 Implicit and hybrid flows are not implemented. Neither are client credentials, device
 code, or resource owner password credentials.

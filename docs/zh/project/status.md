@@ -17,7 +17,7 @@
 | 账号锁定与按 IP 限流，跨副本合账 | <Status kind="supported" /> |
 | 会话签发与吊销 | <Status kind="tested" guard="integration.sh" /> |
 | **AI 主体身份与挑战—应答认证** | <Status kind="tested" guard="conformance::a6" /> |
-| OIDC 授权码流程，强制 PKCE（S256） | <Status kind="tested" guard="integration.sh" /> |
+| OIDC 授权码流程 + PKCE（只收 S256），public 客户端强制 | <Status kind="tested" guard="integration.sh" /> |
 | RS256 ID Token、发现文档、JWKS | <Status kind="supported" /> |
 | 刷新令牌轮换、复用检测、令牌族吊销 | <Status kind="supported" /> |
 | Google 与 GitHub 联邦登录 | <Status kind="supported" /> |
@@ -63,13 +63,17 @@
 
 ## 如何读状态词
 
-六个词，且**任何一个都不蕴含另一个**：
+五个词构成一条强度阶梯，且**任何一个都不蕴含另一个**：
 
 <Status kind="implemented" glossary /> ·
 <Status kind="supported" glossary /> ·
 <Status kind="tested" glossary /> ·
 <Status kind="conformant" glossary /> ·
-<Status kind="certified" glossary /> ·
+<Status kind="certified" glossary />
+
+另有两个词与这条阶梯正交，不是它上面的台阶：
+
+<Status kind="planned" glossary /> ·
 <Status kind="deprecated" glossary />
 
 点击任意徽章即可看到它的精确含义。有一条后果值得记住：代码存在

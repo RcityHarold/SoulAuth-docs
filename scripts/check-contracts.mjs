@@ -14,8 +14,11 @@
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, relative } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const ROOT = new URL('..', import.meta.url).pathname
+// fileURLToPath，不是 .pathname —— 后者在 Windows 上返回 "/C:/…"，
+// join 之后变成 "C:\C:\…"，脚本直接 ENOENT 崩掉。
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const DATA = join(ROOT, 'docs/.vitepress/data/contracts')
 const DOCS = join(ROOT, 'docs')
 
@@ -27,6 +30,22 @@ const REGISTRIES = {
 }
 
 const errors = []
+
+// ⓪ 一致性读数必须与契约快照同一个 commit
+//
+// 站上有两处「来源 commit」：Reference 各页脚的契约快照（SOURCE.json），
+// 和 Project Status 那份一致性读数（conformance-data.ts）。它们各自更新，
+// 于是同一个站可以同时挂着两个不同的 commit —— 实际发生过，差了三个提交，
+// 期间新增的一条 conformance 断言没有反映到读数里，页面上那句
+// 「Every number above came from running those four commands」就不成立了。
+//
+// 这里把两者钉在一起：要刷新就一起刷新。跑完那四条命令、誊完数字，
+// 顺手把 COMMIT 改成 SOURCE.json 的 short，否则这道检查红。
+const readout = readFileSync(join(ROOT, 'docs/.vitepress/theme/status/conformance-data.ts'), 'utf8')
+const readoutCommit = readout.match(/export const COMMIT = '([^']+)'/)?.[1]
+if (!readoutCommit) {
+  errors.push('conformance-data.ts 里读不到 `export const COMMIT` —— 读数没有来源 commit')
+}
 
 // ① 注册表
 const sizes = {}
@@ -59,6 +78,15 @@ if (!existsSync(srcPath)) {
     errors.push(
       'SOURCE.json 标记 dirty —— 快照取自有未提交改动的工作区，' +
         '它对应的契约在 git 历史里找不到。提交 SoulAuth 那边的改动后重新同步。',
+    )
+  }
+  // ⓪ 的断言（见文件开头）：两处来源 commit 必须一致。
+  if (readoutCommit && src.short && readoutCommit !== src.short) {
+    errors.push(
+      `一致性读数与契约快照不是同一个 commit：` +
+        `conformance-data.ts 是 ${readoutCommit}，SOURCE.json 是 ${src.short}。\n` +
+        `      同一个站上挂着两个来源，读者无从判断该信哪一个。\n` +
+        `      在 ${src.short} 上重跑 README 里那四条命令，把数字与 CAPTURED_AT / COMMIT 一起誊过来。`,
     )
   }
 }
@@ -99,7 +127,13 @@ for (const file of Object.keys(REGISTRIES)) {
 }
 
 // ④ 页面必须声明来源
-const RENDERERS = ['<ApiTable', '<ConfigTable', '<PermissionTable', '<StandardsTable']
+const RENDERERS = [
+  '<ApiTable',
+  '<ConfigTable',
+  '<ErrorTable',
+  '<PermissionTable',
+  '<StandardsTable',
+]
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
     if (name === 'node_modules' || name === '.vitepress') continue

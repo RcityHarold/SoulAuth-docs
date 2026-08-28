@@ -17,7 +17,7 @@ Every number above came from running those four commands. Nothing here is an est
 | Account lockout and per-IP rate limiting, shared across replicas | <Status kind="supported" /> |
 | Session issuance and revocation | <Status kind="tested" guard="integration.sh" /> |
 | **AI actor identity and challenge–response authentication** | <Status kind="tested" guard="conformance::a6" /> |
-| OIDC Authorization Code flow with mandatory PKCE (S256) | <Status kind="tested" guard="integration.sh" /> |
+| OIDC Authorization Code flow with PKCE (S256 only), forced for public clients | <Status kind="tested" guard="integration.sh" /> |
 | RS256 ID tokens, discovery, JWKS | <Status kind="supported" /> |
 | Refresh-token rotation with reuse detection and family revocation | <Status kind="supported" /> |
 | Google and GitHub federated login | <Status kind="supported" /> |
@@ -65,13 +65,17 @@ Production goes through the [production checklist](/operate/production-checklist
 
 ## How to read a status word
 
-Six words, and **none of them implies another**:
+Five words form a ladder of strength, and **none of them implies another**:
 
 <Status kind="implemented" glossary /> ·
 <Status kind="supported" glossary /> ·
 <Status kind="tested" glossary /> ·
 <Status kind="conformant" glossary /> ·
-<Status kind="certified" glossary /> ·
+<Status kind="certified" glossary />
+
+Two more are orthogonal to that ladder rather than steps on it:
+
+<Status kind="planned" glossary /> ·
 <Status kind="deprecated" glossary />
 
 Click any badge for its exact meaning. The consequence worth internalising: code existing

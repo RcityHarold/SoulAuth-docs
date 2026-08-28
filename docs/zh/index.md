@@ -22,7 +22,7 @@ features:
     link: /zh/concepts/ai-native-identity
     linkText: AI 原生身份
   - title: 标准 OpenID Connect
-    details: 授权码流程强制 PKCE（S256）、RS256 ID Token、发现文档、JWKS、刷新令牌轮换与复用检测。
+    details: 授权码流程 + PKCE（只收 S256，public 客户端强制）、RS256 ID Token、发现文档、JWKS、刷新令牌轮换与复用检测。
     link: /zh/integrate/authorization-code-flow
     linkText: 接一个客户端
   - title: 每一句声称都指得出守卫
@@ -50,7 +50,7 @@ surreal import $DB schema.sql
 surreal import $DB initial_data.sql
 
 export JWT_SECRET=$(openssl rand -hex 32) APP_URL=http://localhost:8080 \
-       SMTP_HOST=127.0.0.1 SMTP_FROM=noreply@example.com
+       BIND_ADDR=127.0.0.1:8080 SMTP_HOST=127.0.0.1 SMTP_FROM=noreply@example.com
 cargo run
 ```
 
@@ -102,15 +102,16 @@ AI 主体拿到的只有一个 `ActorIdentity` 和一枚密钥，名下不存在
 
 ## 本 Release 实际做到了什么
 
-能够描述一套架构，不等于已经把它建成。本站每一项能力都标注了六个状态词之一，
-而这六个词互不蕴含：
+能够描述一套架构，不等于已经把它建成。本站每一项能力都标注了下面这些状态词之一，
+而它们互不蕴含：
 
 <Status kind="implemented" glossary /> 代码里有这条路径 ·
 <Status kind="supported" glossary /> 我们承担它的契约 ·
 <Status kind="tested" glossary /> 有自动化证据 ·
 <Status kind="conformant" glossary /> 对照外部规范验过 ·
 <Status kind="certified" glossary /> 标准组织认证过（**本项目没有任何一项**） ·
-<Status kind="planned" glossary /> 描述了但没建
+<Status kind="planned" glossary /> 描述了但没建 ·
+<Status kind="deprecated" glossary /> 还在，但已列入移除计划
 
 点击任意徽章可以看到它的精确含义。徽章若是在**做出声称**而非解释词义，
 会一并写出撑住这句话的断言，例如

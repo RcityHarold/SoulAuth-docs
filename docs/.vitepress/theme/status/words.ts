@@ -1,11 +1,20 @@
-// 六个状态词的**唯一**定义处。
+// 状态词的**唯一**定义处。
 //
 // 它们不是形容词。GA-07 §12 把它们定死成一组互不蕴含的判定：
 // `implemented` 不蕴含 `supported`，`supported` 不蕴含 `conformant`，
 // 任何一级都不蕴含 `certified`。文档里出现「支持 X」这种话时，
 // 读者必须能点开看到它到底是哪一级、由谁证明。
 //
-// 顺序即强度，从弱到强。`deprecated` 是正交的，单列。
+// 结构是「五级阶梯 + 两个正交标记」，一共七个：
+//
+//   implemented → supported → tested → conformant → certified   顺序即强度
+//   planned     架构描述了、本 Release 没有         正交
+//   deprecated  还在、但要移除                       正交
+//
+// 别再把这里说成「六个词」。页面上曾经出现过两份互相冲突的「六个」：
+// 首页把 `planned` 算进去、挤掉了 `deprecated`，status/spec 两页反过来。
+// 而 check-status.mjs 的中英对等检查抓不到这种**跨页面**的不一致 ——
+// 两边同样写错时它是绿的。
 
 export type StatusKind =
   | 'implemented'

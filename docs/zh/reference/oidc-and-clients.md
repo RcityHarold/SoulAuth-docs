@@ -4,7 +4,7 @@
 
 ## 支持范围
 
-授权码流程，强制 PKCE（`S256`）、RS256 ID Token、发现文档、JWKS，
+授权码流程 + PKCE（只收 `S256`，public 客户端强制）、RS256 ID Token、发现文档、JWKS，
 以及带复用检测的刷新令牌轮换。
 
 implicit 与 hybrid 流程未实现。client credentials、device code、

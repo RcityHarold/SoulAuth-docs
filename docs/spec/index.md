@@ -69,11 +69,17 @@ This is why endpoints, configuration keys, permission names and standards claims
 written by hand on these pages. They live in machine-readable registries that a test
 suite checks against the running code, and the site renders them.
 
-## The six status words
+## The status words
 
-They are a vocabulary, not adjectives. **None of them implies another.**
+They are a vocabulary, not adjectives. Five of them form a ladder of strength, and
+**none of them implies another**:
 
-<Status kind="implemented" glossary /> <Status kind="supported" glossary /> <Status kind="tested" guard="conformance::j1" /> <Status kind="conformant" glossary /> <Status kind="certified" glossary /> <Status kind="deprecated" glossary />
+<Status kind="implemented" glossary /> <Status kind="supported" glossary /> <Status kind="tested" glossary /> <Status kind="conformant" glossary /> <Status kind="certified" glossary />
+
+Two more sit outside that ladder rather than on it:
+
+<Status kind="planned" glossary /> described by the architecture, absent from this
+release · <Status kind="deprecated" glossary /> still present, scheduled for removal
 
 Click any badge for its exact meaning. Two consequences worth stating outright:
 

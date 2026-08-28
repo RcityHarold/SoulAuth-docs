@@ -12,8 +12,11 @@
 
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const ROOT = new URL('..', import.meta.url).pathname
+// fileURLToPath，不是 .pathname —— 后者在 Windows 上返回 "/C:/…"，
+// join 之后变成 "C:\C:\…"，脚本直接 ENOENT 崩掉。
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const DOCS = join(ROOT, 'docs')
 const DATA = join(ROOT, 'docs/.vitepress/data/contracts')
 

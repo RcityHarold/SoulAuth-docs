@@ -10,8 +10,12 @@
 
 ## 部署的构成
 
-一个静态链接的 Rust 二进制，加一个 SurrealDB 实例。不需要额外的运行时、
-应用服务器或 sidecar。
+一个 Rust 二进制，加一个 SurrealDB 实例。不需要额外的运行时、应用服务器或 sidecar。
+
+但这个二进制**不是**静态链接的：它按 GNU target 构建，动态链接 glibc 与 OpenSSL
+（`oauth2` 与 `lettre` 都启用了 native-tls）。把它拷到另一个发行版，或者塞进
+`FROM scratch` 镜像，都会因为缺库而无法启动。官方容器把它跑在
+`debian:bookworm-slim` 上，并装了 `ca-certificates` 与 `libssl3`——照这个形状复现。
 
 ## 1 · 数据库
 

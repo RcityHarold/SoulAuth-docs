@@ -125,9 +125,8 @@ grep -i 'smtp\|mail' /var/log/soulauth.log
 { "error": "account_locked", "message": "…", "locked_until_seconds": 743 }
 ```
 
-按 `error` 分支，永远不要按 `message`。码的清单在 `contracts/openapi.yaml` 中。
-OIDC 端点用的是 RFC 6749 的形状，见
-[API 约定](/zh/reference/api-conventions#错误)。
+按 `error` 分支，永远不要按 `message`。完整的码清单在
+[API 约定](/zh/reference/api-conventions#错误码)；OIDC 端点用的是 RFC 6749 的形状。
 
 ## 仍未解决
 

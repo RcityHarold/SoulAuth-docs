@@ -12,8 +12,11 @@
 
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const ROOT = new URL('..', import.meta.url).pathname
+// fileURLToPath，不是 .pathname —— 后者在 Windows 上返回 "/C:/…"，
+// join 之后变成 "C:\C:\…"，脚本直接 ENOENT 崩掉。
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const DOCS = join(ROOT, 'docs')
 
 const NEEDS_GUARD = new Set(['tested', 'conformant'])
@@ -53,7 +56,7 @@ for (const file of walk(DOCS)) {
     const at = `${rel}: <Status kind="${kind ?? '?'}">`
 
     if (!kind || !KNOWN.has(kind)) {
-      errors.push(`${at} 不是六个状态词之一（另加 planned）`)
+      errors.push(`${at} 不是七个状态词之一（五级阶梯 + planned / deprecated）`)
       continue
     }
     if (!glossary && NEEDS_GUARD.has(kind) && !guard) {

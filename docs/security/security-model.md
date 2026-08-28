@@ -65,7 +65,8 @@ issuer-bound, so a signature cannot be replayed into another purpose or another
 deployment. The challenge is consumed *before* the signature is verified, closing the
 concurrent-use window. [AI-native identity](/concepts/ai-native-identity)
 
-**OIDC.** Authorization Code with mandatory PKCE (`S256` only). Refresh tokens rotate;
+**OIDC.** Authorization Code with PKCE — forced on for public clients, on by default for
+confidential ones, `S256` only. Refresh tokens rotate;
 reusing a consumed one is treated as compromise and revokes the whole token family.
 
 ## Boundaries the design will not cross

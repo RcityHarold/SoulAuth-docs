@@ -22,7 +22,7 @@ features:
     link: /concepts/ai-native-identity
     linkText: AI-native identity
   - title: Standard OpenID Connect
-    details: Authorization Code flow with mandatory PKCE (S256), RS256 ID Tokens, discovery, JWKS, refresh-token rotation with reuse detection.
+    details: Authorization Code flow with PKCE (S256 only, forced for public clients), RS256 ID Tokens, discovery, JWKS, refresh-token rotation with reuse detection.
     link: /integrate/authorization-code-flow
     linkText: Wire up a client
   - title: Every claim names its guard
@@ -50,7 +50,7 @@ surreal import $DB schema.sql
 surreal import $DB initial_data.sql
 
 export JWT_SECRET=$(openssl rand -hex 32) APP_URL=http://localhost:8080 \
-       SMTP_HOST=127.0.0.1 SMTP_FROM=noreply@example.com
+       BIND_ADDR=127.0.0.1:8080 SMTP_HOST=127.0.0.1 SMTP_FROM=noreply@example.com
 cargo run
 ```
 
@@ -103,14 +103,15 @@ it, and the conformance suite asserts that the authentication path never touches
 ## What this release actually does
 
 Being able to describe an architecture is not the same as having built it. Every
-capability on this site carries one of six words, and none of them implies another:
+capability on this site carries one of these words, and none of them implies another:
 
 <Status kind="implemented" glossary /> the code path exists ·
 <Status kind="supported" glossary /> we carry its contract ·
 <Status kind="tested" glossary /> automated evidence covers it ·
 <Status kind="conformant" glossary /> verified against an external spec ·
 <Status kind="certified" glossary /> a standards body certified it — **nothing here is** ·
-<Status kind="planned" glossary /> described but not built
+<Status kind="planned" glossary /> described but not built ·
+<Status kind="deprecated" glossary /> present, but scheduled for removal
 
 Click any badge for its exact meaning. Where a badge makes a real claim rather than
 defining a word, it names the assertion that backs it — like

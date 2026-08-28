@@ -12,8 +12,13 @@ by rereading them.
 
 ## What you deploy
 
-One statically-linked Rust binary and a SurrealDB instance. No runtime, no application
-server, no sidecar.
+One Rust binary and a SurrealDB instance. No runtime, no application server, no sidecar.
+
+The binary is **not** statically linked: it is built for the GNU target and dynamically
+links glibc and OpenSSL (`oauth2` and `lettre` both use native-tls). Copying it onto a
+different distribution, or into a `FROM scratch` image, will fail on the missing
+libraries. The provided container runs it on `debian:bookworm-slim` with
+`ca-certificates` and `libssl3` installed, which is the shape to reproduce.
 
 ## 1 · Database
 

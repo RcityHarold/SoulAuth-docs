@@ -32,7 +32,10 @@ let uses = 0
 
 for (const file of walk('docs')) {
   if (file.includes('.vitepress')) continue
-  const isZh = file.startsWith('docs/zh/')
+  // join 在 Windows 上给的是反斜杠，直接 startsWith('docs/zh/') 永远为 false ——
+  // 那样每个中文页都会被当成英文页来查 locale，这道检查在 Windows 上静默失效。
+  const rel = file.replace(/\\/g, '/')
+  const isZh = rel.startsWith('docs/zh/')
   const want = isZh ? 'zh' : 'en'
   const text = readFileSync(file, 'utf8')
 
