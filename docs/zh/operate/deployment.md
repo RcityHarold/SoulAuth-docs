@@ -27,6 +27,12 @@ surreal start --bind 0.0.0.0:8000 --user root --pass root \
 生产环境请给 SoulAuth 一个限定账号而不是 `root`，并在前面放 TLS，
 见[生产清单](/zh/operate/production-checklist)。
 
+**版本。** SurrealDB 3.x。测试套件在 3.0.0 与 3.2.4 上各跑过一遍，CI 钉的是 3.2.4；
+2.x 不受支持，下面几条命令的参数在那上面并不存在。两个 3.x 版本之间有一处差别：
+`surreal import` 遇到没有 `OPTION IMPORT;` 的文件时，3.0 照常导入，3.2 会拒掉每一条
+`DEFINE`，最后一张表都不留。`schema.sql` 里带着这一行，因此两版都能用 —— 你要是改
+这个文件，把它留着。
+
 ## 2 · Schema
 
 SoulAuth 不发出任何 DDL，因此无法创建或修改自己的表。这条边界是结构性的，

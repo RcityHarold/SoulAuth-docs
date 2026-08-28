@@ -30,6 +30,12 @@ surreal start --bind 0.0.0.0:8000 --user root --pass root \
 For production give SoulAuth a scoped account rather than `root`, and put TLS in front —
 see the [production checklist](/operate/production-checklist).
 
+**Version.** SurrealDB 3.x. The suite is run against 3.0.0 and 3.2.4, and CI pins 3.2.4;
+2.x is not supported and the CLI flags below do not exist there. The two 3.x releases
+differ in how `surreal import` treats a file without `OPTION IMPORT;` — 3.0 imports it,
+3.2 rejects every `DEFINE` and leaves no tables. `schema.sql` carries that line, so both
+work; keep it if you edit the file.
+
 ## 2 · Schema
 
 SoulAuth issues no DDL. It cannot create or alter its own tables; that boundary is
