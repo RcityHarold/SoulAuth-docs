@@ -30,7 +30,7 @@ DOCS_BASE=/ npm run build
 ## Verification
 
 ```bash
-npm run verify   # build + all six checks below
+npm run verify   # build + all eight checks below
 ```
 
 Each check exists because VitePress does not cover it, and because every one of
@@ -45,6 +45,8 @@ renders.
 | `check:status` | Every `<Status>` badge: a real claim (`tested` / `conformant`) must name the assertion backing it, a vocabulary demo must be marked `glossary`, and the two locales must agree. A badge without a guard is an adjective wearing evidence's clothes. |
 | `check:contracts` | The contract snapshot: all four registries present, non-empty, taken from a clean working tree, and the conformance readout pinned to the same commit. Also that no Chinese leaks into an English-facing contract field, and that every page rendering contract data declares its source commit. |
 | `check:citations` | Endpoints, config keys and permission names mentioned in **prose**. The reference tables are rendered from the contract and cannot drift; the sentences around them can. |
+| `check:zh-style` | The machine-checkable part of `STYLE.zh.md`: em-dash density, mixed quote styles, and one concept going by four names. The Chinese site was once a sentence-by-sentence translation, which kept the English information structure intact and read like machine output. |
+| `check:locale` | Chinese leaking onto English pages — scanned in the **built output**, not the source, because both times it happened the offending string was not in any page file: once it came from a contract `description`, once from a hard-coded fallback inside a render component. |
 
 None of them needs the SoulAuth source — the contract snapshot under
 `docs/.vitepress/data/contracts/` is committed, so the site builds and verifies
@@ -76,7 +78,7 @@ docs/
         ├── contracts/       tables rendered from that snapshot
         ├── figures/         the three canonical figures, as components
         └── status/          status badges and the conformance readout
-scripts/                     the six checks above, plus sync-contracts.py
+scripts/                     the eight checks above, plus sync-contracts.py
 ```
 
 ## Editing

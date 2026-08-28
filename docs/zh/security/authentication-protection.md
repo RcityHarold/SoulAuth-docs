@@ -35,7 +35,7 @@ LOCKOUT_IP_ENABLED=true      # 按来源地址
 :::
 
 管理员可以解开任一维度，见
-[运维与恢复](/zh/operate/operations-and-recovery#被锁定的账号)。
+[运维与恢复](/zh/operate/operations-and-recovery#处理被锁定的账号)。
 
 ## 请求限流
 

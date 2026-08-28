@@ -5,7 +5,7 @@
 | 你在做的 | 用 | 从哪开始 |
 |---|---|---|
 | 有服务器的 Web 应用 | **BFF**。令牌留在服务器一侧，浏览器只持有 cookie | [浏览器与 BFF](/zh/integrate/browser-and-bff) |
-| 没有后端的 SPA 或原生应用 | **公开客户端 + PKCE** | [浏览器与 BFF](/zh/integrate/browser-and-bff#公开客户端-pkce) |
+| 没有后端的 SPA 或原生应用 | **公开客户端 + PKCE** | [浏览器与 BFF](/zh/integrate/browser-and-bff#公开客户端加-pkce) |
 | 接收令牌的 API | **资源服务器**。只校验，不获取 | [校验令牌](/zh/integrate/verify-tokens) |
 | 自动化任务或 AI 主体 | **AI 主体**。持有一把密钥，而不是一个账户 | [AI 原生身份](/zh/concepts/ai-native-identity) |
 

@@ -22,7 +22,7 @@ OIDC 端点、客户端 API、管理 API 的 HTTP handler。它把 wire 格式�
 
 ### 身份域层
 
-`ActorIdentity` 以及围绕它的那些对象，参见[Actor 身份模型](/zh/concepts/actor-identity-model)。
+`ActorIdentity` 以及围绕它的其余对象，参见[Actor 身份模型](/zh/concepts/actor-identity-model)。
 
 这一层不校验凭证。解析「一个主体是谁」与验证「我是他这句话此刻是否成立」
 是**两个问题**：回答第一个问题的对象必须没有能力回答第二个，

@@ -53,13 +53,13 @@ curl -X POST $SOULAUTH/api/oidc/clients \
 | `confidential` | 你的服务器能保管密钥——后端、BFF、服务端渲染应用 | 令牌端点要求密钥。浏览器侧应用**不能**是它，因为把密钥发给浏览器就等于公开它。 |
 | `public` | 原生应用、没有后端的 SPA | 没有密钥。PKCE 是唯一阻止授权码被拦截利用的东西，所以它不是可选项。 |
 
-`public` 客户端的 `require_pkce` 被**强制为 true** —— 传 `false` 服务端也不认，
+`public` 客户端的 `require_pkce` 被**强制为 true**，传 `false` 服务端也不认，
 因为 PKCE 是这类客户端与授权码之间唯一的绑定。`confidential` 客户端默认开启，
 但**可以**关掉：client_secret 是第二重绑定，这个选择因此才存在。
 
 只有在你说得出理由的时候才关。「反正有 secret」不算理由。
 
-只要用了 PKCE 就只接受 `S256` —— `plain` 在下发阶段即被拒绝。`plain` 挡不住被拦截的
+只要用了 PKCE 就只接受 `S256`，`plain` 在下发阶段即被拒绝。`plain` 挡不住被拦截的
 授权码被兑换，所以不提供。
 
 ## 重定向 URI 的匹配规则

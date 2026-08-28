@@ -13,8 +13,11 @@
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, relative } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const ROOT = new URL('..', import.meta.url).pathname
+// fileURLToPath，不是 .pathname —— 后者在 Windows 上返回 "/C:/…"，
+// join 之后变成 "C:\C:\…"，dist/ 于是「找不到」，而它明明就在那儿。
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const DIST = join(ROOT, 'docs/.vitepress/dist')
 
 if (!existsSync(DIST)) {

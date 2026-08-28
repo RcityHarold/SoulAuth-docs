@@ -45,7 +45,7 @@ verifier 本身，对这件事完全不提供保护。
 强制开启，管理员关不掉。**confidential** 客户端另有 client_secret：PKCE 默认开启、
 **可以**关掉；关掉之后，被截获的授权码是「没有 client_secret 就没用」，
 而不是「没有 verifier 就没用」。两重都留着才是对的，
-[注册 Client](/zh/integrate/register-a-client#confidential-还是-public) 那页也是这么说的。
+[注册 Client](/zh/integrate/register-a-client#选-confidential-还是-public) 那页也是这么说的。
 
 同样必需的是精确匹配的重定向 URI，这样码从一开始就送不到别处去。
 
