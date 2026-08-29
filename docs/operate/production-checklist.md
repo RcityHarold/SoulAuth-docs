@@ -1,7 +1,7 @@
 # Production checklist
 
-The quickstart asks you to decide as little as possible. This page covers what is still
-missing between that and something that faces real users.
+An instance configured the way the quickstart configures it runs, but is not ready to be
+reached from outside. Below is what to change before it is.
 
 ## What the process refuses to do for you
 
