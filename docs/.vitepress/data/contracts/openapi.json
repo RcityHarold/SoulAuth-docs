@@ -54,6 +54,7 @@
               "account_inactive",
               "account_deleted",
               "account_locked",
+              "rate_limit_exceeded",
               "forbidden",
               "bad_request",
               "not_configured",

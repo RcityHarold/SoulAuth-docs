@@ -7,8 +7,8 @@
 // 更新纪律：跑完那四条命令，把数字誊过来，同时更新 `capturedAt`。
 // 不要手改单个数字 —— 那正是这份读数存在要防止的事。
 
-export const CAPTURED_AT = '2026-08-28'
-export const COMMIT = '55ce8c1'
+export const CAPTURED_AT = '2026-08-29'
+export const COMMIT = '3a92fd4'
 
 export interface Gate {
   id: string

@@ -176,6 +176,8 @@
     {
       "name": "admin",
       "permissions": [
+        "soulauth:actors.read",
+        "soulauth:actors.write",
         "soulauth:audit.read",
         "soulauth:oidc_clients.read",
         "soulauth:oidc_clients.write",
