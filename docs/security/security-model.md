@@ -83,22 +83,6 @@ instance, so a stale token cannot probe deployment state.
 **Public keys only, for agents.** SoulAuth never holds an agent's private key. Unlike a
 password hash, the stored value is not even a target for offline attack.
 
-## Where it stops
-
-<Status kind="planned" /> **Audit is not tamper-evident.** An ordinary table, no hash
-chain, no checkpoint. Anyone with database write access can alter it silently. Do not
-present it as evidence.
-
-<Status kind="planned" /> **Revocation lags across replicas** by up to one cache TTL.
-
-**Transport is yours.** SoulAuth refuses plaintext for non-loopback addresses, but TLS
-termination, certificates and network isolation are the deployment's job.
-
-**Your application's authorization is yours.** The RBAC here governs SoulAuth's own
-control plane.
-
-**Nothing is certified.** No standards organisation has assessed any of this.
-
 ## Next
 
 | | |
