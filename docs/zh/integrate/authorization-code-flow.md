@@ -13,6 +13,9 @@ confidential 客户端默认启用；只要用了 PKCE，就只接受 `S256`。
 curl $SOULAUTH/.well-known/openid-configuration
 ```
 
+同一份文档在 `/api/oidc/.well-known/openid-configuration` 上也有一份，内容完全相同。
+RFC 8414 的客户端找的是根路径那个，所以用根路径，把另一个当别名看待。
+
 ```json
 {
   "issuer": "http://localhost:8400",

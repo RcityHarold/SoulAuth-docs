@@ -14,6 +14,10 @@ Never hard-code endpoint URLs — read them once at startup:
 curl $SOULAUTH/.well-known/openid-configuration
 ```
 
+The same document is also served at `/api/oidc/.well-known/openid-configuration`. Both
+return identical content; the root path is the one RFC 8414 clients look for, so prefer
+it and treat the other as an alias.
+
 ```json
 {
   "issuer": "http://localhost:8400",

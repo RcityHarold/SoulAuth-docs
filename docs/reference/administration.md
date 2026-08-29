@@ -7,6 +7,7 @@
 Reading and modifying **other** actors' records. All of it is permission-gated; each
 endpoint names the permission it requires.
 
+<!-- table-only: /api/users/** — account CRUD and status/membership changes. Each call stands alone: no ordering between them, and the rendered table carries the method, the required permission and the request schema. -->
 <ApiTable tag="Administration" />
 
 ::: tip `/api/users` vs `/api/me`
@@ -20,6 +21,10 @@ yourself and needs only a session. They used to share a prefix, which produced p
 
 Role and permission management, plus assignment to actors, live under `/api/rbac` and
 appear in the table above.
+<!-- table-only: /api/rbac/** — role and permission CRUD plus grant/revoke. Every call is
+     independent: create a role, create a permission, attach one to the other, attach the
+     role to an actor, in whatever order suits you. The table carries the method, the
+     required permission and the body schema, which is the whole contract. -->
 
 Two endpoints are worth calling out because they are cheap and useful in a client:
 `/api/rbac/check/permission/:permission_name` and `/api/rbac/check/role/:role_name` answer for the
@@ -49,6 +54,7 @@ trail of events that never resolve.
 
 ## Operations
 
+<!-- table-only: /api/ops/** — a single read-only aggregate for dashboards. Nothing to sequence. -->
 <ApiTable tag="Operations" />
 
 ::: warning Membership does not belong on the identity root

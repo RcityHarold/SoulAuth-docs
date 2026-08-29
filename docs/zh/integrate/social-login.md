@@ -18,7 +18,8 @@ GITHUB_CLIENT_SECRET=...
 
 ## 流程
 
-把浏览器送到 `GET /api/auth/login/google`。SoulAuth 重定向到 provider，
+把浏览器送到 `GET /api/auth/login/google`（或 `GET /api/auth/login/github`，
+往下两者行为完全一致）。SoulAuth 重定向到 provider，
 同时下发一个 `soulauth_oauth_state` cookie：带 `HttpOnly`，里面的 nonce
 与重定向 URL 里的 `state` 参数是绑定的。
 

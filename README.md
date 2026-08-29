@@ -30,7 +30,7 @@ DOCS_BASE=/ npm run build
 ## Verification
 
 ```bash
-npm run verify   # build + all eight checks below
+npm run verify   # build + all nine checks below
 ```
 
 Each check exists because VitePress does not cover it, and because every one of

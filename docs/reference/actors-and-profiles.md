@@ -7,6 +7,7 @@
 Everything under `/api/me` acts on the caller's own records and needs nothing beyond a
 valid session token.
 
+<!-- table-only: /api/me/** — the caller's own profile, preferences and activity log. Plain CRUD on the caller's own rows, with no ordering. -->
 <ApiTable tag="Actors & Profiles" />
 
 ::: tip Profile is not identity

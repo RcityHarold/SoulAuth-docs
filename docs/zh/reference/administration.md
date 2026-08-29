@@ -6,6 +6,7 @@
 
 以下端点用于读取与修改**其他主体**的记录，全部受权限管控，每个端点都写明所需的权限。
 
+<!-- table-only: /api/users/** — 账号的增删改查与状态/会员变更。每个调用各自独立，彼此之间没有顺序，方法、所需权限、请求 schema 都在渲染出来的表里。 -->
 <ApiTable tag="Administration" />
 
 ::: tip `/api/users` 与 `/api/me` 的区别
@@ -17,6 +18,9 @@
 ## 角色与权限
 
 角色、权限的管理以及对主体的分配都在 `/api/rbac` 下，已在上表中。
+<!-- table-only: /api/rbac/** — 角色与权限的增删改查，加上授予/撤销。每个调用彼此
+     独立：建角色、建权限、把权限挂到角色上、把角色挂到主体上，顺序随你。方法、
+     所需权限、请求体 schema 都在表里，那就是全部契约。 -->
 
 有两个端点值得单独说明，因为它们开销小且实用：
 `/api/rbac/check/permission/:permission_name` 与 `/api/rbac/check/role/:role_name`
@@ -44,6 +48,7 @@
 
 ## 运营看板
 
+<!-- table-only: /api/ops/** — 一个只读聚合，给看板用，没有顺序可言。 -->
 <ApiTable tag="Operations" />
 
 ::: warning 会员状态不该挂在身份根上

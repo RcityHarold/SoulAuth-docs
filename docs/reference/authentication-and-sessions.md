@@ -19,8 +19,15 @@ Session state is **derived, not stored**. There is no status column:
 So there is no second source of truth to drift out of sync — but also no enum to read.
 Anything the API says about a session is computed at read time.
 
-Multiple concurrent sessions are allowed, with no limit. `POST /api/auth/logout-all`
-revokes the whole set.
+Multiple concurrent sessions are allowed, with no limit. `GET /api/auth/sessions` lists
+the caller's own, and `POST /api/auth/logout-all` revokes the whole set — useful as a
+"sign out everywhere" control after a password change.
+
+There is a second entry point, `POST /api/auth/admin/login`, which takes the same
+credentials but refuses any account that is not an administrator. It exists so an admin
+console can reject a normal user at the login screen rather than after it; it grants
+nothing extra, and a normal `POST /api/auth/login` by an administrator produces the same
+session.
 
 ::: warning Revocation is not instant across replicas
 <Status kind="planned" /> Each instance caches resolved sessions. A logout, password

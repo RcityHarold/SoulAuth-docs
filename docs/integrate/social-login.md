@@ -18,7 +18,8 @@ the redirect URIs on the provider side. They must match what the provider has, e
 
 ## The flow
 
-Send the browser to `GET /api/auth/login/google`. SoulAuth redirects to the provider and,
+Send the browser to `GET /api/auth/login/google` (or `GET /api/auth/login/github` — the
+two behave identically from here on). SoulAuth redirects to the provider and,
 at the same time, sets a `soulauth_oauth_state` cookie — `HttpOnly`, and holding a nonce
 that is bound to the `state` parameter in the redirect URL.
 

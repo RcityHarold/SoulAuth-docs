@@ -16,6 +16,7 @@ Two rules the writer holds to:
 
 ## Endpoints
 
+<!-- table-only: /api/audit/** — read-only reports over a time window. They take the same shape of query parameter and are independent of one another. -->
 <ApiTable tag="Audit" />
 
 Dashboard and reporting queries accept a time window. Requests are clamped server-side,
