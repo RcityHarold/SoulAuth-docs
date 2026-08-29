@@ -45,6 +45,7 @@ renders.
 | `check:status` | Every `<Status>` badge: a real claim (`tested` / `conformant`) must name the assertion backing it, a vocabulary demo must be marked `glossary`, and the two locales must agree. A badge without a guard is an adjective wearing evidence's clothes. |
 | `check:contracts` | The contract snapshot: all four registries present, non-empty, taken from a clean working tree, and the conformance readout pinned to the same commit. Also that no Chinese leaks into an English-facing contract field, and that every page rendering contract data declares its source commit. |
 | `check:citations` | Endpoints, config keys and permission names mentioned in **prose**. The reference tables are rendered from the contract and cannot drift; the sentences around them can. |
+| `check:coverage` | The other direction: every path in the contract must either appear in prose, or be registered on its reference page as table-only *with a reason*. Nothing else checks this, and 48 of 71 paths were reachable only through a rendered table — including four multi-step flows whose call order a table cannot express. Checked per locale, because a flow explained only in English is unexplained for a Chinese reader. |
 | `check:zh-style` | The machine-checkable part of `STYLE.zh.md`: em-dash density, mixed quote styles, and one concept going by four names. The Chinese site was once a sentence-by-sentence translation, which kept the English information structure intact and read like machine output. |
 | `check:locale` | Chinese leaking onto English pages — scanned in the **built output**, not the source, because both times it happened the offending string was not in any page file: once it came from a contract `description`, once from a hard-coded fallback inside a render component. |
 
@@ -78,7 +79,7 @@ docs/
         ├── contracts/       tables rendered from that snapshot
         ├── figures/         the three canonical figures, as components
         └── status/          status badges and the conformance readout
-scripts/                     the eight checks above, plus sync-contracts.py
+scripts/                     the nine checks above, plus sync-contracts.py
 ```
 
 ## Editing
