@@ -3,7 +3,9 @@ import { computed } from 'vue'
 import { useData } from 'vitepress'
 import { source, commitUrl } from './source'
 
-const props = defineProps<{ file: string }>()
+// `file` 仍然接收：check-contracts 靠它确认每个渲染契约数据的页面都声明了来源，
+// 页面上不再显示文件名 —— 读者需要的是「取自哪个 commit」，不是渲染管线怎么工作的。
+defineProps<{ file: string }>()
 const { lang } = useData()
 const zh = computed(() => lang.value.startsWith('zh'))
 const date = computed(() => source.committedAt.slice(0, 10))
@@ -12,18 +14,16 @@ const date = computed(() => source.committedAt.slice(0, 10))
 <template>
   <div class="cn">
     <template v-if="zh">
-      本页内容由 <code>contracts/{{ file }}</code> 渲染，不是手写的。
-      快照取自 <a :href="commitUrl()" target="_blank" rel="noreferrer"><code>{{ source.short }}</code></a>（{{ date }}）。
-      契约与运行代码的一致性由 <code>tests/conformance.rs</code> 的 j1–j10 双向断言。
-      <strong v-if="source.dirty" class="cn-warn">⚠ 快照取自有未提交改动的工作区。</strong>
+      契约快照
+      <a :href="commitUrl()" target="_blank" rel="noreferrer"><code>{{ source.short }}</code></a>
+      · {{ date }}
+      <strong v-if="source.dirty" class="cn-warn">⚠ 取自有未提交改动的工作区</strong>
     </template>
     <template v-else>
-      This page is rendered from <code>contracts/{{ file }}</code>; none of it is
-      hand-written. Snapshot taken at
-      <a :href="commitUrl()" target="_blank" rel="noreferrer"><code>{{ source.short }}</code></a> ({{ date }}).
-      Contract and running code are held in agreement by j1–j10 in
-      <code>tests/conformance.rs</code>.
-      <strong v-if="source.dirty" class="cn-warn">⚠ Snapshot taken from a dirty working tree.</strong>
+      Contract snapshot
+      <a :href="commitUrl()" target="_blank" rel="noreferrer"><code>{{ source.short }}</code></a>
+      · {{ date }}
+      <strong v-if="source.dirty" class="cn-warn">⚠ taken from a dirty working tree</strong>
     </template>
   </div>
 </template>
