@@ -42,7 +42,7 @@ res.cookie('session', sessionId, {
 })
 ```
 
-`sameSite: 'lax'` is deliberate. `'strict'` drops the cookie on the cross-site redirect
+Use `sameSite: 'lax'`. `'strict'` drops the cookie on the cross-site redirect
 back from the identity provider, and the symptom is a login loop that works on localhost
 and fails in production.
 

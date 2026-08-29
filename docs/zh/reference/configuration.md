@@ -13,8 +13,8 @@ SoulAuth 不是告警，而是**拒绝启动**：
 当 `APP_URL` 不是环回地址时，`OIDC_RSA_PRIVATE_KEY_PATH`（或 `_PEM`）与
 `MFA_SECRET_ENCRYPTION_KEY` 成为必填。
 
-这就是[快速上手](/zh/start/quickstart)为什么两项都不需要——
-同样也是快速上手那套配置为什么不构成一次部署。
+[快速上手](/zh/start/quickstart)用的是 `http://localhost:8080`，属于环回地址，
+所以那两项都不必配 —— 也因此那套配置不能直接拿去部署。
 
 ## `APP_URL` 与监听地址的区别
 

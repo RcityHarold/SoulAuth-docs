@@ -14,8 +14,9 @@ real deployment ran on them. Rather than warn, SoulAuth **refuses to start**:
 when `APP_URL` is not a loopback address, `OIDC_RSA_PRIVATE_KEY_PATH` (or `_PEM`) and
 `MFA_SECRET_ENCRYPTION_KEY` become required.
 
-That is why the [quickstart](/start/quickstart) needs neither — and equally why the
-quickstart's settings are not a deployment.
+The [quickstart](/start/quickstart) uses `http://localhost:8080`, which is a loopback
+address, so it needs neither — and for the same reason its settings cannot be deployed
+as they are.
 
 ## `APP_URL` is not the listen address
 

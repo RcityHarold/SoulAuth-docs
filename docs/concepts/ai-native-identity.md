@@ -96,7 +96,7 @@ This gives nothing away: the payload contains no secret, and the server **recomp
 independently** before verifying. The copy you send back is never used.
 :::
 
-There is no JSON anywhere in the signed content, deliberately. JSON has no single byte
+The signed content contains no JSON. JSON has no single byte
 representation — key order, whitespace, escaping and number formatting all vary — so
 "serialise then sign" always drags in a canonicalisation spec of its own. Four lines of
 text cannot disagree with themselves.

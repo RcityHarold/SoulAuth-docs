@@ -29,8 +29,8 @@ consumed before the signature is checked: [AI-native identity](/concepts/ai-nati
 
 ::: warning Agent sessions carry no permissions
 <Status kind="planned" /> RBAC is still keyed to human account rows. An agent token works
-on `/api/actors/me` and is refused with `403` on human endpoints. The refusal is
-deliberate rather than incidental.
+on `/api/actors/me` and is refused with `403` on human endpoints — `AuthedUser` checks
+`subject_type` first and refuses an agent token before it looks up a row.
 :::
 
 ### Keys

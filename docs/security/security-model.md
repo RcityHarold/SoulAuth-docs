@@ -39,9 +39,9 @@ Passwords are low-entropy and human-chosen, so a slow hash is what makes offline
 cracking expensive — Argon2.
 
 Bearer tokens are 32-byte random values or signed JWTs. There is nothing to guess, and
-they are looked up on **every authenticated request**. A slow hash there would buy no
-security and would flatten the auth path. SHA-256 is the correct choice, and choosing
-differently for the two cases is deliberate rather than inconsistent.
+they are looked up on **every authenticated request**. A slow hash buys nothing here and
+would add tens of milliseconds to every request. Hence Argon2 for passwords and SHA-256
+for tokens: the two defend against different attacks.
 
 ### The session case is worth stating
 

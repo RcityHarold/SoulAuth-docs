@@ -38,7 +38,7 @@
 
 `email`、`username`、`username_normalized`、`email_verified`。
 
-修改邮箱改动的是这一行，主体本身不变。正是这层拆分，使得 AI 主体可以完全不具备
+修改邮箱改的是这一行，主体本身不变。有了这层拆分，AI 主体才可以完全不具备
 上述任何字段而存在，参见 [AI 原生身份](/zh/concepts/ai-native-identity)。
 
 ::: warning 还没有完全拆干净

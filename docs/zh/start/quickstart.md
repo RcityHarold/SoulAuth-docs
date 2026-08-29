@@ -55,7 +55,7 @@ surreal import $DB initial_data.sql
 ::: warning namespace 与 database 必须对上
 这里的 `auth` / `main` 必须与进程连接时使用的那一对完全一致。导入到错误的一对之后，
 一切**看起来**都正常：进程照常启动，`/health` 照常返回 `ok`，直到第一次写入才失败。
-walkthrough 脚本之所以存在，正是因为这个错误被踩过一次。
+这个错误踩过一次，所以有了 walkthrough 脚本。
 :::
 
 ## 3 · 配置
@@ -202,8 +202,8 @@ curl -X POST http://localhost:8080/api/actors/authenticate \
 ```
 
 返回的会话令牌带有 `subject_type: agent`。它可用于 `/api/actors/me`，
-在人类端点上会被**明确拒绝**。这条边界是刻意设计的，也已
-[写明](/zh/concepts/ai-native-identity)。
+在人类端点上会被**明确拒绝**。这条边界的范围见
+[AI 原生身份](/zh/concepts/ai-native-identity)。
 
 ## 你现在有了什么
 

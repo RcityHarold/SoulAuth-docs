@@ -1,7 +1,7 @@
 # 部署
 
 下面这条路径是仓库在 CI 中**真正执行**的那一条：
-`tests/deployment_walkthrough.sh` 从空库跑到一个可用的管理员，走的正是这些步骤。
+`tests/deployment_walkthrough.sh` 跑的就是下面这些步骤，从空库一直到一个可用的管理员。
 <Status kind="tested" guard="deployment_walkthrough.sh" />
 
 那个脚本之所以存在，是因为本文档曾经是错的。`surreal import` 被写成了一个不存在的
@@ -104,7 +104,7 @@ curl -X POST http://localhost:8080/api/bootstrap/admin \
 
 <Status kind="tested" guard="ci.yml::docker" /> CI 每次推送都会执行它，一直跑到拿出
 一个可用的管理员，并且重启一次以确认 schema 导入是幂等的。第二次启动，
-正是一个未做探测的导入会撞上 `already exists` 的地方。
+一个不先探测就导入的脚本会在这里撞上 `already exists`。
 
 它是给本地用的：口令是开发默认值，SurrealDB 也没有 TLS。生产走上面那些步骤，
 外加[生产清单](/zh/operate/production-checklist)。
@@ -167,7 +167,7 @@ location / {
 ./tests/deployment_walkthrough.sh
 ```
 
-零失败意味着这份文档是可执行的，而不只是可读的文字。
+零失败说明照这份文档从空库走到一个可用的管理员是走得通的。
 
 ## 接下来
 

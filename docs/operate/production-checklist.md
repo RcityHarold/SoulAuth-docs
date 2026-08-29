@@ -1,7 +1,7 @@
 # Production checklist
 
-The quickstart deliberately gets you running with the fewest possible decisions. This
-page is the difference between that and something that faces real users.
+The quickstart asks you to decide as little as possible. This page covers what is still
+missing between that and something that faces real users.
 
 ## What the process refuses to do for you
 
@@ -131,9 +131,8 @@ process.
 `SMTP_HOST` and `SMTP_FROM` are required even with email verification disabled, because
 password reset sends mail.
 
-Send failures are logged, not raised. That is deliberate — a broken SMTP host must not
-turn "forgot password" into a 500, and must not let the response time difference reveal
-whether an address is registered. The cost is that a misconfigured mail server is
+Send failures are logged, not raised, so a broken SMTP host cannot turn "forgot password"
+into a 500 or let a response-time difference reveal whether an address is registered. The cost is that a misconfigured mail server is
 **silent**. Send yourself a reset before you believe it works.
 
 ## Running more than one instance

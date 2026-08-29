@@ -23,7 +23,8 @@
 <Status kind="certified" glossary /> 标准组织说了算
 
 一份规范完全可以是 `implemented: true, supported: true, conformant: false`
-——本表里绝大多数就在这个位置，而把它直说出来，正是用五个标志位而不是一个词的意义。
+——本表里绝大多数条目就在这个位置。用五个标志位而不是一个词，就是为了能把这种状态
+如实写出来。
 
 ## 注册表
 

@@ -1,7 +1,7 @@
 # API conventions
 
-What holds across every endpoint. Read this once and the rest of the reference is just
-a list of paths.
+What holds across every endpoint. The reference pages that follow do not repeat any of
+it.
 
 <ContractNote file="openapi.yaml" />
 
@@ -24,8 +24,8 @@ integration mistake:
 Two consequences worth stating:
 
 - **A session token is not an OIDC access token.** They are both bearer tokens on the
-  same header, which is exactly why the distinction gets lost. Sending the wrong one
-  gets you a 401 that looks like a credentials problem.
+  same `Authorization: Bearer` header, so sending the wrong one gets you a 401 that looks
+  like an expired credential.
 - **Cookies do not authenticate the API.** They serve the browser and OIDC flows. An
   API call with only a cookie is unauthenticated.
 
@@ -87,8 +87,8 @@ literally.
 | `501` | The route exists but this deployment has not configured the feature |
 | `503` | A dependency was briefly unavailable — the request was **not** processed |
 
-`501` is deliberate. A federated login endpoint on a deployment with no OAuth credentials
-configured is not "not found" — the route is there, the semantics are defined, the
+`501` rather than `404`: a federated login endpoint on a deployment with no OAuth
+credentials configured is not "not found" — the route is there, the semantics are defined, the
 operator simply has not filled in the settings. A `404` would send them looking for the
 wrong problem.
 

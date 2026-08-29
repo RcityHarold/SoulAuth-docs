@@ -175,7 +175,7 @@ signing key. They must, or tokens from one replica fail against another's JWKS.
 ./tests/deployment_walkthrough.sh
 ```
 
-Zero failures means this document is executable, not merely readable.
+Zero failures means this page runs from an empty database to a usable administrator.
 
 ## Next
 

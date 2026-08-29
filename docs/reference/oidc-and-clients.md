@@ -10,8 +10,8 @@ tokens, discovery, JWKS, and refresh-token rotation with reuse detection.
 Implicit and hybrid flows are not implemented. Neither are client credentials, device
 code, or resource owner password credentials.
 
-The discovery document advertises exactly what is implemented — nothing aspirational —
-and <Status kind="tested" guard="conformance::h10" /> keeps it that way.
+The discovery document lists what is implemented and nothing aspirational, and
+<Status kind="tested" guard="conformance::h10" /> keeps it that way.
 
 ## Protocol endpoints
 
@@ -62,9 +62,9 @@ Two things `sub` is definitely not:
 - **Not the `ActorIdentity` resource ID.** Different namespace.
 - **Not an email address.** Emails change; subjects must not.
 
-An OIDC subject is only meaningful together with its issuer. `(iss, sub)` is the pair
-that identifies a user — `sub` alone, compared across issuers, is a cross-provider
-account takeover waiting to happen.
+An OIDC subject is only meaningful inside its issuer, so identify users by the pair
+`(iss, sub)`. Compare `sub` alone across issuers and two users from different providers
+resolve to the same person as soon as their subjects collide.
 
 ## Verifying tokens
 

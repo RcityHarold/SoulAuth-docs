@@ -37,7 +37,7 @@ stored TOTP secrets can no longer be decrypted, and there is no recovery beyond 
 them re-enrol.
 
 Set a dedicated `MFA_SECRET_ENCRYPTION_KEY` before you ever touch `JWT_SECRET`. A
-non-loopback `APP_URL` already forces this, which is exactly why the gate exists.
+A non-loopback `APP_URL` already makes it required, which is what the gate is there for.
 :::
 
 ### OIDC signing key

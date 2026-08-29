@@ -39,15 +39,15 @@ Nothing else. In particular:
 defined elsewhere. Holding that reference gives SoulAuth no ability to create, modify or
 reason about a mind, an intent, or a memory.
 
-The distinction matters at exactly one moment: when someone proposes that SoulAuth
-"just also store" a little Soulseed state, because it is right there. That is how two
-systems become one system with two names.
+The distinction gets challenged in one specific situation: someone proposes that SoulAuth
+"just also store" a little Soulseed state, because it is right there. Once it does, the
+two can no longer be deployed independently.
 
 ::: warning It is a controlled claim
 `canonical_actor_ref` is **not** exposed to third-party OIDC clients by default. A
 pointer into another system's identity domain is integration state, not a public profile
-field — publishing it by default would leak a deployment's topology to every relying
-party.
+field. Publishing it by default would tell every relying party which other system this
+deployment is wired to.
 :::
 
 ## Standalone is the default, not a fallback

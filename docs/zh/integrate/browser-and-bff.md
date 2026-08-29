@@ -39,7 +39,7 @@ res.cookie('session', sessionId, {
 })
 ```
 
-`sameSite: 'lax'` 是刻意的。`'strict'` 会在从身份提供方跨站回跳时丢掉 cookie，
+用 `sameSite: 'lax'`。`'strict'` 会在从身份提供方跨站回跳时丢掉 cookie，
 症状是一个登录死循环：本地能跑通，生产环境失败。
 
 ::: warning BFF 不是令牌代理

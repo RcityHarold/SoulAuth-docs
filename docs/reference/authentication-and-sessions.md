@@ -4,9 +4,9 @@
 
 ## How a session works
 
-A session token is a signed JWT. The database keeps only its **SHA-256 fingerprint** —
-never the token itself — which is enough for revocation lookups and means a database
-read grants nobody a working session. <Status kind="tested" guard="conformance::b4b" />
+A session token is a signed JWT. The database keeps only its **SHA-256 fingerprint**,
+never the token itself. That is enough for revocation lookups, and whoever reads the row
+does not come away with a usable token. <Status kind="tested" guard="conformance::b4b" />
 
 Session state is **derived, not stored**. There is no status column:
 

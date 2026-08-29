@@ -89,9 +89,8 @@ Click any badge for its exact meaning. Two consequences worth stating outright:
 
 ## What is not frozen
 
-Being explicit about this is part of the specification, not a caveat appended to it.
-The following are described here but their exact wire surface is **not** settled, and no
-integration should depend on a particular shape yet:
+The following are described in this section, but their exact wire surface is **not**
+settled. Do not depend on a particular shape yet:
 
 - A materialised `AuthenticationResult` type — today the result is an internal runtime
   fact, projected into the session token and OIDC claims. <Status kind="planned" />

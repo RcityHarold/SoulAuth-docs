@@ -28,7 +28,7 @@ surreal sql --endpoint http://127.0.0.1:8000 --user root --pass root \
 | `MFA_SECRET_ENCRYPTION_KEY … required when APP_URL is not a loopback address` | `openssl rand -base64 32` |
 
 后两条只在 `APP_URL` 不再是环回地址时出现，也就是第一次真正部署的时候。
-这是刻意的：两个默认值都「能用」，直到它们摧毁凭证。
+本地开发用得着的那两个默认值，在生产上会悄悄摧毁已经签发的凭证，所以那时必须显式配。
 
 ## 日志里没有引导令牌
 
@@ -75,8 +75,8 @@ curl -s $SOULAUTH/.well-known/openid-configuration | grep issuer
 短时间内属于预期行为。每个实例都会缓存已解析的会话，其它副本在
 `AUTH_SESSION_CACHE_TTL_SECONDS`（默认 5）之内观察到变化。要立刻生效就重启副本。
 
-<Status kind="planned" /> 跨副本的瞬时吊销没有实现，
-[项目状态](/zh/project/status)如实写着这一点，而不是让本页暗示相反的事。
+<Status kind="planned" /> 跨副本的瞬时吊销没有实现。
+[项目状态](/zh/project/status)把它列在「尚未满足的不变式」里。
 
 ## 测试时被限流
 
@@ -91,8 +91,8 @@ curl -X POST $SOULAUTH/api/security/unlock \
 
 ## 邮件从来收不到
 
-发信失败只记日志、不抛出。这是刻意的，免得一台坏掉的 SMTP 主机把「忘记密码」
-变成 500，或者通过时间差泄露某个地址是否已注册。代价是它非常安静。
+发信失败只记日志、不抛出，这样一台坏掉的 SMTP 主机不会把「忘记密码」变成 500，
+也不会通过响应时间的差别暴露某个地址是否已注册。代价是它很安静，出问题得去翻日志。
 
 ```bash
 grep -i 'smtp\|mail' /var/log/soulauth.log

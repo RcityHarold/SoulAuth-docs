@@ -26,9 +26,8 @@ exactly this reason.
 
 **A token leaks through a log, a proxy or an XSS.**
 
-It works until it expires or is revoked. There is no binding to IP or device — that is a
-deliberate omission, since both break legitimate users on mobile networks more often than
-they stop attackers.
+It works until it expires or is revoked. Sessions are not bound to an IP or a device:
+both break legitimate users on mobile networks more often than they stop attackers.
 
 Mitigations: keep `JWT_EXPIRATION` short; log out on suspicion; watch the audit log for a
 session appearing from an implausible address.
@@ -102,7 +101,8 @@ Nothing in the protocol prevents this — whoever can edit `redirect_uris` can h
 login. It is contained by permissions instead: `soulauth:oidc_clients.write` is granted
 only to `admin` by default, and every change is audited.
 
-Treat that permission as equivalent to full account access, because it is.
+Treat that permission as full account access: whoever holds it can create an actor that
+authenticates.
 
 ## Forged client IP
 

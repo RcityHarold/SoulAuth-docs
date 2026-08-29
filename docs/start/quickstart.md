@@ -210,8 +210,8 @@ curl -X POST http://localhost:8080/api/actors/authenticate \
 ```
 
 The session token that comes back carries `subject_type: agent`. It works on
-`/api/actors/me` and is **refused** on human endpoints — that boundary is deliberate and
-[documented](/concepts/ai-native-identity).
+`/api/actors/me` and is **refused** on human endpoints. See
+[AI-native identity](/concepts/ai-native-identity) for what that boundary covers.
 
 ## What you have now
 

@@ -10,7 +10,7 @@
 implicit 与 hybrid 流程未实现。client credentials、device code、
 resource owner password credentials 也都没有。
 
-发现文档广播的正是已实现的那些能力，不含任何前瞻性内容，
+发现文档里列的都是已经实现的能力，没有前瞻性条目，
 由 <Status kind="tested" guard="conformance::h10" /> 守住。
 
 ## OIDC 协议端点
@@ -55,8 +55,8 @@ resource owner password credentials 也都没有。
 - **不是 `ActorIdentity` 的 resource ID。** 不同命名空间。
 - **不是邮箱地址。** 邮箱会变，subject 不能变。
 
-一个 OIDC subject 只有连同它的 issuer 才有意义。`(iss, sub)` 才是标识用户的那一对；
-单拿 `sub` 跨 issuer 比对，等于一次随时会发生的跨 provider 账号接管。
+一个 OIDC subject 只在它的 issuer 范围内有意义，所以标识用户要用 `(iss, sub)` 这一对。
+单拿 `sub` 跨 issuer 比对，两个不同 provider 的用户只要 `sub` 撞上就会解析成同一个人。
 
 ## 令牌校验
 

@@ -98,9 +98,9 @@ curl -X POST $SOULAUTH/api/security/unlock \
 
 ## Emails never arrive
 
-Send failures are logged, not raised — deliberately, so a broken SMTP host cannot turn
-"forgot password" into a 500 or leak whether an address is registered through a timing
-difference. The cost is silence.
+Send failures are logged, not raised, so a broken SMTP host cannot turn "forgot password"
+into a 500 or leak whether an address is registered through a timing difference. The cost
+is that it is quiet — you have to go looking in the log.
 
 ```bash
 grep -i 'smtp\|mail' /var/log/soulauth.log

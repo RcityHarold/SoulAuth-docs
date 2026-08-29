@@ -34,7 +34,7 @@ will.
 A locked response is `429` carrying `locked_until_seconds`, so a client can show a
 countdown instead of guessing.
 
-::: tip These are meant to be changed
+::: tip Tune these to the deployment
 A public consumer service and an internal admin tool have genuinely different tolerances.
 Tightening `LOCKOUT_MAX_ATTEMPTS` on an internal tool costs little; loosening
 `LOCKOUT_DURATION_MINUTES` on a public one avoids turning a forgotten password into a support

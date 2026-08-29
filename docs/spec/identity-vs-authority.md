@@ -30,9 +30,9 @@ pipeline unless that pipeline grants it. Nothing about the identity changes as t
 between the two; what changes is which domain is asking.
 
 This is why SoulAuth's own RBAC governs **only SoulAuth's control plane** — who may
-register an OIDC client, who may read the audit log. It is not a general permission
-service for your application, and using it as one would put your authorization rules in
-a system that knows nothing about your domain.
+register an OIDC client, who may read the audit log. It is not a permission service for
+your application: SoulAuth does not know what resources your domain has, or what the
+rules over them are.
 
 ## What authentication can and cannot do
 

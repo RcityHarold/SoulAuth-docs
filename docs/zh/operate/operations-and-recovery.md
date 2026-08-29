@@ -32,7 +32,7 @@ systemctl start soulauth
 解不开，除了让他们重新绑定之外没有任何恢复手段。
 
 在你动 `JWT_SECRET` 之前，先设一个专用的 `MFA_SECRET_ENCRYPTION_KEY`。
-非环回的 `APP_URL` 已经强制要求它，闸门存在的理由正是这个。
+非环回的 `APP_URL` 已经把它列为必填，就是为了防这一步。
 :::
 
 ### OIDC 签名密钥
