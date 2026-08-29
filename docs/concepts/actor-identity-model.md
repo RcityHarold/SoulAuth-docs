@@ -1,7 +1,7 @@
 # Actor identity model
 
-Five objects, kept separate. Under each one below is what merging it into its neighbour
-would actually cost you.
+An actor is five objects, stored separately. The table near the end of this page lists
+what merging any two of them costs.
 
 ## The anchor
 
@@ -84,15 +84,13 @@ authentication.
 
 ## How the pieces fail apart if merged
 
-This is the argument for the whole model, compressed:
-
-| If you merge… | You lose |
+| If you merge… | What happens |
 |---|---|
-| Identity into account | The ability for a non-human actor to exist without fake human attributes |
-| Identity into credential | Stable attribution across a key rotation |
-| Credential into binding | The distinction between "same person, another IdP" and "copied their secret" |
-| Profile into identity | Immutability — a display-name change becomes an identity change |
-| Client into subject | The ability to give one integration a narrower view than another |
+| Identity into account | That table needs an `email` column and the AI actor has to fill it, after which it appears in password-reset recipients |
+| Identity into credential | The actor id follows the key, so rotating one leaves audit rows on an id that resolves to nothing |
+| Credential into binding | "Same person, another IdP" and "someone copied their secret" become the same event |
+| Profile into identity | A display-name change becomes a different actor |
+| Client into subject | Every integration sees the same profile; you cannot give one a narrower view |
 
 ## Continuity
 
