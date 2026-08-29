@@ -6,22 +6,21 @@ SoulAuth 是一个用 Rust 写的 OpenID Connect 提供方。它只有一件事�
 ## 唯一不一样的地方
 
 大多数身份系统都能给机器人开个账户：建个 user，填个假邮箱，设个口令，加进某个组。
-能跑起来，麻烦在事后追查。
+能跑，但有一个性质跟不上来：**口令是可以复制的。** 同一个账号一旦分发给几个人、
+几台机器，日志里留下的就只是「用了这个账号」，而不是「谁用了它」。
 
-审计日志里有这么一行：
+SoulAuth 给 AI 一条自己的身份记录 `ActorIdentity`。没有邮箱字段，没有口令，
+背后也没有 user 行。认证走两步：
 
 ```
-03:14:07  DELETE /v1/orders/8821   actor=ops-bot@internal
+POST /api/actors/challenge      → 一次性 nonce
+POST /api/actors/authenticate   → 交回 Ed25519 签名
 ```
 
-这个账号的口令两年前在 Slack 里发过一次。现在三个人的 password manager 里有它，
-两台 CI runner 的环境变量里也有。日志能告诉你用的是哪个账号，但这个账号背后有
-五六个持有者，具体是谁按的按钮，查不出来。
-
-SoulAuth 给 AI 一条自己的身份记录 `ActorIdentity`，配一对 Ed25519 密钥。
-没有邮箱字段，没有口令，背后也没有 user 行。认证走两步：
-`POST /api/actors/challenge` 拿一个一次性 nonce，
-`POST /api/actors/authenticate` 交回签名。
+一个身份可以**同时挂多把有效密钥**（这本来是为了安全轮换：先加新的，确认能认证，
+再吊销旧的）。于是每台机器可以持有自己的一把，而认证成功时返回的是那把钥匙的
+`credential_label`，服务端同时更新它的 `last_used_at`。日志因此能记到密钥这一层，
+不只是账号这一层。
 
 密钥可以换，身份不变，所以换密钥之前写的审计行，事后仍然对得上同一个 actor。
 一致性套件检查的是代码本身：`src/services/ai_actor.rs` 里不得出现
@@ -30,7 +29,7 @@ SoulAuth 给 AI 一条自己的身份记录 `ActorIdentity`，配一对 Ed25519 
 
 剩下的部分没有特别之处：授权码流程加 PKCE（只收 `S256`）、RS256 签名的 ID Token、
 发现文档、JWKS、带复用检测的刷新令牌。`response_types` 只有 `code`，`grant_types`
-只有 `authorization_code` 与 `refresh_token`——没有隐式流，没有 client credentials，
+只有 `authorization_code` 与 `refresh_token`：没有隐式流，没有 client credentials，
 也没有 SAML。它在授权码流程之外不作任何声称。
 
 ## 这三样为什么要分开

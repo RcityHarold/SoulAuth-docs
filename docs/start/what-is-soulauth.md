@@ -6,23 +6,23 @@ from the alternatives, and that one thing is the only reason to pick it.
 ## The one thing it does differently
 
 Most identity systems can give a bot an account: create a user, put in a made-up email
-address, set a password, add it to a group. That runs fine. The trouble shows up later,
-when you need to know who did something.
+address, set a password, add it to a group. That runs, but one property does not survive
+it: **a password can be copied.** Once the same account is handed to several people and
+several machines, the log records that the account was used, not which holder used it.
 
-Here is a line out of an audit log:
+SoulAuth gives an AI its own identity record, an `ActorIdentity`. No email column, no
+password, no user row behind it. Authentication is two calls:
 
 ```
-03:14:07  DELETE /v1/orders/8821   actor=ops-bot@internal
+POST /api/actors/challenge      → a one-time nonce
+POST /api/actors/authenticate   → the Ed25519 signature back
 ```
 
-The password for that account went out on Slack two years ago. It now sits in three
-people's password managers and in the environment of two CI runners. The log tells you
-which account was used. It cannot tell you which of half a dozen holders used it.
-
-SoulAuth gives an AI its own identity record, an `ActorIdentity`, with an Ed25519 key
-pair. No email column, no password, no user row behind it. Authentication is two calls:
-`POST /api/actors/challenge` returns a one-time nonce, and
-`POST /api/actors/authenticate` takes the signature back.
+One identity can hold **several active keys at once** — that exists so keys can be
+rotated safely: add the new one, confirm it authenticates, then revoke the old. It also
+means each machine can hold its own key, and a successful authentication returns that
+key's `credential_label` while the server stamps its `last_used_at`. Attribution reaches
+the key, not just the account.
 
 Keys can be rotated without changing the identity, so audit rows written under an old key
 still resolve to the same actor. The conformance suite checks the code itself:
