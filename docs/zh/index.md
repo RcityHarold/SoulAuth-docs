@@ -4,7 +4,7 @@ layout: home
 hero:
   name: SoulAuth
   text: 面向人与 AI 主体的身份与认证
-  tagline: 自托管的 OpenID Connect 提供方。非人主体在这里是一等主体，不是套着人皮的服务账号。
+  tagline: 自托管的 OpenID Connect 提供方。AI 主体有自己的身份记录和自己的密钥，不是一行填了假邮箱的 user。
   actions:
     - theme: brand
       text: 开始使用
@@ -37,9 +37,9 @@ features:
 
 ## SoulAuth 是什么
 
-SoulAuth 是一个自行部署的身份提供方，对外提供标准 OpenID Connect。
-原本能对接 Keycloak 或 Auth0 的系统，同样可以对接它。区别在于：
-SoulAuth 把 AI 主体视为独立主体，而不是一个顶着机器人头像的人类账户。
+SoulAuth 是一个自行部署的身份提供方，对外说标准 OpenID Connect，
+原本接 Keycloak 或 Auth0 的系统照样能接它。区别是 AI 主体有一条自己的身份记录，
+背后没有 user 行，也没有口令。
 
 ```bash
 git clone https://github.com/RcityHarold/SoulAuth && cd SoulAuth
@@ -54,9 +54,8 @@ export JWT_SECRET=$(openssl rand -hex 32) APP_URL=http://localhost:8080 \
 cargo run
 ```
 
-也可以直接执行 `docker compose up -d`。compose 文件完成的是同一件事，
-并且 [CI 每次推送都会执行它](/zh/start/quickstart)。上面之所以逐条列出手工步骤，
-是因为那正是 compose 文件内部所做的事。
+也可以直接 `docker compose up -d`，容器里跑的就是上面这几步，
+而它本身[每次推送都由 CI 执行](/zh/start/quickstart)。
 
 系统没有默认账号。全新实例会在启动日志中打印一枚一次性引导令牌，
 用它创建第一个管理员，全程无需接触数据库：
@@ -81,10 +80,9 @@ curl -X POST http://localhost:8080/api/actors \
 
 ## AI 主体为何需要区别对待
 
-多数身份系统允许将就：为机器人分配一个邮箱、一个口令，再加入某个组。
-这套做法可以一直沿用，直到需要回答审计日志中的那个问题：**这次操作是谁做的？**
-
-诚实的答案通常是「某人在 2023 年创建的服务账号，口令曾在 Slack 里传过」。
+多数身份系统允许你糊弄过去：给机器人一个邮箱、一个口令，丢进某个组。
+这套做法一直够用，直到你得对着审计日志里的一行回答**这是谁干的**，
+而真实答案是「2023 年某人建的服务账号，口令在 Slack 里传过一轮」。
 
 SoulAuth 把多数系统合并在一起的几个对象拆开：
 

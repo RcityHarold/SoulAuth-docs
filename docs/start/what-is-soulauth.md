@@ -1,33 +1,37 @@
 # Why SoulAuth
 
-There is no shortage of identity providers. Here is the specific reason this one exists,
-and the specific reasons you might not want it.
+SoulAuth is an OpenID Connect provider written in Rust. It does one thing differently
+from the alternatives, and that one thing is the only reason to pick it.
 
 ## The one thing it does differently
 
 Every identity system can give a bot an account. Create a user, invent an email address,
-set a password, drop it in a group. It works.
+set a password, put it in a group. It works.
 
-It stops working when someone asks a question the system cannot answer:
+It stops working the morning this shows up in your own audit log:
 
-> This action was taken at 03:14. Who took it?
+```
+03:14:07  DELETE /v1/orders/8821   actor=ops-bot@internal
+```
 
-The honest answer is usually *a service account somebody created two years ago, whose
-password is in a Slack thread.* Not a subject — a shared secret with a row attached.
+Who ran it? The password for `ops-bot@internal` was pasted into a Slack thread two years
+ago. It now lives in three password managers and two CI runners. The log records which
+credential was used; it cannot record who used it, because six parties share one.
 
-SoulAuth makes a non-human actor a subject in its own right. It gets its own
-`ActorIdentity`, holds its own key, and proves itself by signing a challenge. **No email,
-no password, no human account behind it** — and the conformance suite asserts that the
-authentication path never touches one.
+SoulAuth gives a non-human actor its own `ActorIdentity`: an Ed25519 key pair, no email
+column, no password, no human account behind it. It authenticates by signing a one-time
+challenge — `POST /api/actors/challenge` to get the nonce, `POST /api/actors/authenticate`
+to return the signature. Rotate the key and the actor is still the same actor, so last
+month's audit rows still point somewhere. The conformance suite asserts this path never
+touches a human account row.
 <Status kind="tested" guard="conformance::a6" />
 
-That is the whole differentiator. Everything else here is a competent, unremarkable
-OpenID Connect provider, which is exactly what it should be.
+Everything else here is an ordinary OpenID Connect provider.
 
 ## Why the objects are separate
 
-The bot-with-an-account pattern fails because it merges things that need to move
-independently:
+The bot-with-an-account pattern breaks because it merges three things that change on
+different schedules:
 
 | | |
 |---|---|
@@ -35,62 +39,61 @@ independently:
 | **Account** | how a *person* manages their login |
 | **Credential** | what can prove it right now |
 
-Merge identity into account, and a non-human actor must fake human attributes to exist.
-Merge identity into credential, and rotating a key produces a new subject — attribution
-breaks exactly when you need it most.
+Merge identity into the account and the bot needs an `email` column, so you invent
+`bot@internal` — and now it can be sent a password reset. Merge identity into the
+credential and rotating a key creates a new subject, so every audit row written before
+the rotation points at an actor that no longer exists.
 
 [The full model →](/concepts/actor-identity-model)
 
 ## What it is responsible for
 
-Authentication, and stopping there. A successful authentication produces a statement
-about **who**. It grants no application permission, no governance standing, no right to
-act.
+Authentication, and nothing past it. A successful call gives you a statement about
+**who**: a session token, or an ID token carrying `sub`, `iss` and `auth_time`. It does
+not tell your application what that actor is allowed to do — you still write that check
+yourself, against your own rules.
 
-That boundary is not a limitation to be lifted later; it is what makes the answer
-trustworthy. [Identity vs authority →](/spec/identity-vs-authority)
+The RBAC inside SoulAuth governs SoulAuth's own admin API. It is not a policy engine you
+can point at your domain. [Identity vs authority →](/spec/identity-vs-authority)
 
 ## What it is not
 
 - **Not an authorization engine for your business rules.** It answers *who*, not
-  *may they*. It has RBAC for its own control plane, not for yours.
+  *may they*.
 - **Not an agent framework.** It authenticates agents. It does not run, orchestrate or
   reason about them.
 - **Not a memory or reasoning system.** In a Soulseed deployment the canonical actor is
-  defined elsewhere; SoulAuth holds a reference, not the definition.
-- **Not a billing system.** There is a membership field on the legacy user row, and it
+  defined elsewhere; SoulAuth holds a reference to it, not the definition.
+- **Not a billing system.** There is a membership field on the legacy user row. It
   should not be there — see [project status](/project/status).
-- **Not a hosted service.** You run it.
-- **Not certified.** No standards organisation has certified any part of it, and
-  self-declaration does not create certification.
+- **Not a hosted service.** You run it, patch it and back it up.
+- **Not certified.** No standards body has certified any part of it, and saying so
+  yourself does not count.
 
 ## When to use something else
 
-Being specific about this is more useful than a feature list:
+**A hosted provider** (Auth0, Clerk, WorkOS) if you would rather not operate an identity
+service at all. SoulAuth is a binary and a database that somebody has to keep alive.
 
-**Use a hosted provider** (Auth0, Clerk, WorkOS) if you do not want to operate an
-identity service. This one is a binary and a database that you keep running, patch and
-back up.
+**Keycloak or Ory** if you need certified OIDC conformance, SAML, or a large catalogue of
+existing integrations. SoulAuth implements the Authorization Code flow and claims nothing
+past it.
 
-**Use Keycloak or Ory** if you need certified OIDC conformance, SAML, or an ecosystem of
-existing integrations. SoulAuth implements the Authorization Code flow carefully and
-claims nothing beyond it.
+**better-auth or Lucia** if you want authentication as a library inside one TypeScript
+application, rather than a separate service that several applications call.
 
-**Use better-auth or Lucia** if you want authentication as a library inside one
-TypeScript application, rather than a separate service several applications talk to.
-
-**Use SoulAuth** if non-human actors need first-class identity in your system, and you
-want every claim in the documentation to name the test that backs it.
+**SoulAuth** if non-human actors need real identity in your system — and if you want to
+be able to check every claim on this site against the test that backs it.
 
 ## What you actually get
 
 One Rust binary and SurrealDB. Standard OpenID Connect. A machine-readable contract that
-a test suite holds against the running code, so the reference pages on this site are
-rendered from it rather than written by hand.
+the test suite checks against the running code, which is also what the reference pages
+here are rendered from — they are not maintained by hand.
 
-And an honest account of what is not finished —
-[the readout](/project/status) shows ten written, runnable invariants that the current
-implementation does not yet satisfy, each with the reason.
+Plus the unfinished parts, written down: [the readout](/project/status) lists ten
+invariants that are already written and runnable, that the current implementation does
+not satisfy, with the reason for each.
 
 ## Next
 

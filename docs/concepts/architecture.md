@@ -1,7 +1,7 @@
 # Architecture
 
-One Rust binary, one database, and a set of boundaries that are enforced rather than
-recommended.
+One Rust binary and one database. The layers below are separated in the source tree,
+and the boundaries between them are asserted by tests rather than left to convention.
 
 ## The shape
 
@@ -12,33 +12,33 @@ deployment diagram — everything in it runs inside a single process today.
 
 ## What each part refuses to do
 
-The interesting part of an architecture is usually the restrictions, so:
-
 ### Protocol edge
 
-HTTP handlers for the OIDC endpoints, the client APIs and the admin API. It converts
-wire formats into domain calls and back.
+`src/routes/`. HTTP handlers for the OIDC endpoints, the client APIs and the admin API.
+They convert wire formats into domain calls and back.
 
-It does not make authentication decisions. A handler that decided "this looks fine" would
-put an authentication rule somewhere no test is looking for it.
+No authentication decisions live here. A handler must not write
+`if user.status == Active`; that check belongs in `src/services/`. A rule written in a
+handler applies to that one route and to nothing else, and no test will notice when a
+second route forgets it.
 
 ### Identity domain
 
-`ActorIdentity` and the objects around it —
+`src/models/`. `ActorIdentity` and the objects around it —
 [the model](/concepts/actor-identity-model).
 
-It does not verify credentials. Resolving *who an actor is* and verifying *that a claim
-of being them holds right now* are two questions; the object that answers the first must
-not be able to answer the second, or every read path becomes a potential authentication
-bypass.
+Nothing here verifies a credential. Looking up an actor and deciding whether a caller
+*is* that actor are separate operations, and the lookup has no code path that can return
+"authenticated". Otherwise any endpoint that reads an actor could be turned into a login.
 
 ### Authentication core
 
 Password verification, TOTP, the AI actor challenge–response, federated callbacks,
 account lockout.
 
-It does not grant authority. What comes out is a statement about identity, full stop —
-[identity vs authority](/spec/identity-vs-authority).
+Nothing here grants authority. The return value says which actor this is; it carries no
+permission set and no role. Your application does its own check afterwards.
+[Identity vs authority](/spec/identity-vs-authority)
 
 ### Sessions and tokens
 

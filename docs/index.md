@@ -4,7 +4,7 @@ layout: home
 hero:
   name: SoulAuth
   text: Identity and authentication for humans and AI agents
-  tagline: A self-hosted OpenID Connect provider where a non-human actor is a first-class subject — not a service account wearing a person's clothes.
+  tagline: A self-hosted OpenID Connect provider. An AI agent gets its own identity and its own key, not a user row with a fake email on it.
   actions:
     - theme: brand
       text: Get started
@@ -37,9 +37,9 @@ features:
 
 ## What it is
 
-SoulAuth is a self-hosted identity provider you run yourself. It speaks OpenID Connect,
-so anything that already talks to Keycloak or Auth0 can talk to it — and it treats an
-AI agent as a subject in its own right rather than as a human account with a robot avatar.
+SoulAuth is a self-hosted identity provider. It speaks OpenID Connect, so anything that
+already talks to Keycloak or Auth0 can talk to it. The difference is that an AI agent
+gets an identity record of its own, with no user row and no password behind it.
 
 ```bash
 git clone https://github.com/RcityHarold/SoulAuth && cd SoulAuth
@@ -54,9 +54,8 @@ export JWT_SECRET=$(openssl rand -hex 32) APP_URL=http://localhost:8080 \
 cargo run
 ```
 
-Or `docker compose up -d` — the compose file does the same thing, and
-[CI runs it on every push](/start/quickstart). The steps above are shown because they
-are what the compose file actually does.
+Or `docker compose up -d`, which runs exactly these steps inside the container and is
+itself [executed by CI on every push](/start/quickstart).
 
 There is no default account. A fresh instance prints a one-time bootstrap token in its
 startup log — use it to create the first administrator without touching the database:
@@ -82,9 +81,9 @@ curl -X POST http://localhost:8080/api/actors \
 ## Why the agent case is different
 
 Most identity systems let you fake it: give the bot an email address, give it a password,
-put it in a group. That works right up until you need to answer a question in the audit
-log — *who did this?* — and the honest answer is "a service account somebody created in
-2023 and shared over Slack."
+put it in a group. That holds until the day you have to answer *who did this?* about a
+line in the audit log, and the truthful answer is "a service account somebody created in
+2023, whose password went round on Slack."
 
 SoulAuth separates the objects that most systems merge:
 
