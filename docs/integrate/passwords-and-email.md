@@ -99,14 +99,6 @@ buy an exemption.
 Failures come back as `400` with the machine code in `error`, described in
 [API conventions](/reference/api-conventions).
 
-## What is not here
-
-- **No password expiry or history.** Nothing forces rotation and nothing remembers
-  previous passwords.
-- **No "email me a login link".** Passwordless-by-email is not implemented.
-- **No delivery guarantees.** Mail is handed to your SMTP server on a background task; a
-  bounce is between you and that server.
-
 | | |
 |---|---|
 | Endpoint tables | [Authentication and sessions](/reference/authentication-and-sessions) |

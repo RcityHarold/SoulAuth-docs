@@ -91,12 +91,6 @@ curl -X POST "$APP/api/auth/initialize-password" \
 不通过时返回 `400`，机器码在 `error` 字段里，
 见 [API 约定](/zh/reference/api-conventions)。
 
-## 这里没有的东西
-
-- **没有口令过期与历史。** 不强制轮换，也不记住用过的旧密码。
-- **没有「发个登录链接给我」。** 邮件免密登录没有实现。
-- **不保证投递。** 邮件在后台任务里交给你的 SMTP 服务器，退信是你和它之间的事。
-
 | | |
 |---|---|
 | 端点表 | [认证与会话](/zh/reference/authentication-and-sessions) |
