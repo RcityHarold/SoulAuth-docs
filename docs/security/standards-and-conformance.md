@@ -1,11 +1,9 @@
 # Standards & conformance
 
+<!-- contract-note-exempt: every registry row states its own basis and scope; readers come here
+     for how far each spec applies, not for the snapshot commit -->
+
 Which external specifications apply, to what extent, and which ones do **not**.
-
-SoulAuth is not certified by any standards organisation. If your situation calls for a
-certified OIDC implementation, this is not one.
-
-<ContractNote file="standards.yaml" />
 
 ## The five flags
 

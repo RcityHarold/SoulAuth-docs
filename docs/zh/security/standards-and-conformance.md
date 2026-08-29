@@ -1,11 +1,9 @@
 # 规范与符合性
 
+<!-- contract-note-exempt: 注册表每一条自己写着依据与范围，来源在页脚的 StandardsTable 里；
+     这一页读者要的是「哪条规范到什么程度」，不是快照 commit -->
+
 哪些外部规范适用、适用到什么程度，以及哪些**不**适用。
-
-SoulAuth 未经任何标准组织认证。如果你的场景要求「经过认证的 OIDC 实现」，
-这里满足不了。
-
-<ContractNote file="standards.yaml" />
 
 ## 五个标志位
 
