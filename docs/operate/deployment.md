@@ -4,12 +4,6 @@ The path below is the one the repository executes in CI —
 `tests/deployment_walkthrough.sh` runs these exact steps from an empty database to a
 working administrator. <Status kind="tested" guard="deployment_walkthrough.sh" />
 
-That script exists because this document used to be wrong. `surreal import` was
-documented with a flag that does not exist, and the schema went into a namespace the
-process does not read — the service started, `/health` returned `ok`, and the first
-write failed. Three failures, all produced by following the instructions, none findable
-by rereading them.
-
 ## What you deploy
 
 One Rust binary and a SurrealDB instance. No runtime, no application server, no sidecar.

@@ -35,9 +35,7 @@ databases.
 
 ::: warning The namespace/database pair is a real failure mode
 Import the schema into a different pair than the process connects with and the service
-starts, `/health` returns `ok`, and nothing fails until the first write. This one was hit
-during development, which is why `tests/deployment_walkthrough.sh` executes the deployment
-page instead of leaving it to be read.
+starts, `/health` returns `ok`, and nothing fails until the first write.
 :::
 
 ## Next

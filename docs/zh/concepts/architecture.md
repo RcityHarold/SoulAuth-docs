@@ -32,8 +32,7 @@ SurrealDB，一对 namespace 与 database，一同配置。图中的逻辑存储
 
 ::: warning namespace/database 这一对是个真实的失败模式
 把 schema 导进与进程连接时不同的一对，服务照常启动、`/health` 照常返回 `ok`，
-直到第一次写入才失败。这个坑开发期踩过，所以 `tests/deployment_walkthrough.sh`
-会把部署页真的执行一遍，而不是留着让人读。
+直到第一次写入才失败。
 :::
 
 ## 接下来

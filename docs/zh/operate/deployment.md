@@ -4,10 +4,6 @@
 `tests/deployment_walkthrough.sh` 跑的就是下面这些步骤，从空库一直到一个可用的管理员。
 <Status kind="tested" guard="deployment_walkthrough.sh" />
 
-那个脚本之所以存在，是因为本文档曾经是错的。`surreal import` 被写成了一个不存在的
-参数，schema 又导进了进程不会读的 namespace。服务照常启动，`/health` 照常返回
-`ok`，直到第一次写入才失败。三处失败全都是照着说明做出来的，重读多少遍也发现不了。
-
 ## 部署的构成
 
 一个 Rust 二进制，加一个 SurrealDB 实例。不需要额外的运行时、应用服务器或 sidecar。
