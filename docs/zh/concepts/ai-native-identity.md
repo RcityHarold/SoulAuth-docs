@@ -119,8 +119,7 @@ sp9kEQQT4evGROoc…                ← nonce
 
 <Status kind="planned" /> **AI 主体不参与 OIDC 流程。** `/authorize` 认的是浏览器会话。
 
-这两条限制同时记录在机器可读的[规范注册表](/zh/security/standards-and-conformance)中，
-不只写在本页。
+这两条限制也记在机器可读的[规范注册表](/zh/security/standards-and-conformance)里。
 
 ## 容易产生的误解
 

@@ -29,8 +29,7 @@ somebody depends on later.
 
 <Figure2 locale="en" />
 
-Read [Actor Identity Model](/concepts/actor-identity-model) for how these are used;
-this page states why they exist.
+Read [Actor Identity Model](/concepts/actor-identity-model) for how these are used.
 
 ## Boundaries this system will not cross
 

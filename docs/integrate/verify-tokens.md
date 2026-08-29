@@ -129,7 +129,7 @@ There is no revocation endpoint to call and no push notification. Your options:
 
 - Keep access-token lifetimes short (default 3600s) and refresh.
 - Call `/userinfo` when an action matters enough to justify the round trip.
-- Accept the window. Say what it is in your own docs, the way this page does.
+- Accept the window, and state its length in your own docs.
 
 ## Next
 

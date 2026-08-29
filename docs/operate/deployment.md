@@ -169,7 +169,7 @@ signing key. They must, or tokens from one replica fail against another's JWKS.
 ./tests/deployment_walkthrough.sh
 ```
 
-Zero failures means this page runs from an empty database to a usable administrator.
+Zero failures means the path runs from an empty database to a usable administrator.
 
 ## Next
 

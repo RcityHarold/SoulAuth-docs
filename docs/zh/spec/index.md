@@ -27,8 +27,7 @@
 
 <Figure2 locale="zh" />
 
-它们怎么用，看 [Actor 身份模型](/zh/concepts/actor-identity-model)；
-这一页说的是它们**为什么**存在。
+它们怎么用，看 [Actor 身份模型](/zh/concepts/actor-identity-model)。
 
 ## 这个系统不会越过的边界
 

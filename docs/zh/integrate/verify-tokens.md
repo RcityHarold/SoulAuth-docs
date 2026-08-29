@@ -124,7 +124,7 @@ curl $SOULAUTH/api/oidc/userinfo -H "Authorization: Bearer $ACCESS_TOKEN"
 
 - 把访问令牌有效期保持得短（默认 3600 秒）然后刷新。
 - 当某个动作重要到值得一趟往返时，调 `/userinfo`。
-- 接受这个窗口。像本页这样，在你自己的文档里把它说出来。
+- 接受这个窗口，并在你自己的文档里写明它有多长。
 
 ## 接下来
 
