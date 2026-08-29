@@ -134,17 +134,6 @@ Not something SoulAuth can prevent. What it changes is the blast radius:
 
 That difference is the main argument for [BFF](/integrate/browser-and-bff).
 
-## Not defended against
-
-Stated plainly, because a threat model that only lists wins is not a threat model:
-
-- **A compromised host.** Root on the server reads `JWT_SECRET` from the environment.
-- **A malicious operator.** Anyone with database write access can alter the audit log
-  without a trace. <Status kind="planned" />
-- **Denial of service.** Rate limiting protects credentials, not availability.
-- **Supply-chain compromise** of dependencies.
-- **Phishing.** MFA raises the cost; it does not eliminate it.
-
 ## Next
 
 | | |
