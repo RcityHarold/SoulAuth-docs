@@ -5,28 +5,32 @@ from the alternatives, and that one thing is the only reason to pick it.
 
 ## The one thing it does differently
 
-Every identity system can give a bot an account. Create a user, invent an email address,
-set a password, put it in a group. It works.
+Most identity systems can give a bot an account: create a user, put in a made-up email
+address, set a password, add it to a group. That runs fine. The trouble shows up later,
+when you need to know who did something.
 
-It stops working the morning this shows up in your own audit log:
+Here is a line out of an audit log:
 
 ```
 03:14:07  DELETE /v1/orders/8821   actor=ops-bot@internal
 ```
 
-Who ran it? The password for `ops-bot@internal` was pasted into a Slack thread two years
-ago. It now lives in three password managers and two CI runners. The log records which
-credential was used; it cannot record who used it, because six parties share one.
+The password for that account went out on Slack two years ago. It now sits in three
+people's password managers and in the environment of two CI runners. The log tells you
+which account was used. It cannot tell you which of half a dozen holders used it.
 
-SoulAuth gives a non-human actor its own `ActorIdentity`: an Ed25519 key pair, no email
-column, no password, no human account behind it. It authenticates by signing a one-time
-challenge — `POST /api/actors/challenge` to get the nonce, `POST /api/actors/authenticate`
-to return the signature. Rotate the key and the actor is still the same actor, so last
-month's audit rows still point somewhere. The conformance suite asserts this path never
-touches a human account row.
+SoulAuth gives an AI its own identity record, an `ActorIdentity`, with an Ed25519 key
+pair. No email column, no password, no user row behind it. Authentication is two calls:
+`POST /api/actors/challenge` returns a one-time nonce, and
+`POST /api/actors/authenticate` takes the signature back.
+
+Keys can be rotated without changing the identity, so audit rows written under an old key
+still resolve to the same actor. The conformance suite checks the code itself:
+`src/services/ai_actor.rs` must not contain `human_account`, `password`, `email` or
+`username`.
 <Status kind="tested" guard="conformance::a6" />
 
-Everything else here is an ordinary OpenID Connect provider.
+The rest is a standard OpenID Connect provider.
 
 ## Why the objects are separate
 

@@ -7,12 +7,9 @@ credential, and it proves itself. There is no human account behind it.
 
 ## The problem this solves
 
-You can already give a bot an identity in any system — create a user, invent an email,
-set a password, put it in a group. It works, until someone reads the audit log and asks
-*who did this?* The honest answer is "a service account somebody created in 2023, whose
-password is in a Slack thread."
-
-Three things went wrong there, and they are all the same mistake:
+The audit line in [Why SoulAuth](/start/what-is-soulauth) — the one nobody can attribute —
+is three problems failing at once. They look like three, but they have one root: identity,
+account and credential are the same object.
 
 - The bot's identity is shaped like a person's, so nothing in the model distinguishes
   "a human logged in" from "an automated process ran".

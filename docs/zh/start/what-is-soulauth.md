@@ -5,26 +5,30 @@ SoulAuth 是一个用 Rust 写的 OpenID Connect 提供方。它只有一件事�
 
 ## 唯一不一样的地方
 
-给机器人建个账户，任何身份系统都能做：建一个 user，编一个邮箱，设个口令，
-丢进某个组。能跑。
+大多数身份系统都能给机器人开个账户：建个 user，填个假邮箱，设个口令，加进某个组。
+能跑起来，麻烦在事后追查。
 
-跑不下去的那天，是你在自己的审计日志里读到这一行：
+审计日志里有这么一行：
 
 ```
 03:14:07  DELETE /v1/orders/8821   actor=ops-bot@internal
 ```
 
-谁执行的？`ops-bot@internal` 的口令两年前在 Slack 里贴过一次，现在躺在三个
-password manager 和两台 CI runner 里。日志记下了用的是哪个凭证，记不下是谁在用，
-因为六方共用一个。
+这个账号的口令两年前在 Slack 里发过一次。现在三个人的 password manager 里有它，
+两台 CI runner 的环境变量里也有。日志能告诉你用的是哪个账号，但这个账号背后有
+五六个持有者，具体是谁按的按钮，查不出来。
 
-SoulAuth 给非人主体一个自己的 `ActorIdentity`：一对 Ed25519 密钥，没有邮箱列，
-没有口令，背后不挂人类账户。认证靠对一次性挑战签名：`POST /api/actors/challenge` 取 nonce，
-`POST /api/actors/authenticate` 交回签名。换掉密钥，它还是同一个主体，
-上个月的审计行仍然指得到人。一致性套件断言这条路径全程不碰人类账户的表。
+SoulAuth 给 AI 一条自己的身份记录 `ActorIdentity`，配一对 Ed25519 密钥。
+没有邮箱字段，没有口令，背后也没有 user 行。认证走两步：
+`POST /api/actors/challenge` 拿一个一次性 nonce，
+`POST /api/actors/authenticate` 交回签名。
+
+密钥可以换，身份不变，所以换密钥之前写的审计行，事后仍然对得上同一个 actor。
+一致性套件检查的是代码本身：`src/services/ai_actor.rs` 里不得出现
+`human_account`、`password`、`email`、`username`。
 <Status kind="tested" guard="conformance::a6" />
 
-除此之外，它就是一个普通的 OpenID Connect 提供方。
+其它部分是标准的 OpenID Connect。
 
 ## 这三样为什么要分开
 
