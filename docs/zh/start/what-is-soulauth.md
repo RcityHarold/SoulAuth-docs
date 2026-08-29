@@ -27,11 +27,6 @@ POST /api/actors/authenticate   → 交回 Ed25519 签名
 `human_account`、`password`、`email`、`username`。
 <Status kind="tested" guard="conformance::a6" />
 
-剩下的部分没有特别之处：授权码流程加 PKCE（只收 `S256`）、RS256 签名的 ID Token、
-发现文档、JWKS、带复用检测的刷新令牌。`response_types` 只有 `code`，`grant_types`
-只有 `authorization_code` 与 `refresh_token`：没有隐式流，没有 client credentials，
-也没有 SAML。它在授权码流程之外不作任何声称。
-
 ## 这三样为什么要分开
 
 一个主体在库里是三张表，不是一张：
