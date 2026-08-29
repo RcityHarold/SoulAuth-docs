@@ -51,9 +51,9 @@ curl -X POST "$APP/api/auth/request-password-reset" \
   -d '{"email":"you@example.com"}'
 ```
 
-**This returns `200` for an address that has never registered, and sends nothing.** That
-is deliberate: a different answer for "no such account" turns the endpoint into a way to
-test whether an address is a user here. Your UI should say "if that address is
+**This returns `200` for an address that has never registered, and sends nothing.** A
+different answer for "no such account" would turn the endpoint into a way to test whether
+an address is a user here. Your UI should say "if that address is
 registered, we sent a link" rather than "check your inbox", because the second is only
 true half the time.
 

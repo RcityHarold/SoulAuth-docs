@@ -38,8 +38,8 @@ curl -X POST $SOULAUTH/api/oidc/clients \
 ```
 
 ::: danger 这是你唯一一次看到密钥
-`client_secret` 以哈希存储。它只在这里返回一次。之后列出客户端会返回**除密钥外**
-的一切——那不是文档漏写，是这个 API 拿不出它没有以可读形式保存的东西。
+`client_secret` 以哈希存储，只在这里返回一次。之后列出客户端会返回**除密钥外**的
+一切：接口手上只有哈希，没有可读的原文可还。
 
 丢了？`POST /api/oidc/clients/{client_id}/regenerate-secret` 签发一枚新的并作废旧的。
 :::

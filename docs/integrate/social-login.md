@@ -38,7 +38,7 @@ issued itself, so there is no `return_to` for an attacker to smuggle in.
 
 ## What happens to the account
 
-Three cases, and the second one is a security boundary rather than a convenience:
+Three cases, depending on what the provider returns:
 
 **New email.** An account is created and linked to the provider subject. Signing in again
 reuses both — no duplicate account, no duplicate link.

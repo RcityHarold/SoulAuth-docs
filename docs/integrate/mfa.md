@@ -1,7 +1,7 @@
 # Multi-factor authentication
 
-TOTP, the six-digit kind, plus backup codes. Enrolment is two steps on purpose, and
-login becomes two calls instead of one.
+TOTP, the six-digit kind, plus backup codes. Enrolling takes two calls, and after that
+logging in takes two as well.
 
 ## Enrolment is two calls, not one
 
@@ -23,9 +23,9 @@ curl -X POST "$APP/api/auth/mfa/enable" \
   -d '{"totp_code":"123456"}'
 ```
 
-A wrong code returns `400` and MFA stays off. This split is why nobody locks themselves
-out: an authenticator that was set up incorrectly fails at `enable`, while the account is
-still reachable with the password alone.
+A wrong code returns `400` and MFA stays off. The split exists so that an authenticator
+set up incorrectly fails at `enable`, while the account is still reachable with the
+password alone.
 
 **Show the backup codes at `setup` and never again.** They are not retrievable later.
 

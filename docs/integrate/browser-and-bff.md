@@ -1,6 +1,7 @@
 # Browser & BFF
 
-A browser cannot keep a secret. Everything on this page follows from that.
+A browser cannot keep a secret, so the two architectures below differ in where the tokens
+live rather than in the OIDC flow itself.
 
 ## Pick one of two
 
@@ -58,8 +59,8 @@ Expose your own endpoints. Let the BFF decide what each one is allowed to do.
 No server, so no secret. Register with `"client_type": "public"` and omit
 `client_secret` at the token endpoint.
 
-Everything else in the flow is identical — PKCE is what makes it safe, and it is
-mandatory here rather than optional.
+The rest of the flow is identical. PKCE carries the security here, and the server forces
+it on for public clients: send `require_pkce: false` at registration and it is ignored.
 
 Storage, from least bad to worst:
 

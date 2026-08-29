@@ -39,8 +39,8 @@ curl -X POST $SOULAUTH/api/oidc/clients \
 
 ::: danger This is the only time you see the secret
 `client_secret` is stored as a hash. It is returned once, here. Listing clients later
-returns everything **except** the secret — that is not an omission in the docs, it is the
-API refusing to hand back something it does not have in readable form.
+returns everything **except** the secret. The API has only the hash, so there is nothing
+readable left to return.
 
 Lost it? `POST /api/oidc/clients/{client_id}/regenerate-secret` issues a new one and
 invalidates the old.
