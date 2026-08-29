@@ -17,11 +17,15 @@ the discovery URL, done.
 
 **Can this thing keep a secret?**
 
-A server can. A browser cannot, and neither can a mobile binary a user can unpack. That
-single answer decides `confidential` versus `public`, which decides everything else.
+A server can. A browser cannot, and neither can a mobile binary a user can unpack. The
+answer decides `confidential` versus `public`, and that in turn decides how the client
+authenticates at the token endpoint: a confidential client sends its secret
+(`client_secret_basic` or `client_secret_post`); a public client sends none and relies on
+PKCE alone.
 
-Getting it wrong in the safe direction (treating a server as public) costs you nothing
-but a little security margin. Getting it wrong the other way publishes a secret.
+Registering a server as `public` costs it the secret and leaves PKCE doing the work,
+which is a smaller loss than it sounds. Registering a browser app as `confidential` means
+shipping the secret in a bundle anyone can read.
 
 ## What every path shares
 
@@ -39,8 +43,8 @@ one-time challenge — no account, no password, no redirect.
 
 <Status kind="planned" /> Its session reaches `/api/actors/me` and nothing else: RBAC is
 still keyed to human account rows. If your agent needs to call permission-gated
-endpoints, that is not available yet, and
-[project status](/project/status) says so rather than this page implying otherwise.
+endpoints, that is not available yet. [Project status](/project/status) lists this as one
+of the invariants the current release does not satisfy.
 
 ## Next
 

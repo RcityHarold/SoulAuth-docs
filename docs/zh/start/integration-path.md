@@ -16,11 +16,14 @@
 
 **这个组件能否保管秘密？**
 
-服务器可以，浏览器不行，用户能够解包的移动端二进制同样不行。这一个答案决定了
-选 `confidential` 还是 `public`，而这个选择又决定了其余一切。
+服务器可以，浏览器不行，用户能解包的移动端二进制同样不行。这个答案决定选
+`confidential` 还是 `public`，而它决定的是客户端在令牌端点上怎么证明自己：
+`confidential` 交出 secret（`client_secret_basic` 或 `client_secret_post`），
+`public` 不交，只靠 PKCE。
 
-判断偏向保守一侧（把服务器当作 public）只损失一点安全余量；判断偏向另一侧，
-则等于把一个秘密公开了。
+把服务器登记成 `public`，代价是它换令牌时不带 secret、全靠 PKCE 顶着，
+比听起来的损失小。反过来把浏览器应用登记成 `confidential`，
+就得把 secret 打进任何人都能读的 bundle 里。
 
 ## 四条路径的共同要求
 
@@ -37,8 +40,8 @@ AI 主体不走 OIDC。它持有一枚 Ed25519 密钥，对一次性挑战签名
 不需要账户，不需要口令，也没有重定向。
 
 <Status kind="planned" /> AI 主体的会话只能访问 `/api/actors/me`，因为 RBAC 仍然
-建立在人类账户行之上。如果它需要调用受权限管控的端点，本 Release 还做不到；
-[项目状态](/zh/project/status)如实记录了这一点，本页不作相反的暗示。
+建立在人类账户行之上。如果它需要调用受权限管控的端点，本 Release 做不到。
+[项目状态](/zh/project/status)把这一条列在「尚未满足的不变式」里。
 
 ## 接下来
 

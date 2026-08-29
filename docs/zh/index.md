@@ -100,20 +100,20 @@ AI 主体拿到的只有一个 `ActorIdentity` 和一枚密钥，名下不存在
 
 ## 本 Release 实际做到了什么
 
-能够描述一套架构，不等于已经把它建成。本站每一项能力都标注了下面这些状态词之一，
-而它们互不蕴含：
+同一件事可以「代码里有」但没测过，也可以「测过」但没对照外部规范验过。所以状态词
+有七个，任意一个都不蕴含另一个：
 
 <Status kind="implemented" glossary /> 代码里有这条路径 ·
-<Status kind="supported" glossary /> 我们承担它的契约 ·
+<Status kind="supported" glossary /> 承担它的行为契约与向后兼容责任 ·
 <Status kind="tested" glossary /> 有自动化证据 ·
 <Status kind="conformant" glossary /> 对照外部规范验过 ·
 <Status kind="certified" glossary /> 标准组织认证过（**本项目没有任何一项**） ·
 <Status kind="planned" glossary /> 描述了但没建 ·
 <Status kind="deprecated" glossary /> 还在，但已列入移除计划
 
-点击任意徽章可以看到它的精确含义。徽章若是在**做出声称**而非解释词义，
-会一并写出撑住这句话的断言，例如
-<Status kind="tested" guard="conformance::j8" />，守住 AI 主体认证的正是这一条。
+点击任意徽章看它的精确含义。徽章在**做出声称**而不是解释词义时，会一并写出是哪条
+断言在守：比如 <Status kind="tested" guard="conformance::j8" /> 指的是
+`tests/conformance.rs` 里的 `j8`，它守的是 AI 主体认证那 13 项冻结面。
 
 <Conformance />
 

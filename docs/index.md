@@ -101,21 +101,21 @@ it, and the conformance suite asserts that the authentication path never touches
 
 ## What this release actually does
 
-Being able to describe an architecture is not the same as having built it. Every
-capability on this site carries one of these words, and none of them implies another:
+The same thing can be "in the code" but untested, or "tested" but never checked against
+an external spec. Hence seven words, none of which implies another:
 
 <Status kind="implemented" glossary /> the code path exists ·
-<Status kind="supported" glossary /> we carry its contract ·
+<Status kind="supported" glossary /> we carry its behavioural contract and back-compat ·
 <Status kind="tested" glossary /> automated evidence covers it ·
 <Status kind="conformant" glossary /> verified against an external spec ·
 <Status kind="certified" glossary /> a standards body certified it — **nothing here is** ·
 <Status kind="planned" glossary /> described but not built ·
 <Status kind="deprecated" glossary /> present, but scheduled for removal
 
-Click any badge for its exact meaning. Where a badge makes a real claim rather than
-defining a word, it names the assertion that backs it — like
-<Status kind="tested" guard="conformance::j8" />, the guard over AI actor
-authentication.
+Click any badge for its exact meaning. When a badge makes a real claim rather than
+defining a word, it names the assertion doing the work: <Status kind="tested"
+guard="conformance::j8" /> points at `j8` in `tests/conformance.rs`, which holds the
+thirteen frozen items of the AI actor authentication surface.
 
 <Conformance />
 
