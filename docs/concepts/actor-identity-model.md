@@ -17,10 +17,12 @@ would actually cost you.
 
 Two design decisions in that table are worth spelling out.
 
-**`subject_key` is generated, not derived.** Deriving a subject from an email address is
-the single most common way identity systems paint themselves into a corner: the address
-changes, and now either the subject changes (breaking every historical record) or it
-doesn't (and the derivation was a lie).
+**`subject_key` is generated, not derived.** If it were derived from the email address,
+then the day someone changes their address you get one of two outcomes. Either the
+subject changes with it — every audit row written before the change now points at an
+identifier nothing resolves, and every downstream application that keyed users on `sub`
+sees a stranger. Or it does not change, in which case the value was never a derivation,
+just a stored string with a misleading name.
 
 **Only `active` can authenticate**, and an unrecognised status value is treated as
 suspended rather than active. A typo in the status column should stop authentication,
@@ -57,8 +59,9 @@ For AI actors this is a real, separate table: `ai_actor_credential`, holding
 `public_key`, `algorithm`, `label`, `status`, `last_used_at`. SoulAuth stores only public
 keys there, so reading that table grants nobody the ability to impersonate anyone.
 
-The property worth protecting: **an identity outlives any credential it holds.** Rotating
-a key, losing a key, revoking a key — none of these produce a new actor.
+**An identity outlives any credential it holds.** Rotating a key, losing a key, revoking
+a key: none of these produce a new actor, so audit rows written under the old key still
+resolve to the same one.
 
 ### IdentityBinding — which external subject is the same actor
 
@@ -89,7 +92,7 @@ This is the argument for the whole model, compressed:
 | Identity into credential | Stable attribution across a key rotation |
 | Credential into binding | The distinction between "same person, another IdP" and "copied their secret" |
 | Profile into identity | Immutability — a display-name change becomes an identity change |
-| Client into subject | The ability to scope what any one integration can see |
+| Client into subject | The ability to give one integration a narrower view than another |
 
 ## Continuity
 

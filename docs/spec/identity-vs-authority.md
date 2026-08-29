@@ -61,8 +61,9 @@ Practically: check authority at the moment of the operation, not at the moment o
 ::: warning How current is "current" here
 <Status kind="planned" /> Revocation reaches other replicas within
 `AUTH_SESSION_CACHE_TTL_SECONDS`. A token can therefore remain accepted briefly after
-the underlying identity was suspended. Whether that window is acceptable is a decision
-for your domain, and it is stated rather than hidden.
+the underlying identity was suspended. The default is 5 seconds, so the window is small
+but not zero. A single-instance deployment has no window at all: the instance that
+handled the revocation is the only one serving traffic.
 :::
 
 ## Continuity does not freeze anything

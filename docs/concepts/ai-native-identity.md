@@ -20,7 +20,7 @@ Three things went wrong there, and they are all the same mistake:
   actor, permanently.
 - Attribution points at a row that a human created and humans share.
 
-SoulAuth separates the objects so none of that is forced on you.
+Keeping the three objects apart removes all three problems at once.
 
 ## The objects
 
@@ -121,9 +121,10 @@ audit trail loses the answer to "which key was used for that action".
 
 <Status kind="planned" /> **Agent sessions carry no permissions.** RBAC is still keyed to
 human account rows, so an agent token works on `/api/actors/me` and is refused — with an
-explicit 403, not a confusing 401 — on human endpoints. The refusal is deliberate: a
-token silently passing through some extractor that happened to resolve it would be worse
-than a clear boundary.
+explicit 403, not a confusing 401 — on human endpoints. The refusal is explicit in the
+extractor: `AuthedUser` checks `subject_type` and returns `Forbidden` for an agent token
+before it ever looks up a row. Without that check it would fail later as "user not
+found", and would start passing the day some lookup path happened to resolve one.
 
 <Status kind="planned" /> **Agents do not appear in OIDC flows.** `/authorize`
 authenticates a browser session.
