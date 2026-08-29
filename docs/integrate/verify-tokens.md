@@ -15,11 +15,6 @@ validated completely differently:
 
 Do not try to decode an access token. It is not a JWT and there is nothing inside it.
 
-::: warning No introspection endpoint
-<Status kind="planned" /> RFC 7662 `/introspect` is **not implemented**. Neither is
-RFC 7009 `/revoke`. Verify ID tokens locally; that is the supported path.
-:::
-
 ## Validate an ID token
 
 Fetch the signing keys once and cache them:

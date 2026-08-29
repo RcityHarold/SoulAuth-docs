@@ -14,11 +14,6 @@ SoulAuth 签发两样东西，它们都以 `Authorization: Bearer` 到达，而�
 
 不要试图解码访问令牌。它不是 JWT，里面什么也没有。
 
-::: warning 没有 introspection 端点
-<Status kind="planned" /> RFC 7662 的 `/introspect` **未实现**，RFC 7009 的 `/revoke`
-也没有。请在本地校验 ID Token，那才是被支持的路径。
-:::
-
 ## 校验 ID Token
 
 拉取一次签名密钥并缓存：
