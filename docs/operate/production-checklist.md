@@ -166,19 +166,6 @@ curl https://auth.example.com/.well-known/openid-configuration   # issuer == APP
 - [ ] First administrator created via the bootstrap token, not by editing the database
 - [ ] Backups cover the SurrealDB data directory
 
-## What you are still exposed to
-
-Being honest about this is part of deploying it:
-
-<Status kind="planned" /> **The audit log is not tamper-evident.** An ordinary table, no
-hash chain. Do not present it as evidence.
-
-<Status kind="planned" /> **Revocation lags across replicas** by up to one cache TTL.
-
-**Docker Compose is development-only.** CI runs it end to end, so it works — but its database credentials are defaults and there is no TLS. It is not a deployment.
-
-The full list: [project status](/project/status).
-
 ## Next
 
 | | |

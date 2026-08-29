@@ -156,19 +156,6 @@ curl https://auth.example.com/.well-known/openid-configuration   # issuer 等于
 - [ ] 第一个管理员经由引导令牌创建，而不是改数据库
 - [ ] 备份覆盖 SurrealDB 数据目录
 
-## 仍然存在的暴露面
-
-把这件事说清楚，是部署工作的一部分：
-
-<Status kind="planned" /> **审计日志不防篡改。** 一张普通表，没有哈希链。
-不要拿它当证据。
-
-<Status kind="planned" /> **吊销在副本之间有延迟**，最多一个缓存 TTL。
-
-**Docker Compose 只适合开发。** CI 会端到端执行它，因此它确实能用；但它的数据库凭证是默认值，也没有 TLS。它不构成一次部署。
-
-完整清单：[项目状态](/zh/project/status)。
-
 ## 接下来
 
 | | |
