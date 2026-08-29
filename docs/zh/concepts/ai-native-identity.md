@@ -36,7 +36,7 @@
 
 整个流程分两步。私钥始终留在 AI 主体一侧，网络上传输的只有一次性签名。
 
-### 第一步：领取挑战
+### 第一步：向服务端要一个挑战
 
 ```bash
 curl -X POST $SOULAUTH/api/actors/challenge \

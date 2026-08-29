@@ -172,7 +172,7 @@ curl -X POST http://localhost:8080/api/actors \
   -d "{\"public_key\":\"$PUBKEY\",\"label\":\"nightly-runner\"}"
 ```
 
-此后该主体分两步完成认证。先领取挑战：
+此后这个主体分两步完成认证。第一步，向服务端要一个挑战：
 
 ```bash
 curl -X POST http://localhost:8080/api/actors/challenge \
