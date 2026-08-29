@@ -1,7 +1,9 @@
 # Architecture
 
-One Rust binary and one database. The layers below are separated in the source tree,
-and the boundaries between them are asserted by tests rather than left to convention.
+One Rust binary and one database. The sections below go layer by layer — what each is
+responsible for and what it is not — and the layers are separate directories in the
+source tree. Five invariants that come out of that split have tests; they are listed
+further down.
 
 ## The shape
 
