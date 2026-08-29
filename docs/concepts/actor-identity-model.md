@@ -1,7 +1,7 @@
 # Actor identity model
 
-An actor is five objects, stored separately. The table near the end of this page lists
-what merging any two of them costs.
+An actor is stored as five objects. This page goes through them one at a time: what each
+holds, and how it relates to the identity root.
 
 ## The anchor
 
@@ -82,9 +82,12 @@ exploit code required.
 Registered OIDC clients. A client is a party in the protocol, never the subject of the
 authentication.
 
-## How the pieces fail apart if merged
+## If you are changing this model
 
-| If you merge… | What happens |
+The usual instinct is to merge two of these and keep one fewer table. Here is what each
+merge runs into.
+
+| Merge | What it runs into |
 |---|---|
 | Identity into account | That table needs an `email` column and the AI actor has to fill it, after which it appears in password-reset recipients |
 | Identity into credential | The actor id follows the key, so rotating one leaves audit rows on an id that resolves to nothing |
