@@ -30,7 +30,11 @@ still resolve to the same actor. The conformance suite checks the code itself:
 `username`.
 <Status kind="tested" guard="conformance::a6" />
 
-The rest is a standard OpenID Connect provider.
+The rest is unremarkable: Authorization Code with PKCE (`S256` only), RS256-signed ID
+tokens, a discovery document, JWKS, and refresh tokens with reuse detection.
+`response_types` is `code` and nothing else; `grant_types` is `authorization_code` and
+`refresh_token` and nothing else. No implicit flow, no client credentials, no SAML. It
+claims nothing past the Authorization Code flow.
 
 ## Why the objects are separate
 
