@@ -7,17 +7,18 @@ credential, and it proves itself. There is no human account behind it.
 
 ## The problem this solves
 
-The audit line in [Why SoulAuth](/start/what-is-soulauth) — the one nobody can attribute —
-is three problems failing at once. They look like three, but they have one root: identity,
-account and credential are the same object.
+Giving a bot an account runs, but three things do not work. All three come from the same
+place: in that pattern, identity, account and credential are one row.
 
-- The bot's identity is shaped like a person's, so nothing in the model distinguishes
-  "a human logged in" from "an automated process ran".
-- The credential *is* the identity — lose control of the password and you have lost the
-  actor, permanently.
-- Attribution points at a row that a human created and humans share.
+- **You cannot tell a person from a process.** No field distinguishes "a human logged in"
+  from "a cron job ran"; both are a row in `user`.
+- **You cannot replace the credential.** The password *is* the actor. After a leak there
+  is no "new key, same actor" — you create a new account, and every audit row written
+  before that points at an abandoned one.
+- **You cannot attribute.** That row was created by one person and is then shared by
+  several people and machines. The log records the account, not who used it.
 
-Keeping the three objects apart removes all three problems at once.
+SoulAuth keeps them as three objects.
 
 ## The objects
 
