@@ -1,18 +1,11 @@
 # Standards & conformance
 
-Which external specifications apply, to what extent, and — just as importantly — which
-ones do **not**.
+Which external specifications apply, to what extent, and which ones do **not**.
+
+SoulAuth is not certified by any standards organisation. If your situation calls for a
+certified OIDC implementation, this is not one.
 
 <ContractNote file="standards.yaml" />
-
-## Nothing here is certified
-
-No standards organisation has certified any part of SoulAuth. There is no certification
-process under way. Implementing a specification carefully is not the same as being
-certified against it, and declaring it about yourself does not create it.
-
-<Status kind="tested" guard="conformance::j5" /> asserts that no entry in the registry
-can claim `certified: true` without external evidence.
 
 ## The five flags
 
@@ -31,6 +24,9 @@ instead of one word.
 ## The registry
 
 <StandardsTable />
+
+<Status kind="tested" guard="conformance::j5" /> asserts that no row carries
+`certified: true` without external evidence.
 
 ## Three distinctions worth memorising
 

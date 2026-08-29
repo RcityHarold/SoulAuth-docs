@@ -2,15 +2,10 @@
 
 哪些外部规范适用、适用到什么程度，以及哪些**不**适用。
 
+SoulAuth 未经任何标准组织认证。如果你的场景要求「经过认证的 OIDC 实现」，
+这里满足不了。
+
 <ContractNote file="standards.yaml" />
-
-## 没有任何一项经过认证
-
-没有任何标准组织认证过 SoulAuth 的任何部分。也不存在进行中的认证流程。
-认真实现一份规范，与被它认证过，是两回事；自我声明不构成认证。
-
-<Status kind="tested" guard="conformance::j5" /> 断言注册表里不存在缺乏外部证据的
-`certified: true`。
 
 ## 五个标志位
 
@@ -29,6 +24,9 @@
 ## 注册表
 
 <StandardsTable />
+
+<Status kind="tested" guard="conformance::j5" /> 断言表里不存在缺乏外部证据的
+`certified: true`。
 
 ## 三条值得背下来的区分
 
