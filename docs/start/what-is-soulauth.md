@@ -38,19 +38,23 @@ claims nothing past the Authorization Code flow.
 
 ## Why the objects are separate
 
-The bot-with-an-account pattern breaks because it merges three things that change on
-different schedules:
+One actor is three tables, not one:
 
-| | |
+| Table | Holds |
 |---|---|
-| **Identity** | who this is, durably |
-| **Account** | how a *person* manages their login |
-| **Credential** | what can prove it right now |
+| `actor_identity` | `subject_key`, `actor_kind`, `status`. The OIDC `sub` is built on it |
+| `human_account` | `email`, `username`, `email_verified`. Only exists for `actor_kind = human` |
+| `ai_actor_credential` | `public_key`, `algorithm`, `label`. One identity can have several rows |
 
-Merge identity into the account and the bot needs an `email` column, so you invent
-`bot@internal` — and now it can be sent a password reset. Merge identity into the
-credential and rotating a key creates a new subject, so every audit row written before
-the rotation points at an actor that no longer exists.
+Merging them causes concrete problems, and it goes wrong in both directions.
+
+Put identity and account in one table and that table needs an `email` column, which the
+bot has to fill in. You invent `bot@internal`, and from then on it shows up in password
+reset recipients and in lookups by email address — two paths written for people.
+
+Put identity and credential in one table and the actor's id follows the key. Rotating a
+key means becoming a different actor, and audit rows written against the old id no longer
+resolve to anything. Rotating the key is the first thing you do after a key leaks.
 
 [The full model →](/concepts/actor-identity-model)
 
