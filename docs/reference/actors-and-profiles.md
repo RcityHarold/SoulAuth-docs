@@ -1,7 +1,5 @@
 # Actors & profiles
 
-<ContractNote file="openapi.yaml" />
-
 ## Self-service
 
 Everything under `/api/me` acts on the caller's own records and needs nothing beyond a

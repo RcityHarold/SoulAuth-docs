@@ -1,7 +1,5 @@
 # OIDC 与客户端
 
-<ContractNote file="openapi.yaml" />
-
 ## 支持范围
 
 授权码流程 + PKCE（只收 `S256`，public 客户端强制）、RS256 ID Token、发现文档、JWKS，

@@ -1,7 +1,5 @@
 # 管理
 
-<ContractNote file="openapi.yaml" />
-
 ## 用户管理
 
 以下端点用于读取与修改**其他主体**的记录，全部受权限管控，每个端点都写明所需的权限。
@@ -27,8 +25,6 @@
 回答的是**调用方自己**，只需一枚会话。
 
 ## 权限清单
-
-<ContractNote file="permissions.yaml" />
 
 <PermissionTable />
 

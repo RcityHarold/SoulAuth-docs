@@ -1,7 +1,5 @@
 # Authentication & sessions
 
-<ContractNote file="openapi.yaml" />
-
 ## How a session works
 
 A session token is a signed JWT. The database keeps only its **SHA-256 fingerprint**,

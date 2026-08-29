@@ -1,8 +1,5 @@
 # 规范与符合性
 
-<!-- contract-note-exempt: 注册表每一条自己写着依据与范围，来源在页脚的 StandardsTable 里；
-     这一页读者要的是「哪条规范到什么程度」，不是快照 commit -->
-
 哪些外部规范适用、适用到什么程度，以及哪些**不**适用。
 
 ## 五个标志位
@@ -22,9 +19,6 @@
 ## 注册表
 
 <StandardsTable />
-
-<Status kind="tested" guard="conformance::j5" /> 断言表里不存在缺乏外部证据的
-`certified: true`。
 
 ## 三条值得背下来的区分
 

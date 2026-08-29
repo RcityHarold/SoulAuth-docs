@@ -1,7 +1,5 @@
 # 审计
 
-<ContractNote file="openapi.yaml" />
-
 ## 记录的内容
 
 认证事件——登录成功与失败、OAuth 登录、登出、口令重置、MFA 失败、权限拒绝、

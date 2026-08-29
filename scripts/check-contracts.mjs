@@ -9,8 +9,11 @@
 //   ① 四份注册表齐全、是合法 JSON、且不是空壳；
 //   ② SOURCE.json 记录了来源 commit，且不是从有未提交改动的工作区取的
 //      —— 那种快照对应的东西在 git 历史里根本找不到；
-//   ③ 每个引用 <ApiTable> 之类组件的页面，都同时放了 <ContractNote>
-//      —— 渲染出契约数据却不说它来自哪个 commit，正是上面那个风险本身。
+//
+// 曾经还有第四条：每个渲染契约数据的页面都必须放 <ContractNote> 写出来源 commit。
+// 那个组件已按要求从全站移除，规则随之删掉。**因此失去的保护是**：站上现在可以
+// 渲染一份过期的契约快照，而页面上没有任何东西说它取自哪次提交。②仍然拦住「快照
+// 取自有未提交改动的工作区」，但拦不住「快照本身很旧」。
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, relative } from 'node:path'
@@ -136,60 +139,11 @@ for (const file of Object.keys(REGISTRIES)) {
   if (found.length > 5) errors.push(`${file} 另有 ${found.length - 5} 处同类问题`)
 }
 
-// ④ 页面必须声明来源
-//
-// 豁免：与 cite-exempt / table-only 同一套写法，必须带理由。
-//
-//     <!-- contract-note-exempt: 为什么这一页不显示来源 commit -->
-//
-// 用得起豁免的情形很窄：页面上渲染的契约数据本身已经带着来源（比如规范注册表
-// 每一条都写着依据），或者这一页的读者根本不会拿它当权威快照。写不出理由就说明
-// 该留着 <ContractNote> —— 渲染出契约数据却不说它来自哪个 commit，正是这条规则
-// 要防的事。
-// 理由必须与标记同一行，且至少 12 个字符 —— `\S` 之类的宽松写法会被下一行的
-// 续行文字满足，等于没查。这条是写完之后用空理由试出来的。
-const NOTE_EXEMPT = /<!--[ \t]*contract-note-exempt:[ \t]*([^\n]{12,})/
 
-const RENDERERS = [
-  '<ApiTable',
-  '<ConfigTable',
-  '<ErrorTable',
-  '<PermissionTable',
-  '<StandardsTable',
-]
-function walk(dir, out = []) {
-  for (const name of readdirSync(dir)) {
-    if (name === 'node_modules' || name === '.vitepress') continue
-    const p = join(dir, name)
-    if (statSync(p).isDirectory()) walk(p, out)
-    else if (name.endsWith('.md')) out.push(p)
-  }
-  return out
-}
-let pages = 0
-let exempted = 0
-for (const file of walk(DOCS)) {
-  const body = readFileSync(file, 'utf8')
-  if (!RENDERERS.some((r) => body.includes(r))) continue
-  if (NOTE_EXEMPT.test(body)) { exempted++; continue }
-  pages++
-  if (!body.includes('<ContractNote')) {
-    errors.push(
-      `${relative(DOCS, file)} 渲染了契约数据但没有 <ContractNote> —— ` +
-        '页面上必须写出这份数据来自哪个 commit',
-    )
-  }
-}
-
-if (errors.length) {
-  console.error('✗ 契约快照检查未通过：\n')
-  for (const e of errors) console.error('  • ' + e)
-  process.exit(1)
-}
 console.log(
   `✓ 契约快照：${sizes['openapi.json']} 路径 / ${sizes['permissions.json']} 权限 / ` +
     `${sizes['configuration.json']} 配置项 / ${sizes['standards.json']} 规范，` +
-    `${pages} 个渲染页面均已声明来源` + (exempted ? `（另有 ${exempted} 页显式豁免）` : ''),
+    `四份注册表齐全`,
 )
 // 警告在成功行之后打印，这样它不会被误读成失败，也不会被滚屏吞掉。
 for (const w of warnings) console.warn('\n⚠ ' + w)

@@ -1,8 +1,5 @@
 # Standards & conformance
 
-<!-- contract-note-exempt: every registry row states its own basis and scope; readers come here
-     for how far each spec applies, not for the snapshot commit -->
-
 Which external specifications apply, to what extent, and which ones do **not**.
 
 ## The five flags
@@ -22,9 +19,6 @@ instead of one word.
 ## The registry
 
 <StandardsTable />
-
-<Status kind="tested" guard="conformance::j5" /> asserts that no row carries
-`certified: true` without external evidence.
 
 ## Three distinctions worth memorising
 

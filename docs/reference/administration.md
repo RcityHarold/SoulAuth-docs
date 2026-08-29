@@ -1,7 +1,5 @@
 # Administration
 
-<ContractNote file="openapi.yaml" />
-
 ## Users
 
 Reading and modifying **other** actors' records. All of it is permission-gated; each
@@ -31,8 +29,6 @@ Two endpoints are worth calling out because they are cheap and useful in a clien
 **calling** actor and need only a session.
 
 ## The permission vocabulary
-
-<ContractNote file="permissions.yaml" />
 
 <PermissionTable />
 

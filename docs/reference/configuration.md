@@ -1,7 +1,5 @@
 # Configuration
 
-<ContractNote file="configuration.yaml" />
-
 Configuration comes from **process environment variables only**. A `.env` file in the
 working directory is read at startup. There is no configuration file format, no remote
 configuration, and no runtime reload — changing anything means restarting the process.

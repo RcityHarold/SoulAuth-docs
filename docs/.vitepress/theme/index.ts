@@ -5,7 +5,6 @@ import Figure2 from './figures/Figure2.vue'
 import Figure3 from './figures/Figure3.vue'
 import Status from './status/Status.vue'
 import Conformance from './status/Conformance.vue'
-import ContractNote from './contracts/ContractNote.vue'
 import ApiTable from './contracts/ApiTable.vue'
 import ConfigTable from './contracts/ConfigTable.vue'
 import ErrorTable from './contracts/ErrorTable.vue'
@@ -41,7 +40,6 @@ export default {
     // 手写这些表是行不通的：端点、配置项、权限名一共几百条，人写必然漂移，
     // 而漂移的表看起来和准确的表一模一样。契约与运行代码的一致性由
     // SoulAuth 仓库的 conformance j1–j10 双向断言。
-    app.component('ContractNote', ContractNote)
     app.component('ApiTable', ApiTable)
     app.component('ConfigTable', ConfigTable)
     app.component('PermissionTable', PermissionTable)

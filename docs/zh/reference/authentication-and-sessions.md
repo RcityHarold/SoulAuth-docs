@@ -1,7 +1,5 @@
 # 认证与会话
 
-<ContractNote file="openapi.yaml" />
-
 ## 会话的工作方式
 
 会话令牌是一枚签名 JWT。数据库中只保存它的 **SHA-256 指纹**，从不保存令牌本身。

@@ -1,7 +1,5 @@
 # OIDC & clients
 
-<ContractNote file="openapi.yaml" />
-
 ## What is supported
 
 Authorization Code flow with PKCE (`S256` only, forced for public clients), RS256 ID

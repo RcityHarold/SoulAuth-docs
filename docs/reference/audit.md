@@ -1,7 +1,5 @@
 # Audit
 
-<ContractNote file="openapi.yaml" />
-
 ## What gets recorded
 
 Authentication events — successful and failed logins, OAuth logins, logout, password

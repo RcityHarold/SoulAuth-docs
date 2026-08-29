@@ -3,8 +3,6 @@
 What holds across every endpoint. The reference pages that follow do not repeat any of
 it.
 
-<ContractNote file="openapi.yaml" />
-
 ## Base URL
 
 Everything is relative to `APP_URL` — the public address, which is also the OIDC issuer.

@@ -2,8 +2,6 @@
 
 以下内容在所有端点上一致成立，后面几页的参考表不再重复它们。
 
-<ContractNote file="openapi.yaml" />
-
 ## 基础地址
 
 一切相对于 `APP_URL`。它是公开地址，同时也是 OIDC issuer，两者必须逐字符一致。

@@ -30,8 +30,6 @@ const all = computed<Spec[]>(() => (STD as any).specifications ?? [])
 // 分成两组。把「未实现」混在已实现里列，读者要逐行去看五个布尔值 ——
 // 而「生态里容易被默认为存在」的那几条，正是最该一眼看见的。
 const done = computed(() => all.value.filter((s) => s.implemented === true))
-const absent = computed(() => all.value.filter((s) => s.implemented !== true))
-const local = computed<any[]>(() => (STD as any).local_mechanisms ?? [])
 
 const FLAGS = ['implemented', 'supported', 'tested', 'conformant', 'certified'] as const
 function flagKind(s: Spec, f: (typeof FLAGS)[number]): string | null {
@@ -61,48 +59,6 @@ function flagKind(s: Spec, f: (typeof FLAGS)[number]): string | null {
         <p v-if="c.runtime" class="std-ev"><code>{{ c.runtime }}</code></p>
       </details>
     </div>
-
-    <h3>{{ zh ? '未实现' : 'Not implemented' }}</h3>
-    <p class="std-lead">
-      {{ zh
-        ? '列出它们不是凑数 —— 这几条在生态里最容易被默认为存在，而「以为有」比「知道没有」危险得多。'
-        : 'These are listed because they are the ones most often assumed to exist. Assuming wrongly is worse than knowing.' }}
-    </p>
-    <div v-for="s in absent" :key="s.id" class="std-item std-item--absent">
-      <div class="std-head">
-        <strong>{{ s.title }}</strong>
-        <code>{{ s.id }}</code>
-      </div>
-      <p v-if="loc(s, 'scope')" class="std-scope" v-html="inlineMarkdown(loc(s, 'scope'))" />
-    </div>
-
-    <template v-if="local.length">
-      <h3>{{ zh ? '非外部标准的本地机制' : 'Local mechanisms (not external standards)' }}</h3>
-      <div v-for="m in local" :key="m.id" class="std-item">
-        <div class="std-head">
-          <strong>{{ m.title }}</strong>
-          <code>{{ m.id }}</code>
-        </div>
-        <p v-if="loc(m, 'scope')" class="std-scope" v-html="inlineMarkdown(loc(m, 'scope'))" />
-        <div v-if="m.not_this?.length" class="std-not">
-          <div class="std-not-h">{{ zh ? '它不是：' : 'What it is not:' }}</div>
-          <ul><li v-for="n in m.not_this" :key="n" v-html="inlineMarkdown(n)" /></ul>
-        </div>
-        <details v-if="m.frozen_surface">
-          <summary>{{ zh ? '已冻结的表面（13 项）' : 'Frozen surface (13 items)' }}</summary>
-          <dl class="std-frozen">
-            <template v-for="(v, k) in m.frozen_surface" :key="k">
-              <dt><code>{{ k }}</code></dt>
-              <dd v-html="inlineMarkdown(Array.isArray(v) ? v.join(', ') : String(v))" />
-            </template>
-          </dl>
-        </details>
-        <div v-if="m.limits?.length" class="std-limits">
-          <div class="std-not-h">{{ zh ? '本 Release 的边界：' : 'Limits in this release:' }}</div>
-          <ul><li v-for="l in m.limits" :key="l" v-html="inlineMarkdown(l)" /></ul>
-        </div>
-      </div>
-    </template>
   </div>
 </template>
 
