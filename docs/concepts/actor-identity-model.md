@@ -96,11 +96,11 @@ This is the argument for the whole model, compressed:
 
 ## Continuity
 
-An actor stays the same actor while everything around it moves: email changes, username
-changes, keys rotate, MFA is enabled and disabled, sign-ins arrive through different
-clients. None of that is an identity change.
+None of these change the actor: an email change, a username change, a key rotation, MFA
+being turned on and off again, sign-ins arriving through different clients.
 
-The one direction that is *not* reversible: a retired subject is never reassigned. An
+Retirement is the one thing that does not reverse — a retired subject is never
+reassigned. An
 identity can stop authenticating; its identifier is not handed to somebody else
 afterwards. This is why retirement does not delete the row — the record staying put is
 what keeps the unique index blocking reuse.

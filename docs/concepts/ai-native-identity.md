@@ -105,7 +105,7 @@ text cannot disagree with themselves.
 
 **A challenge is consumed before the signature is checked.** Not after. Checking first
 would leave a window where two concurrent requests with the same nonce both verify. The
-cost is that a failed attempt burns the challenge too — which is what you want, since
+cost is that a failed attempt burns the challenge too. That is the behaviour you want:
 letting a client retry signatures against one nonce turns it into a target.
 
 **Multiple keys can be active at once.** That is what makes rotation safe: add the new

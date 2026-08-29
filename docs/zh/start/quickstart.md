@@ -4,8 +4,7 @@
 
 本页每一条命令都来自 CI 中会执行的脚本
 （<Status kind="tested" guard="deployment_walkthrough.sh" />）。若其中任何一条在
-你的环境里失败，那是 SoulAuth 或本页的缺陷，而不是需要你自行绕过的事情。
-欢迎[提交 issue](https://github.com/RcityHarold/SoulAuth/issues)。
+你的环境里失败，那是 SoulAuth 或本页的缺陷，请[提个 issue](https://github.com/RcityHarold/SoulAuth/issues)。
 
 ## 前置条件
 
@@ -29,8 +28,7 @@ docker compose up -d
 <Status kind="tested" guard="ci.yml::docker" /> CI 每次推送都跑这条路径：起服务、
 健康检查、引导、登录、访问受保护端点，再重启一次确认 schema 导入是幂等的。
 
-下面的手工步骤仍然值得读：它们展示了 compose 文件到底做了什么。
-一旦你的部署不再与那份 compose 文件一致，这些步骤就是唯一的参照。
+下面的手工步骤就是 compose 文件跑的内容。不用 compose 部署时照这几步来。
 :::
 
 ## 1 · 启动数据库
@@ -43,8 +41,8 @@ surreal start --bind 127.0.0.1:8000 --user root --pass root file:soulauth.db
 
 ## 2 · 导入 schema
 
-SoulAuth 不会自行建表。一个认证服务如果持有修改自身表结构的权限，就越过了本项目
-划定的边界，因此下面两个文件需要由你导入一次：
+SoulAuth 不发出任何 DDL，既不建表也不改表，所以它的数据库账号不需要这些权限。
+这两个文件由你导入一次：
 
 ```bash
 export DB="--endpoint http://127.0.0.1:8000 --user root --pass root \

@@ -47,8 +47,8 @@ with rotation and reuse detection.
 
 Session state is **derived, not stored**: there is no `status` column. Active and expired
 come from `expires_at`; revoked is expressed by deleting the row. Anything the API
-reports about a session is computed at read time, so there is no second source of truth
-to drift.
+reports about a session is computed at read time, so there is no second copy of the state
+to keep in sync.
 
 ## Boundaries the code holds to
 
@@ -62,9 +62,9 @@ These are enforced, not aspirational. Each names the test that keeps it true.
 | Every endpoint, config key and permission name in the published contract exists in the running code — and nothing in the running code is missing from it | <Status kind="tested" guard="conformance::j4" /> |
 | The service cannot alter its own schema | schema import is an operator step |
 
-That last one has no test because it is structural: SoulAuth issues no DDL. The two SQL
-files are imported by whoever deploys it. An authentication service holding permission to
-rewrite its own tables is a boundary this project does not cross.
+That last one has no test because there is nothing to assert against: SoulAuth issues no
+DDL at all. The two SQL files are imported by whoever deploys it, and the database account
+the service runs as does not need schema rights.
 
 ## Persistence
 
@@ -74,8 +74,9 @@ databases.
 
 ::: warning The namespace/database pair is a real failure mode
 Import the schema into a different pair than the process connects with and the service
-starts, `/health` returns `ok`, and nothing fails until the first write. This is why the
-deployment path has an executable walkthrough rather than only prose.
+starts, `/health` returns `ok`, and nothing fails until the first write. This one was hit
+during development, which is why `tests/deployment_walkthrough.sh` executes the deployment
+page instead of leaving it to be read.
 :::
 
 ## Running more than one instance

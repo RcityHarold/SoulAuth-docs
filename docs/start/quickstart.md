@@ -4,8 +4,8 @@ A running instance, a first administrator, and a working token — in about five
 
 Every command on this page comes from a script that runs in CI
 (<Status kind="tested" guard="deployment_walkthrough.sh" />). If one of them fails for
-you, that is a bug in SoulAuth or in this page, not something you are expected to work
-around. [Tell us.](https://github.com/RcityHarold/SoulAuth/issues)
+you, that is a bug in SoulAuth or in this page.
+[Please open an issue.](https://github.com/RcityHarold/SoulAuth/issues)
 
 ## You need
 
@@ -30,8 +30,8 @@ in `docker compose logs soulauth`.
 up, health check, bootstrap, login, protected endpoint, then a restart to confirm the
 schema import stays idempotent.
 
-The manual steps below remain the reference: they show what the compose file actually
-does, which matters the moment your deployment stops looking like the compose file.
+The manual steps below are what the compose file runs. Follow them when your deployment
+does not use compose.
 :::
 
 ## 1 · Start the database
@@ -44,9 +44,8 @@ Use `memory` instead of `file:soulauth.db` if you want a throwaway instance.
 
 ## 2 · Load the schema
 
-SoulAuth does not create its own tables. An authentication service holding permission to
-alter its own schema is a boundary this project does not cross, so the two files are
-imported by you, once:
+SoulAuth issues no DDL — it never creates or alters a table, so its database account does
+not need those rights. You import these two files once:
 
 ```bash
 export DB="--endpoint http://127.0.0.1:8000 --user root --pass root \
