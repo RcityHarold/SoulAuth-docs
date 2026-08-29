@@ -34,6 +34,14 @@
 
 <Figure2 locale="zh" />
 
+下面四个对象都挂在 `actor_identity` 上，而且都是可选的。
+
+**没有与 `HumanAccount` 对应的 `AIActor` 对象。** 一个 AI 主体就是一条
+`actor_kind = ai_actor` 的 `actor_identity`，名下没有 `human_account` 行 ——
+库里也确实只有 `actor_identity`、`human_account`、`ai_actor_credential`、
+`ai_actor_challenge` 四张表，没有第五张。人类那一侧多出一行来放邮箱和用户名，
+非人那一侧不需要，所以不建。
+
 ### HumanAccount：人如何管理自己的登录
 
 `email`、`username`、`username_normalized`、`email_verified`。
@@ -72,18 +80,6 @@
 ### Client：是哪个应用在发起请求
 
 已注册的 OIDC 客户端。客户端是协议里的一方，永远不是这次认证的主体。
-
-## 要改这个模型的话
-
-最常见的改动是把其中两个合起来，少维护一张表。下面是每种合并会撞上的事。
-
-| 合并 | 会撞上 |
-|---|---|
-| 身份并进账户 | 那张表得有 `email` 列，AI 主体也得填一个，然后它出现在密码重置的收件人里 |
-| 身份并进凭证 | 主体 id 跟着密钥走，换一次密钥旧 id 上的审计行就查不到行了 |
-| 凭证并进绑定 | 分不出「同一个人换了 IdP」和「有人复制了他的秘密」，两者长得一样 |
-| 档案并进身份 | 改一次显示名就等于换了一个主体 |
-| 客户端并进主体 | 没法给不同集成不同的可见范围，所有客户端看到同一份档案 |
 
 ## 身份的连续性
 

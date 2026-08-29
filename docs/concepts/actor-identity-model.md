@@ -38,6 +38,14 @@ and no API contract should assume it.
 
 <Figure2 locale="en" />
 
+All four objects below hang off `actor_identity`, and all four are optional.
+
+**There is no `AIActor` object to match `HumanAccount`.** An AI actor is an
+`actor_identity` row with `actor_kind = ai_actor` and no `human_account` row under it —
+the schema has `actor_identity`, `human_account`, `ai_actor_credential` and
+`ai_actor_challenge`, and no fifth table. The human side needs an extra row for an email
+address and a username; the non-human side does not, so none is created.
+
 ### HumanAccount — how a person manages their login
 
 `email`, `username`, `username_normalized`, `email_verified`.
@@ -81,19 +89,6 @@ exploit code required.
 
 Registered OIDC clients. A client is a party in the protocol, never the subject of the
 authentication.
-
-## If you are changing this model
-
-The usual instinct is to merge two of these and keep one fewer table. Here is what each
-merge runs into.
-
-| Merge | What it runs into |
-|---|---|
-| Identity into account | That table needs an `email` column and the AI actor has to fill it, after which it appears in password-reset recipients |
-| Identity into credential | The actor id follows the key, so rotating one leaves audit rows on an id that resolves to nothing |
-| Credential into binding | "Same person, another IdP" and "someone copied their secret" become the same event |
-| Profile into identity | A display-name change becomes a different actor |
-| Client into subject | Every integration sees the same profile; you cannot give one a narrower view |
 
 ## Continuity
 
