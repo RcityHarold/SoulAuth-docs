@@ -85,11 +85,16 @@ literally.
 | `409` | Conflict (email or username already taken) |
 | `429` | Rate limited, or the account/IP is locked out |
 | `501` | The route exists but this deployment has not configured the feature |
+| `503` | A dependency was briefly unavailable — the request was **not** processed |
 
 `501` is deliberate. A federated login endpoint on a deployment with no OAuth credentials
 configured is not "not found" — the route is there, the semantics are defined, the
 operator simply has not filled in the settings. A `404` would send them looking for the
 wrong problem.
+
+`503` matters for retry logic: it says the request never ran, so retrying it is safe.
+That is the opposite of `429`, where the request was rejected on purpose and retrying
+immediately makes things worse. Branch on the two separately.
 
 ## Identifiers
 

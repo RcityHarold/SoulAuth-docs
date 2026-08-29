@@ -67,9 +67,16 @@ GET /api/oidc/authorize
   &redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcallback
   &scope=openid%20profile%20email
   &state=<state>
+  &nonce=<nonce>
   &code_challenge=<challenge>
   &code_challenge_method=S256
 ```
+
+`nonce` 的生成方式与 `state` 相同：每次事务新生成、只留在服务端。但两者防的不是
+一件事：`state` 挡的是你没发起过的回调，`nonce` 把 ID Token 绑定到**这一次**授权
+请求上，于是为更早那次签发的令牌没法被重放进这个会话。SoulAuth 全程带着它：
+`authorize` 收下、随授权码存库、再回填成 ID Token 的 `nonce` claim，
+而[验证令牌](/zh/integrate/verify-tokens)那页要求你比对的正是它。
 
 这个端点校验的是**浏览器会话 cookie**，而不是 bearer 令牌。用户未登录时会被重定向到
 登录页，完成后再回到此处。

@@ -69,9 +69,17 @@ GET /api/oidc/authorize
   &redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcallback
   &scope=openid%20profile%20email
   &state=<state>
+  &nonce=<nonce>
   &code_challenge=<challenge>
   &code_challenge_method=S256
 ```
+
+Generate `nonce` the same way as `state` — fresh per transaction, kept server-side — but
+they defend different things. `state` catches a callback you did not start; `nonce` binds
+the ID Token to *this* authorization request, so a token minted for an earlier one cannot
+be replayed into this session. SoulAuth carries it through: `authorize` stores it with the
+code and puts it back as the `nonce` claim, which the [verification
+page](/integrate/verify-tokens) tells you to compare.
 
 This endpoint authenticates the **browser session cookie**, not a bearer token. If the
 user is not logged in they are redirected to the login page and return here afterwards.
