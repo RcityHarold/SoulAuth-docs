@@ -2,9 +2,9 @@
 
 Optional. SoulAuth runs standalone by default, and most deployments never need this page.
 
-It exists to state one boundary: **who owns which fact**. Systems that share a source of
-truth stop being separable, and an identity provider that can define who someone *is*
-has stopped being an identity provider.
+It exists to state one boundary: **who owns which fact**. SoulAuth stores a reference to
+the canonical actor and never writes to it; if it could edit that definition, the two
+systems would no longer be separable and neither could be deployed without the other.
 
 ## Three systems, three sources of truth
 

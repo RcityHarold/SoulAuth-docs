@@ -1,8 +1,8 @@
 # Identity vs authority
 
 A successful authentication answers **who**. It does not answer **may they**, and it
-never will. This page states that boundary precisely, because almost every dangerous
-shortcut in an identity system starts by blurring it.
+never will. This page draws the line and shows where each of the five questions around it
+actually gets answered.
 
 ## Five questions, not one
 

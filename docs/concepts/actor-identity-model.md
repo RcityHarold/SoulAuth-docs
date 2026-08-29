@@ -1,7 +1,7 @@
 # Actor identity model
 
-Five objects. They stay separate because merging any two of them destroys a property
-somebody depends on later.
+Five objects, kept separate. Under each one below is what merging it into its neighbour
+would actually cost you.
 
 ## The anchor
 

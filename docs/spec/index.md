@@ -3,9 +3,9 @@
 This section describes the **architecture** — the object model, the boundaries, and the
 rules that hold regardless of which release you are running.
 
-It is deliberately separated from the rest of the site. Everywhere else answers *what can
-I do today?* Here we answer *what is this system, and what does it refuse to become?*
-Mixing the two is how documentation ends up describing a system nobody has built.
+These pages are separate from the rest of the site because they age differently. The
+Integrate and Reference pages track what the current release does, and change with it.
+These describe the model, and change only when the model does — which so far it has not.
 
 ::: warning Architecture responsibility ≠ current supported capability
 Nothing on these pages should be read as a statement that the current release implements
