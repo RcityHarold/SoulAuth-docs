@@ -76,31 +76,6 @@ can point at your domain. [Identity vs authority →](/spec/identity-vs-authorit
 - **Not certified.** No standards body has certified any part of it, and saying so
   yourself does not count.
 
-## When to use something else
-
-**A hosted provider** (Auth0, Clerk, WorkOS) if you would rather not operate an identity
-service at all. SoulAuth is a binary and a database that somebody has to keep alive.
-
-**Keycloak or Ory** if you need certified OIDC conformance, SAML, or a large catalogue of
-existing integrations. SoulAuth implements the Authorization Code flow and claims nothing
-past it.
-
-**better-auth or Lucia** if you want authentication as a library inside one TypeScript
-application, rather than a separate service that several applications call.
-
-**SoulAuth** if non-human actors need real identity in your system — and if you want to
-be able to check every claim on this site against the test that backs it.
-
-## What you actually get
-
-One Rust binary and SurrealDB. Standard OpenID Connect. A machine-readable contract that
-the test suite checks against the running code, which is also what the reference pages
-here are rendered from — they are not maintained by hand.
-
-Plus the unfinished parts, written down: [the readout](/project/status) lists ten
-invariants that are already written and runnable, that the current implementation does
-not satisfy, with the reason for each.
-
 ## Next
 
 | | |
