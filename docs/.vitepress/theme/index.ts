@@ -4,7 +4,6 @@ import Figure1 from './figures/Figure1.vue'
 import Figure2 from './figures/Figure2.vue'
 import Figure3 from './figures/Figure3.vue'
 import Status from './status/Status.vue'
-import Conformance from './status/Conformance.vue'
 import ApiTable from './contracts/ApiTable.vue'
 import ConfigTable from './contracts/ConfigTable.vue'
 import ErrorTable from './contracts/ErrorTable.vue'
@@ -31,7 +30,6 @@ export default {
     // 到底是哪一级、由哪条断言守着。未成立的部分连同原因一起摆出来，
     // 比只展示绿色更能回答「你凭什么这么说」。
     app.component('Status', Status)
-    app.component('Conformance', Conformance)
 
     // Reference 区的四张表从 `docs/.vitepress/data/contracts/*.json` 渲染 ——
     // 那是 SoulAuth 仓库 `contracts/*.yaml` 的派生快照，来源 commit 记在

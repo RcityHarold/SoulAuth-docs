@@ -71,7 +71,7 @@ can point at your domain. [Identity vs authority →](/spec/identity-vs-authorit
 - **Not a memory or reasoning system.** In a Soulseed deployment the canonical actor is
   defined elsewhere; SoulAuth holds a reference to it, not the definition.
 - **Not a billing system.** There is a membership field on the legacy user row. It
-  should not be there — see [project status](/project/status).
+  should not be there.
 - **Not a hosted service.** You run it, patch it and back it up.
 - **Not certified.** No standards body has certified any part of it, and saying so
   yourself does not count.

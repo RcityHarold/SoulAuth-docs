@@ -57,8 +57,7 @@ separation is the reason an AI agent can exist without any of these fields —
 ::: warning Not yet fully separated
 <Status kind="planned" /> Password and TOTP still live on the legacy `user` table rather
 than behind a credential object. The `HumanAccount` split is real; the credential
-consolidation behind it is not finished. See
-[Project status](/project/status).
+consolidation behind it is not finished.
 :::
 
 ### Credential — what can prove the actor right now

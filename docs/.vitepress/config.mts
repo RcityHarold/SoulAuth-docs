@@ -82,10 +82,6 @@ const EN_SIDEBAR = [
       { text: 'Soulseed & Mind OS', link: '/spec/soulseed-and-mind-os' },
     ],
   },
-  {
-    text: 'Project',
-    items: [{ text: 'Project Status', link: '/project/status' }],
-  },
 ]
 
 // 中文侧边栏是同一棵树，只翻译显示文本并加 /zh 前缀。
@@ -131,7 +127,6 @@ const ZH_TEXT: Record<string, string> = {
   Administration: '管理',
   Audit: '审计',
   Configuration: '配置',
-  'Project Status': '项目状态',
 }
 
 const ZH_SIDEBAR = EN_SIDEBAR.map((group) => ({
@@ -148,7 +143,6 @@ const EN_NAV = [
   { text: 'Integrate', link: '/integrate/register-a-client', activeMatch: '/integrate/' },
   { text: 'Operate', link: '/operate/deployment', activeMatch: '/operate/' },
   { text: 'Reference', link: '/reference/api-conventions', activeMatch: '/reference/' },
-  { text: 'Status', link: '/project/status', activeMatch: '/project/' },
 ]
 
 const ZH_NAV = [
@@ -157,7 +151,6 @@ const ZH_NAV = [
   { text: '接入', link: '/zh/integrate/register-a-client', activeMatch: '/zh/integrate/' },
   { text: '运行', link: '/zh/operate/deployment', activeMatch: '/zh/operate/' },
   { text: '参考', link: '/zh/reference/api-conventions', activeMatch: '/zh/reference/' },
-  { text: '状态', link: '/zh/project/status', activeMatch: '/zh/project/' },
 ]
 
 const DESCRIPTION =

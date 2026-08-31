@@ -38,6 +38,5 @@ RFC 9068 规定的那套 JWT profile。
 
 | | |
 |---|---|
-| 测试到底断言了什么 | [项目状态](/zh/project/status) |
 | 正确地校验令牌 | [校验令牌](/zh/integrate/verify-tokens) |
 | 这些选择背后的安全模型 | [安全模型](/zh/security/security-model) |

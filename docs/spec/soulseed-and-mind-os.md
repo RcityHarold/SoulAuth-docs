@@ -76,8 +76,7 @@ subject has actually been verified.
 ## Architecture relationship is not release capability
 
 <Status kind="planned" /> This page describes how the systems relate. It says nothing
-about which parts of that relationship the current release implements. For that, see
-[project status](/project/status).
+about which parts of that relationship the current release implements. For that
 
 ## Next
 

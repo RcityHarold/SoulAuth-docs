@@ -76,7 +76,6 @@ curl -s $SOULAUTH/.well-known/openid-configuration | grep issuer
 `AUTH_SESSION_CACHE_TTL_SECONDS`（默认 5）之内观察到变化。要立刻生效就重启副本。
 
 <Status kind="planned" /> 跨副本的瞬时吊销没有实现。
-[项目状态](/zh/project/status)把它列在「尚未满足的不变式」里。
 
 ## 测试时被限流
 
@@ -145,4 +144,3 @@ cargo test
 | | |
 |---|---|
 | 恢复流程 | [运维与恢复](/zh/operate/operations-and-recovery) |
-| 已知限制 | [项目状态](/zh/project/status) |

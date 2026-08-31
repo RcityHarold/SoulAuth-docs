@@ -140,4 +140,3 @@ That difference is the main argument for [BFF](/integrate/browser-and-bff).
 |---|---|
 | What each protection is | [Security model](/security/security-model) |
 | Brute force in detail | [Authentication protection](/security/authentication-protection) |
-| What is not yet true | [Project status](/project/status) |

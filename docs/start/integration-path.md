@@ -43,8 +43,7 @@ one-time challenge — no account, no password, no redirect.
 
 <Status kind="planned" /> Its session reaches `/api/actors/me` and nothing else: RBAC is
 still keyed to human account rows. If your agent needs to call permission-gated
-endpoints, that is not available yet. [Project status](/project/status) lists this as one
-of the invariants the current release does not satisfy.
+endpoints, that is not available yet.
 
 ## Next
 

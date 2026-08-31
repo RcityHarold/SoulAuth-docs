@@ -56,7 +56,7 @@ trail of events that never resolve.
 ::: warning Membership does not belong on the identity root
 <Status kind="planned" /> `membership_level` and `membership_expiry` hang off the legacy
 `user` row, and the overview endpoint hard-codes pricing tiers. Commercial state is not
-identity state; this is recorded in the [conformance readout](/project/status).
+identity state.
 :::
 
 ## Next

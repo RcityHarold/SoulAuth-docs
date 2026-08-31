@@ -226,4 +226,3 @@ and an SMTP host that is probably not listening.
 | Connect a web application | [Authorization Code flow](/integrate/authorization-code-flow) |
 | Harden this before it faces anyone | [Production checklist](/operate/production-checklist) |
 | Understand what a token does and does not grant | [Identity vs authority](/spec/identity-vs-authority) |
-| See exactly what this release supports | [Project status](/project/status) |

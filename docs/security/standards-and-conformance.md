@@ -39,6 +39,5 @@ not claim they follow the JWT profile that RFC 9068 specifies.
 
 | | |
 |---|---|
-| What the tests actually assert | [Project status](/project/status) |
 | Verifying tokens correctly | [Verify tokens](/integrate/verify-tokens) |
 | The security model behind these choices | [Security model](/security/security-model) |

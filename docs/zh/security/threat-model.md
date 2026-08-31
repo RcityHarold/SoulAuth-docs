@@ -129,4 +129,3 @@ GitHub 用户。**
 |---|---|
 | 每项防护是什么 | [安全模型](/zh/security/security-model) |
 | 爆破防护的细节 | [认证防护](/zh/security/authentication-protection) |
-| 什么还不成立 | [项目状态](/zh/project/status) |

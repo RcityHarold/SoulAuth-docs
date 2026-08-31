@@ -10,8 +10,7 @@ These describe the model, and change only when the model does — which so far i
 ::: warning Architecture responsibility ≠ current supported capability
 Nothing on these pages should be read as a statement that the current release implements
 it. Where a page describes something not yet built, it carries
-<Status kind="planned" />. For what is actually running, see
-[Project Status](/project/status).
+<Status kind="planned" />.
 :::
 
 ## The object model
@@ -99,5 +98,3 @@ settled. Do not depend on a particular shape yet:
   <Status kind="planned" />
 - RBAC over `ActorIdentity` — today roles are keyed to human account rows, so an AI
   actor's session cannot carry permissions. <Status kind="planned" />
-
-<Conformance />

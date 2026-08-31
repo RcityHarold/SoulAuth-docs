@@ -8,8 +8,7 @@
 
 ::: warning 架构职责 ≠ 当前支持的能力
 这几页里的任何内容，都不应被读成「当前 Release 已经实现了它」。凡是描述尚未
-建成之物的地方，都带着 <Status kind="planned" /> 标记。想知道实际在跑的是什么，
-看[项目状态](/zh/project/status)。
+建成之物的地方，都带着 <Status kind="planned" /> 标记。
 :::
 
 ## 核心对象模型
@@ -88,5 +87,3 @@ X」这句话只能自下而上地挣来：要有一个真这么做的 runtime�
 - `auth_time` 之外的正式 assurance 分级与新鲜度模型。<Status kind="planned" />
 - 建立在 `ActorIdentity` 上的 RBAC。目前角色挂在人类账户行上，因此 AI 主体的
   会话无法携带权限。<Status kind="planned" />
-
-<Conformance />

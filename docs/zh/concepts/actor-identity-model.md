@@ -52,7 +52,6 @@
 ::: warning 还没有完全拆干净
 <Status kind="planned" /> 口令与 TOTP 仍然住在遗留的 `user` 表上，而不是收在一个
 凭证对象后面。`HumanAccount` 这层拆分是真的，它背后的凭证收口还没做完。
-见[项目状态](/zh/project/status)。
 :::
 
 ### Credential：此刻能用什么证明这个主体

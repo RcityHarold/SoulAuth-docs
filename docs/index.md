@@ -27,8 +27,8 @@ features:
     linkText: Wire up a client
   - title: Every claim names its guard
     details: Endpoints, config keys, permissions and standards live in machine-readable registries that a test suite checks against the running code. When a page says "supported", you can open the assertion.
-    link: /project/status
-    linkText: Conformance readout
+    link: /security/standards-and-conformance
+    linkText: Standards & conformance
   - title: Run it yourself
     details: One Rust binary and SurrealDB. Docker Compose for local, a documented production gate that refuses to start on unsafe defaults.
     link: /operate/deployment
@@ -117,8 +117,6 @@ defining a word, it names the assertion doing the work: <Status kind="tested"
 guard="conformance::j8" /> points at `j8` in `tests/conformance.rs`, which holds the
 thirteen frozen items of the AI actor authentication surface.
 
-<Conformance />
-
 ## What it is not
 
 - **Not an authorization server for your application's rules.** A successful
@@ -135,6 +133,5 @@ thirteen frozen items of the AI actor authentication surface.
 | See it running in five minutes | [Quickstart](/start/quickstart) |
 | Connect a web app over OIDC | [Authorization Code flow](/integrate/authorization-code-flow) |
 | Give an AI agent an identity | [AI-native identity](/concepts/ai-native-identity) |
-| Know exactly what's supported | [Project status](/project/status) |
 | Understand the model before coding | [Actor identity model](/concepts/actor-identity-model) |
 | Read the full specification | [Specification](/spec/) |

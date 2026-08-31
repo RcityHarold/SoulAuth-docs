@@ -83,8 +83,6 @@ change within `AUTH_SESSION_CACHE_TTL_SECONDS` (default 5). Restart the replicas
 need it immediately.
 
 <Status kind="planned" /> Instant cross-replica revocation is not implemented.
-[Project status](/project/status) lists it among the invariants this release does not
-satisfy.
 
 ## Rate limited during testing
 
@@ -157,4 +155,3 @@ Then [open an issue](https://github.com/RcityHarold/SoulAuth/issues).
 | | |
 |---|---|
 | Recovery procedures | [Operations & recovery](/operate/operations-and-recovery) |
-| Known limits | [Project status](/project/status) |

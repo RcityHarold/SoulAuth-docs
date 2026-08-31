@@ -8,12 +8,16 @@
 //
 //   ① 四份注册表齐全、是合法 JSON、且不是空壳；
 //   ② SOURCE.json 记录了来源 commit，且不是从有未提交改动的工作区取的
-//      —— 那种快照对应的东西在 git 历史里根本找不到；
+//      —— 那种快照对应的东西在 git 历史里根本找不到。
 //
-// 曾经还有第四条：每个渲染契约数据的页面都必须放 <ContractNote> 写出来源 commit。
-// 那个组件已按要求从全站移除，规则随之删掉。**因此失去的保护是**：站上现在可以
-// 渲染一份过期的契约快照，而页面上没有任何东西说它取自哪次提交。②仍然拦住「快照
-// 取自有未提交改动的工作区」，但拦不住「快照本身很旧」。
+// 曾经还有两条，都随各自的守卫对象一起删掉了，**失去的保护记在这里**：
+//
+//   · 每个渲染契约数据的页面必须放 <ContractNote> 写出来源 commit。组件已按要求
+//     从全站移除 —— 站上现在可以渲染一份过期的快照，页面上没有任何东西说它取自
+//     哪次提交。②仍拦住「取自有未提交改动的工作区」，拦不住「快照本身很旧」。
+//   · 一致性读数（conformance-data.ts）与契约快照的 commit 是否一致。项目状态页
+//     已删，读数文件随之删除 —— 站上不再有测试数字，也就不再有「数字与契约来自
+//     不同 commit」这件事可查。
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, relative } from 'node:path'
@@ -35,28 +39,6 @@ const REGISTRIES = {
 const errors = []
 const warnings = []
 
-// ⓪ 一致性读数与契约快照的来源 commit 是否一致 —— 报警告，不阻断
-//
-// 站上有两处「来源 commit」：Reference 各页脚的契约快照（SOURCE.json），
-// 和 Project Status 那份一致性读数（conformance-data.ts）。它们各自更新，
-// 于是同一个站可以同时挂着两个不同的 commit —— 实际发生过，差了三个提交，
-// 期间新增的一条 conformance 断言没有反映到读数里，页面上那句
-// 「Every number above came from running those four commands」就不成立了。
-//
-// # 为什么是警告而不是错误
-//
-// 这一条**在本仓库内无法被满足**：要对齐它，得去 SoulAuth 的工作区跑
-// `cargo test` / `cargo test --test conformance` / `./tests/integration.sh`，
-// 把数字誊回来。文档仓库的 CI 既没有 Rust 工具链，也没有那份源码。
-//
-// 一道你在本仓库里怎么做都过不了的闸门，最终只会训练人去绕过它 —— 而被绕过的
-// 检查和空转的检查是一回事。所以这里只把事实摆出来，让下一个改契约的人看见，
-// 不拦住与它无关的改动。
-const readout = readFileSync(join(ROOT, 'docs/.vitepress/theme/status/conformance-data.ts'), 'utf8')
-const readoutCommit = readout.match(/export const COMMIT = '([^']+)'/)?.[1]
-if (!readoutCommit) {
-  errors.push('conformance-data.ts 里读不到 `export const COMMIT` —— 读数没有来源 commit')
-}
 
 // ① 注册表
 const sizes = {}
@@ -89,17 +71,6 @@ if (!existsSync(srcPath)) {
     errors.push(
       'SOURCE.json 标记 dirty —— 快照取自有未提交改动的工作区，' +
         '它对应的契约在 git 历史里找不到。提交 SoulAuth 那边的改动后重新同步。',
-    )
-  }
-  // ⓪ 见文件开头：只报警告，不阻断。
-  if (readoutCommit && src.short && readoutCommit !== src.short) {
-    warnings.push(
-      `一致性读数落后于契约快照：` +
-        `conformance-data.ts 是 ${readoutCommit}，SOURCE.json 是 ${src.short}。\n` +
-        `      站上因此挂着两个来源 commit，而 Project Status 那页写着「Nothing here is an estimate」。\n` +
-        `      在 ${src.short} 的 SoulAuth 工作区跑：\n` +
-        `        cargo test  ·  cargo test --test conformance  ·  ./tests/integration.sh\n` +
-        `      把三个数字连同 CAPTURED_AT / COMMIT 誊进 conformance-data.ts。`,
     )
   }
 }

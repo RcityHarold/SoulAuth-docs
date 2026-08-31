@@ -26,9 +26,9 @@ features:
     link: /zh/integrate/authorization-code-flow
     linkText: 接一个客户端
   - title: 每一句声称都指得出守卫
-    details: 端点、配置项、权限、外部规范都存放在机器可读的注册表中，由测试套件对照运行中的代码逐条核对。页面上写「已支持」，就能点开撑住这句话的那条断言。
-    link: /zh/project/status
-    linkText: 一致性读数
+    details: 端点、配置项、权限、外部规范都存放在机器可读的注册表中，由测试套件对照运行中的代码逐条核对。页面上写「已支持」，就能点开那条断言。
+    link: /zh/security/standards-and-conformance
+    linkText: 规范与符合性
   - title: 自行部署
     details: 一个 Rust 二进制加 SurrealDB。本地可用 Docker Compose；生产环境设有一道明写的闸门，默认值不安全时进程直接拒绝启动。
     link: /zh/operate/deployment
@@ -115,8 +115,6 @@ AI 主体拿到的只有一个 `ActorIdentity` 和一枚密钥，名下不存在
 断言在守：比如 <Status kind="tested" guard="conformance::j8" /> 指的是
 `tests/conformance.rs` 里的 `j8`，它守的是 AI 主体认证那 13 项冻结面。
 
-<Conformance />
-
 ## SoulAuth 不是什么
 
 - **不是业务规则的授权服务器。** 认证成功只回答**是谁**，不授予任何应用权限。
@@ -131,6 +129,5 @@ AI 主体拿到的只有一个 `ActorIdentity` 和一枚密钥，名下不存在
 | 五分钟内跑起来 | [快速上手](/zh/start/quickstart) |
 | 用 OIDC 接入 Web 应用 | [授权码流程](/zh/integrate/authorization-code-flow) |
 | 为 AI 主体建立身份 | [AI 原生身份](/zh/concepts/ai-native-identity) |
-| 确认支持到什么程度 | [项目状态](/zh/project/status) |
 | 动手前先理解模型 | [Actor 身份模型](/zh/concepts/actor-identity-model) |
 | 阅读完整规范 | [规范](/zh/spec/) |

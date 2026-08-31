@@ -41,7 +41,6 @@ AI 主体不走 OIDC。它持有一枚 Ed25519 密钥，对一次性挑战签名
 
 <Status kind="planned" /> AI 主体的会话只能访问 `/api/actors/me`，因为 RBAC 仍然
 建立在人类账户行之上。如果它需要调用受权限管控的端点，本 Release 做不到。
-[项目状态](/zh/project/status)把这一条列在「尚未满足的不变式」里。
 
 ## 接下来
 

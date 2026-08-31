@@ -217,4 +217,3 @@ curl -X POST http://localhost:8080/api/actors/authenticate \
 | 接一个 Web 应用 | [授权码流程](/zh/integrate/authorization-code-flow) |
 | 在它面向任何人之前先加固 | [生产清单](/zh/operate/production-checklist) |
 | 搞清楚一枚令牌授予与不授予什么 | [身份与权限的边界](/zh/spec/identity-vs-authority) |
-| 精确知道本 Release 支持什么 | [项目状态](/zh/project/status) |
