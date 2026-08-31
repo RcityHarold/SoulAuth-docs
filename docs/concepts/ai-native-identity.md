@@ -115,21 +115,6 @@ key, confirm the agent authenticates with it, then revoke the old one.
 **Revoking a key changes its status; it does not delete the record.** Otherwise the
 audit trail loses the answer to "which key was used for that action".
 
-## What this release does not do
-
-<Status kind="planned" /> **Agent sessions carry no permissions.** RBAC is still keyed to
-human account rows, so an agent token works on `/api/actors/me` and is refused — with an
-explicit 403, not a confusing 401 — on human endpoints. The refusal is explicit in the
-extractor: `AuthedUser` checks `subject_type` and returns `Forbidden` for an agent token
-before it ever looks up a row. Without that check it would fail later as "user not
-found", and would start passing the day some lookup path happened to resolve one.
-
-<Status kind="planned" /> **Agents do not appear in OIDC flows.** `/authorize`
-authenticates a browser session.
-
-Both limits are recorded in the machine-readable
-[standards registry](/security/standards-and-conformance), not only here.
-
 ## Common confusions
 
 ::: details This is not RFC 7523, mTLS, or client credentials

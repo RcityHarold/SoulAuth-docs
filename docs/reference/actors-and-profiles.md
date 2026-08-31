@@ -25,12 +25,6 @@ account, no email and no password. Registration and key management require
 The authentication flow, the exact bytes that get signed, and why the challenge is
 consumed before the signature is checked: [AI-native identity](/concepts/ai-native-identity).
 
-::: warning Agent sessions carry no permissions
-<Status kind="planned" /> RBAC is still keyed to human account rows. An agent token works
-on `/api/actors/me` and is refused with `403` on human endpoints — `AuthedUser` checks
-`subject_type` first and refuses an agent token before it looks up a row.
-:::
-
 ### Keys
 
 Multiple keys can be active at once, which is what makes rotation safe: add the new one,

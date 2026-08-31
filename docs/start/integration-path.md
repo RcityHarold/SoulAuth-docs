@@ -41,10 +41,6 @@ shipping the secret in a bundle anyone can read.
 An AI actor does not go through OIDC at all. It holds an Ed25519 key and signs a
 one-time challenge — no account, no password, no redirect.
 
-<Status kind="planned" /> Its session reaches `/api/actors/me` and nothing else: RBAC is
-still keyed to human account rows. If your agent needs to call permission-gated
-endpoints, that is not available yet.
-
 ## Next
 
 | | |

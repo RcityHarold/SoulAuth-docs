@@ -65,17 +65,6 @@ still resolve to the same actor. The conformance suite checks the code itself:
 
 [The full model →](/concepts/actor-identity-model)
 
-## What it does not do
-
-- **It does not decide permissions.** A successful authentication tells you who this is,
-  not what they may do. You write that check against your own rules; SoulAuth does not
-  know what resources your domain has.
-- **It does not run AI actors.** It authenticates them; it does not orchestrate or reason
-  about them.
-- **It is not a hosted service.** You run it, patch it and back it up.
-- **It is not certified.** If your situation calls for a certified OIDC implementation,
-  this is not one.
-
 ## Next
 
 | | |

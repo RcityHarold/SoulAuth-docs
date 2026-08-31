@@ -108,19 +108,6 @@ sp9kEQQT4evGROoc…                ← nonce
 **吊销只改状态，不删记录。** 记录一旦删除，审计中「这次认证使用的是哪一枚密钥」
 就失去了答案。
 
-## 本 Release 的边界
-
-<Status kind="planned" /> **AI 主体的会话不携带任何权限。** RBAC 目前仍建立在 user
-行之上，因此 AI 主体的令牌可用于 `/api/actors/me`，在人类端点上会被拒绝，
-返回明确的 403 而非含混的 401。这条拒绝写在提取器里：`AuthedUser` 先看
-`subject_type`，是 agent 就直接返回 `Forbidden`，根本不去查那一行。
-没有这道检查的话，它会以「用户不存在」的形式失败；而哪天某条查询路径恰好能解析到
-一行，它就开始放行了。
-
-<Status kind="planned" /> **AI 主体不参与 OIDC 流程。** `/authorize` 认的是浏览器会话。
-
-这两条限制也记在机器可读的[规范注册表](/zh/security/standards-and-conformance)里。
-
 ## 容易产生的误解
 
 ::: details 这不是 RFC 7523，不是 mTLS，也不是 client credentials

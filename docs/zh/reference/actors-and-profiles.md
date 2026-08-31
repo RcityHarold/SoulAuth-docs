@@ -23,12 +23,6 @@
 认证流程、到底签的哪几个字节、以及为什么挑战在验签之前就被消费：
 [AI 原生身份](/zh/concepts/ai-native-identity)。
 
-::: warning Agent 会话不带任何权限
-<Status kind="planned" /> RBAC 仍然挂在人类账户行上。Agent 令牌在 `/api/actors/me`
-上可用，在人类端点上以 `403` 被拒 —— `AuthedUser` 先看 `subject_type`，是 agent 就
-直接拒，不去查那一行。
-:::
-
 ### 密钥管理
 
 多枚密钥可以同时有效，安全轮换靠的就是这一点：先加新密钥，确认 AI 主体能用它完成
