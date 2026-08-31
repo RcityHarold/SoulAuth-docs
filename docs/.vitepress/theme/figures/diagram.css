@@ -34,6 +34,19 @@
      视口宽不代表图宽。 */
   container-type: inline-size;
 
+  /* 比正文栏窄，并居中。
+     图占满整栏时，盒子被拉得很扁、横向间距过大，读起来像一张表而不是一张图。
+     容器查询（上面的 container-type）会按这个收窄后的宽度重新决定断点，
+     所以窄下来之后内部布局是跟着变的，不是被压扁。 */
+  max-width: min(560px, 100%);
+  margin-inline: auto;
+
+  /* 兜底：.dg-row 是不换行的 flex，盒子压到 min-content 之后再窄就会溢出。
+     正常情况下 560px 装得下最宽那一行（ActorIdentity → IdentityBinding →
+     Soulseed Canonical Actor，约 390px），但标签一旦变长就没有余量了。
+     宽内容自己滚，不要顶破正文栏。 */
+  overflow-x: auto;
+
   font-size: 13px;
   line-height: 1.45;
   color: var(--dg-ink);
