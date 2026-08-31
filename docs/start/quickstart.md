@@ -59,6 +59,13 @@ surreal import $DB schema.sql
 surreal import $DB initial_data.sql
 ```
 
+Import both files once. Only 8 of the 195 `DEFINE` statements in `schema.sql` carry
+`IF NOT EXISTS`, so re-running it against an initialised database stops with
+`The table 'actor_identity' already exists`. That is an idempotency problem, not
+corruption — if the first import said `Import executed with no errors` it worked, and
+there is no need to start over. The `schema-init` service in `docker-compose.yml` probes
+before importing for this reason.
+
 ::: warning The namespace and database must match
 `auth` / `main` here must be the same pair the process connects with. Import into the
 wrong pair and everything still *looks* fine — the process starts, `/health` returns
@@ -89,6 +96,22 @@ A loopback `APP_URL` keeps you out of the production gate, which is why this qui
 needs neither an OIDC signing key nor an MFA encryption key. That is also precisely why
 these settings are not suitable for production — see the
 [production checklist](/operate/production-checklist).
+
+::: warning Pick either `.env` or `export`, not both
+Startup calls `dotenvy::dotenv()`, which does **not** override variables already present
+in the environment. Where both define a key, the exported one wins.
+
+`JWT_SECRET=$(openssl rand -hex 32)` above generates a new secret every time it runs. If
+you keep a `.env` and also re-run the exports in each new terminal, every token issued
+before that shell becomes invalid — the symptom is "yesterday's token returns 401 today"
+while neither config appears to have changed.
+
+If you took the Docker Compose route, `.env` already exists; skip this section.
+
+The five `DATABASE_*` values above are also the built-in defaults for a local setup
+(`http://localhost:8000`, `root` / `root`, `auth` / `main`), so exporting them changes
+nothing.
+:::
 
 ## 4 · Run it
 
@@ -126,10 +149,18 @@ curl -X POST http://localhost:8080/api/bootstrap/admin \
 
 Three things about this path worth knowing now:
 
+- **The token belongs to that process.** `for this process` in the log is literal:
+  restart soulauth and it prints a new one. While the process keeps running (`uptime_seconds`
+  from `/health` climbing means it has not restarted), the same token stays valid.
 - **It closes permanently.** Once an administrator exists, the same token is rejected —
   and it returns the same status as a wrong token, so a stale token cannot be used to
   probe whether an instance is initialised.
-- **The password policy is not relaxed** because this is the first user.
+- **The password policy is not relaxed** because this is the first user. At least 12
+  **characters** (`PASSWORD_MIN_LENGTH`, counted in characters, so one CJK character
+  counts as one), and at least three of lowercase, uppercase, digit, symbol. The upper
+  bound is 1024 **bytes** — that one is in bytes because it exists to stop an oversized
+  input from burning Argon2 time. A rejection is `400` with `validation_error` and **does
+  not consume the bootstrap token**, so you can retry straight away.
 - **You never touch the database.** Going from empty to a usable administrator without
   hand-editing records is a requirement this project holds itself to, not a convenience.
 
@@ -207,7 +238,17 @@ verifying; the copy you send back is never trusted.
 
 Sign it and exchange it for a session:
 
+Sign the `payload` verbatim, then exchange it. Two places to get wrong: write the file
+with `printf '%s'` rather than `echo` (`echo` appends a newline, which becomes a fifth
+line of the payload), and encode with base64url without padding (the server decodes with
+`URL_SAFE_NO_PAD` <!-- cite-exempt: a Rust base64 engine constant, not a config key -->;
+plain `base64` is rejected):
+
 ```bash
+printf '%s' "$PAYLOAD" > payload.bin
+SIG=$(openssl pkeyutl -sign -inkey agent.pem -rawin -in payload.bin \
+      | basenc --base64url | tr -d '=\n')
+
 curl -X POST http://localhost:8080/api/actors/authenticate \
   -H 'Content-Type: application/json' \
   -d "{\"actor_id\":\"$ACTOR_ID\",\"nonce\":\"$NONCE\",\"algorithm\":\"ed25519\",\"signature\":\"$SIG\"}"
