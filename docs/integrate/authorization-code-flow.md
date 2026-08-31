@@ -153,7 +153,7 @@ Claims are trimmed to the granted scope: no `email` without the `email` scope, n
 [Validate it properly →](/integrate/verify-tokens)
 
 ::: warning What `sub` is stable across
-<Status kind="planned" /> `sub` carries the legacy user row key, so it is stable for that
+`sub` carries the legacy user row key, so it is stable for that
 row's lifetime — weaker than the "never reassigned" guarantee OIDC Core expects. Key your
 records on `(iss, sub)` and read the
 [caveat](/security/standards-and-conformance) before assuming more.

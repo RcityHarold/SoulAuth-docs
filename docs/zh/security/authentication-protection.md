@@ -70,7 +70,7 @@ TOTP 加备用码。
 所以单靠一个正确口令永远拿不到可用凭证。
 
 ::: warning 派生密钥这个陷阱
-<Status kind="planned" /> 未设置 `MFA_SECRET_ENCRYPTION_KEY` 时，密钥从 `JWT_SECRET`
+未设置 `MFA_SECRET_ENCRYPTION_KEY` 时，密钥从 `JWT_SECRET`
 派生并打印告警。此后轮换 `JWT_SECRET` 会让所有已存的 TOTP 密钥无法解密，
 每个 MFA 用户都会被锁死，除了重新绑定之外没有恢复手段。
 
@@ -83,9 +83,7 @@ TOTP 加备用码。
 <Status kind="tested" guard="conformance::b4b" />
 
 登出、改密、停用账号时立刻吊销，在处理该请求的那个实例上生效。其它副本在
-`AUTH_SESSION_CACHE_TTL_SECONDS`（默认 5）之内观察到。<Status kind="planned" />
-
-`logout-all` 一次吊销一个主体的所有会话。
+`AUTH_SESSION_CACHE_TTL_SECONDS`（默认 5）之内观察到。`logout-all` 一次吊销一个主体的所有会话。
 
 不绑定 IP 或设备。这两样挡住合法用户（尤其在移动网络上）的次数比挡住攻击者更多，
 所以都不强加。
@@ -108,7 +106,7 @@ AI 主体从不发送可复用的秘密，而是对服务端签发的一次性�
 写入从不阻塞请求，也从不包含凭据。
 
 ::: warning 不防篡改
-<Status kind="planned" /> 一张普通表。没有哈希链，没有 checkpoint。
+一张普通表。没有哈希链，没有 checkpoint。
 对运维有用；不是证据。
 :::
 

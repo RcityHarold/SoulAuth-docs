@@ -32,7 +32,7 @@ both break legitimate users on mobile networks more often than they stop attacke
 Mitigations: keep `JWT_EXPIRATION` short; log out on suspicion; watch the audit log for a
 session appearing from an implausible address.
 
-<Status kind="planned" /> Revocation reaches other replicas within one cache TTL.
+Revocation reaches other replicas within one cache TTL.
 
 ## Intercepted authorization code
 

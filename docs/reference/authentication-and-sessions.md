@@ -28,7 +28,7 @@ nothing extra, and a normal `POST /api/auth/login` by an administrator produces 
 session.
 
 ::: warning Revocation is not instant across replicas
-<Status kind="planned" /> Each instance caches resolved sessions. A logout, password
+Each instance caches resolved sessions. A logout, password
 change or suspension takes effect immediately on the instance that handled it; other
 instances observe it within `AUTH_SESSION_CACHE_TTL_SECONDS`. Single-instance
 deployments are unaffected.
@@ -64,7 +64,7 @@ TOTP secrets are encrypted at rest with `MFA_SECRET_ENCRYPTION_KEY`. Backup code
 Argon2 hashes, verified one at a time.
 
 ::: warning The development fallback
-<Status kind="planned" /> With no `MFA_SECRET_ENCRYPTION_KEY` set, the key is derived
+With no `MFA_SECRET_ENCRYPTION_KEY` set, the key is derived
 from `JWT_SECRET` and a warning is logged. Rotating `JWT_SECRET` would then make every
 stored TOTP secret undecryptable.
 

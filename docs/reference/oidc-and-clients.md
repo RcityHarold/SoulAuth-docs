@@ -46,7 +46,7 @@ Scope cannot escalate on refresh: the new scope must be a subset of the original
 ## What `sub` is stable across
 
 ::: warning Weaker than the model describes
-<Status kind="planned" /> `sub` currently carries the legacy `user` row key, not the
+`sub` currently carries the legacy `user` row key, not the
 identity root. It is therefore stable for the lifetime of that row — which is **weaker**
 than the "never reassigned" guarantee OIDC Core expects.
 

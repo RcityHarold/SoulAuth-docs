@@ -48,7 +48,7 @@
 <ApiTable tag="Operations" />
 
 ::: warning 会员状态不该挂在身份根上
-<Status kind="planned" /> `membership_level` 与 `membership_expiry` 挂在遗留的
+`membership_level` 与 `membership_expiry` 挂在遗留的
 `user` 行上，而且总览端点里硬编码了定价档位。商业状态不是身份状态。
 :::
 

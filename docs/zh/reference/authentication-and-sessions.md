@@ -26,7 +26,7 @@
 任何东西，管理员走普通的 `POST /api/auth/login` 拿到的是同一个会话。
 
 ::: warning 跨副本的吊销不是瞬时的
-<Status kind="planned" /> 每个实例会缓存已解析的会话。登出、改密、停用在处理它的
+每个实例会缓存已解析的会话。登出、改密、停用在处理它的
 那个实例上立刻生效；其它实例在 `AUTH_SESSION_CACHE_TTL_SECONDS` 之内观察到。
 单实例部署不受影响。
 :::
@@ -58,7 +58,7 @@
 TOTP 密钥用 `MFA_SECRET_ENCRYPTION_KEY` 加密落库。备用码是 Argon2 哈希，逐条校验。
 
 ::: warning 开发期的回落路径
-<Status kind="planned" /> 未设置 `MFA_SECRET_ENCRYPTION_KEY` 时，密钥从 `JWT_SECRET`
+未设置 `MFA_SECRET_ENCRYPTION_KEY` 时，密钥从 `JWT_SECRET`
 派生并打印告警。此后轮换 `JWT_SECRET` 会让所有已存的 TOTP 密钥无法解密。
 
 这条路径只为环回地址上的开发存在：`APP_URL` 非环回时，缺专用密钥进程**拒绝启动**。

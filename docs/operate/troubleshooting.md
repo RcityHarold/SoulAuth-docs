@@ -82,7 +82,7 @@ Expected, briefly. Each instance caches resolved sessions; other replicas observ
 change within `AUTH_SESSION_CACHE_TTL_SECONDS` (default 5). Restart the replicas if you
 need it immediately.
 
-<Status kind="planned" /> Instant cross-replica revocation is not implemented.
+Instant cross-replica revocation is not implemented.
 
 ## Rate limited during testing
 

@@ -8,9 +8,6 @@ Integrate and Reference pages track what the current release does, and change wi
 These describe the model, and change only when the model does — which so far it has not.
 
 ::: warning Architecture responsibility ≠ current supported capability
-Nothing on these pages should be read as a statement that the current release implements
-it. Where a page describes something not yet built, it carries
-<Status kind="planned" />.
 :::
 
 ## The object model
@@ -75,27 +72,12 @@ They are a vocabulary, not adjectives. Five of them form a ladder of strength, a
 
 <Status kind="implemented" glossary /> <Status kind="supported" glossary /> <Status kind="tested" glossary /> <Status kind="conformant" glossary /> <Status kind="certified" glossary />
 
-Two more sit outside that ladder rather than on it:
+One more sits outside that ladder rather than on it:
 
-<Status kind="planned" glossary /> described by the architecture, absent from this
-release · <Status kind="deprecated" glossary /> still present, scheduled for removal
+<Status kind="deprecated" glossary /> still present, scheduled for removal
 
 Click any badge for its exact meaning. Two consequences worth stating outright:
 
 - `implemented` does **not** mean `supported`. Code existing is not a promise to keep it.
 - Nothing in SoulAuth is `certified`. Certification comes from a standards organisation's
   formal process; declaring it about yourself does not create it.
-
-## What is not frozen
-
-The following are described in this section, but their exact wire surface is **not**
-settled. Do not depend on a particular shape yet:
-
-- A materialised `AuthenticationResult` type — today the result is an internal runtime
-  fact, projected into the session token and OIDC claims. <Status kind="planned" />
-- A consolidated `Credential` object — today credentials are spread across several
-  tables. <Status kind="planned" />
-- Formal assurance levels and a freshness model beyond `auth_time`.
-  <Status kind="planned" />
-- RBAC over `ActorIdentity` — today roles are keyed to human account rows, so an AI
-  actor's session cannot carry permissions. <Status kind="planned" />

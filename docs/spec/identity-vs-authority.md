@@ -59,7 +59,7 @@ standing permission has confused a past event with a present state.
 Practically: check authority at the moment of the operation, not at the moment of login.
 
 ::: warning How current is "current" here
-<Status kind="planned" /> Revocation reaches other replicas within
+Revocation reaches other replicas within
 `AUTH_SESSION_CACHE_TTL_SECONDS`. A token can therefore remain accepted briefly after
 the underlying identity was suspended. The default is 5 seconds, so the window is small
 but not zero. A single-instance deployment has no window at all: the instance that
@@ -123,9 +123,6 @@ tempting shortcut with non-human actors:
 **A long-lived identity is not long-lived authority.** An AI actor's identity is durable
 precisely so that its authority can be adjusted, narrowed and revoked while attribution
 still holds. Durable identity exists to make revocation meaningful, not to avoid it.
-
-<Status kind="planned" /> In this release an AI actor's session carries no permissions
-at all. See [AI-native identity](/concepts/ai-native-identity).
 
 ## The Soulseed boundary
 

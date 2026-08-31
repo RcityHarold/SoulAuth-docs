@@ -75,7 +75,7 @@ curl -s $SOULAUTH/.well-known/openid-configuration | grep issuer
 短时间内属于预期行为。每个实例都会缓存已解析的会话，其它副本在
 `AUTH_SESSION_CACHE_TTL_SECONDS`（默认 5）之内观察到变化。要立刻生效就重启副本。
 
-<Status kind="planned" /> 跨副本的瞬时吊销没有实现。
+跨副本的瞬时吊销没有实现。
 
 ## 测试时被限流
 

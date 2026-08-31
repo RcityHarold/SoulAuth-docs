@@ -7,8 +7,6 @@
 到目前为止还没变过。
 
 ::: warning 架构职责 ≠ 当前支持的能力
-这几页里的任何内容，都不应被读成「当前 Release 已经实现了它」。凡是描述尚未
-建成之物的地方，都带着 <Status kind="planned" /> 标记。
 :::
 
 ## 核心对象模型
@@ -67,9 +65,8 @@ X」这句话只能自下而上地挣来：要有一个真这么做的 runtime�
 
 <Status kind="implemented" glossary /> <Status kind="supported" glossary /> <Status kind="tested" glossary /> <Status kind="conformant" glossary /> <Status kind="certified" glossary />
 
-另有两个词不在这条强度阶梯上：
+另有一个词不在这条强度阶梯上：
 
-<Status kind="planned" glossary /> 架构描述了它，本 Release 里不存在 ·
 <Status kind="deprecated" glossary /> 仍然存在，但已列入移除计划
 
 点任意徽章看它的精确含义。两条后果值得直说：
@@ -77,14 +74,3 @@ X」这句话只能自下而上地挣来：要有一个真这么做的 runtime�
 - `implemented` **不**意味着 `supported`。代码存在不等于承诺保留它。
 - SoulAuth 没有任何一项是 `certified`。认证来自标准组织的正式流程，自己声明
   不构成认证。
-
-## 尚未冻结的部分
-
-下面这些在本节里有描述，但**确切的 wire 形态还没定死**，现在不要依赖某个具体形状：
-
-- 物化的 `AuthenticationResult` 类型。目前认证结果只是内部 runtime fact，
-  投影进会话令牌与 OIDC claims。<Status kind="planned" />
-- 收口的 `Credential` 对象。目前凭证分散在多张表中。<Status kind="planned" />
-- `auth_time` 之外的正式 assurance 分级与新鲜度模型。<Status kind="planned" />
-- 建立在 `ActorIdentity` 上的 RBAC。目前角色挂在人类账户行上，因此 AI 主体的
-  会话无法携带权限。<Status kind="planned" />

@@ -118,7 +118,7 @@ account takeover.
 Never key on email. Emails change hands.
 
 ::: warning How stable `sub` really is
-<Status kind="planned" /> It carries the legacy user row key, so it is stable for that
+It carries the legacy user row key, so it is stable for that
 row's lifetime rather than being permanently non-reassignable.
 [The caveat in full](/security/standards-and-conformance).
 :::

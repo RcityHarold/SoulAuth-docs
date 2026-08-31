@@ -81,7 +81,7 @@ than a session. Only the second step issues one, so a correct password alone nev
 produces a usable credential.
 
 ::: warning The derived-key trap
-<Status kind="planned" /> With no `MFA_SECRET_ENCRYPTION_KEY` set, the key derives from
+With no `MFA_SECRET_ENCRYPTION_KEY` set, the key derives from
 `JWT_SECRET` and a warning is logged. Rotating `JWT_SECRET` then makes every stored TOTP
 secret undecryptable — every MFA user locked out, with no recovery but re-enrolment.
 
@@ -96,9 +96,7 @@ Stored as SHA-256 fingerprints, never as tokens.
 
 Revoked immediately on logout, password change and account suspension — on the instance
 that handled it. Other replicas observe within `AUTH_SESSION_CACHE_TTL_SECONDS`
-(default 5). <Status kind="planned" />
-
-`logout-all` revokes every session for an actor at once.
+(default 5). `logout-all` revokes every session for an actor at once.
 
 No IP or device binding. Both break legitimate users on mobile networks more often than
 they stop attackers, so neither is imposed.
@@ -123,7 +121,7 @@ lockouts, unlocks, permission denials, rate-limit violations.
 Writes never block the request and never contain credentials.
 
 ::: warning Not tamper-evident
-<Status kind="planned" /> An ordinary table. No hash chain, no checkpoint. Useful for
+An ordinary table. No hash chain, no checkpoint. Useful for
 operations; not evidence.
 :::
 

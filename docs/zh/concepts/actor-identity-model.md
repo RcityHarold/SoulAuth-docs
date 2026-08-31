@@ -50,7 +50,7 @@
 上述任何字段而存在，参见 [AI 原生身份](/zh/concepts/ai-native-identity)。
 
 ::: warning 还没有完全拆干净
-<Status kind="planned" /> 口令与 TOTP 仍然住在遗留的 `user` 表上，而不是收在一个
+口令与 TOTP 仍然住在遗留的 `user` 表上，而不是收在一个
 凭证对象后面。`HumanAccount` 这层拆分是真的，它背后的凭证收口还没做完。
 :::
 
@@ -94,7 +94,7 @@
 里的 subject 就会在不同时间指向不同的人。
 
 ::: warning 当前没有把主体设成 `retired` 的对外端点
-<Status kind="planned" /> `PUT /api/users/{user_id}/status` 收的是账号状态
+`PUT /api/users/{user_id}/status` 收的是账号状态
 （`Active` / `Inactive` / `Suspended` / `Deleted`），它会同步身份根，但映射是
 `Active → active`、**其余一律 `suspended`**。
 
@@ -104,7 +104,7 @@
 :::
 
 ::: warning 今天的 `sub` 到底对什么稳定
-<Status kind="planned" /> OIDC 的 `sub` 目前带的是遗留 `user` 行的键，不是身份根。
+OIDC 的 `sub` 目前带的是遗留 `user` 行的键，不是身份根。
 因此它只在那一行的生命周期内稳定，弱于模型描述的「永不重新分配」。如果需要一个
 能挺过账号重建的 subject 标识，`sub` 现在给不了你。这一条作为具名 caveat 记在
 [规范注册表](/zh/security/standards-and-conformance)里。

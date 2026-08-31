@@ -114,7 +114,7 @@ curl $SOULAUTH/api/oidc/userinfo -H "Authorization: Bearer $ACCESS_TOKEN"
 也绝不要键在邮箱上。邮箱会易主。
 
 ::: warning `sub` 到底有多稳定
-<Status kind="planned" /> 它带的是遗留 user 行的键，所以是在那一行的生命周期内稳定，
+它带的是遗留 user 行的键，所以是在那一行的生命周期内稳定，
 而不是永久不可重新分配。[完整 caveat](/zh/security/standards-and-conformance)。
 :::
 

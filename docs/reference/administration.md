@@ -54,7 +54,7 @@ trail of events that never resolve.
 <ApiTable tag="Operations" />
 
 ::: warning Membership does not belong on the identity root
-<Status kind="planned" /> `membership_level` and `membership_expiry` hang off the legacy
+`membership_level` and `membership_expiry` hang off the legacy
 `user` row, and the overview endpoint hard-codes pricing tiers. Commercial state is not
 identity state.
 :::

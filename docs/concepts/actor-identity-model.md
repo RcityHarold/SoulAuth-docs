@@ -55,7 +55,7 @@ separation is the reason an AI agent can exist without any of these fields —
 [AI-native identity](/concepts/ai-native-identity).
 
 ::: warning Not yet fully separated
-<Status kind="planned" /> Password and TOTP still live on the legacy `user` table rather
+Password and TOTP still live on the legacy `user` table rather
 than behind a credential object. The `HumanAccount` split is real; the credential
 consolidation behind it is not finished.
 :::
@@ -104,7 +104,7 @@ value could later be assigned to someone else, at which point a subject in an ol
 row means two different actors at two different times.
 
 ::: warning No endpoint sets an actor to `retired` today
-<Status kind="planned" /> `PUT /api/users/{user_id}/status` takes an account status
+`PUT /api/users/{user_id}/status` takes an account status
 (`Active` / `Inactive` / `Suspended` / `Deleted`) and does sync the identity root, but the
 mapping is `Active → active` and **everything else to `suspended`**.
 
@@ -115,7 +115,7 @@ by internal code; there is no way to reach it by following this documentation.
 :::
 
 ::: warning What `sub` is stable across, today
-<Status kind="planned" /> The OIDC `sub` currently carries the legacy `user` row key,
+The OIDC `sub` currently carries the legacy `user` row key,
 not the identity root. So it is stable for the lifetime of that row — weaker than the
 "never reassigned" guarantee the model describes. If you need a subject identifier
 that survives account rebuilds, `sub` does not give it to you yet. Recorded in the

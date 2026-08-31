@@ -148,7 +148,7 @@ Claims 按授予的 scope 裁剪：没有 `email` scope 就没有 `email`，
 [正确地校验它 →](/zh/integrate/verify-tokens)
 
 ::: warning `sub` 到底对什么稳定
-<Status kind="planned" /> `sub` 带的是遗留 user 行的键，所以只在那一行的生命周期内
+`sub` 带的是遗留 user 行的键，所以只在那一行的生命周期内
 稳定，弱于 OIDC Core 期待的「永不重新分配」。请把记录键在 `(iss, sub)` 上，
 并在假定更多之前先读[这条 caveat](/zh/security/standards-and-conformance)。
 :::
