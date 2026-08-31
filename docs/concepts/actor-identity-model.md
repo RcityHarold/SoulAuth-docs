@@ -54,12 +54,6 @@ Changing an email address changes this row. It does not change the actor. That
 separation is the reason an AI agent can exist without any of these fields —
 [AI-native identity](/concepts/ai-native-identity).
 
-::: warning Not yet fully separated
-Password and TOTP still live on the legacy `user` table rather
-than behind a credential object. The `HumanAccount` split is real; the credential
-consolidation behind it is not finished.
-:::
-
 ### Credential — what can prove the actor right now
 
 For AI actors this is a real, separate table: `ai_actor_credential`, holding
