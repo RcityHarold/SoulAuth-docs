@@ -31,7 +31,11 @@
    Figure 3 (HOW)。它们是浅底插图，深色模式下直接铺在深色页面上会刺眼，
    所以始终给一块近白的承托底，让它读起来像"一张图"而不是"漏了背景的图"。 */
 .vp-doc figure.figure {
-  margin: 2rem 0;
+  /* 比正文栏窄并居中。图占满整栏时盒子被横向拉扁，读起来像表格不像图。
+     限制加在 figure 上而不是里面的 .dg 上，这样 figcaption 跟着一起收窄，
+     图注与图的左边缘才对得齐 —— 只收窄 .dg 的话图居中、图注贴左。 */
+  max-width: min(560px, 100%);
+  margin: 2rem auto;
 }
 
 .vp-doc figure.figure a {
@@ -72,12 +76,7 @@
   color: var(--vp-c-text-1);
 }
 
-/* 三张架构图比正文密得多，688px 的正文栏放不下 —— HumanAccount 这类标识符
-   会被折成 HumanA / ccount。让图适度探进两侧留白，用负边距而不是
-   transform，这样不会脱离文档流、也不会盖到侧边栏或右侧目录。 */
-@media (min-width: 960px) {
-  .vp-doc figure.figure { margin-inline: -56px; }
-}
-@media (min-width: 1440px) {
-  .vp-doc figure.figure { margin-inline: -120px; }
-}
+/* 这里曾经有一条相反的规则：让图用负边距探出正文栏两侧（大屏 -120px、
+   中屏 -56px），理由是 688px 放不下、HumanAccount 会被折成 HumanA / ccount。
+   实际效果是图比正文还宽，读起来喧宾夺主。折断问题已由 .dg-box 的
+   min-width: min-content 解决（见 figures/diagram.css），不需要靠加宽来避。 */
