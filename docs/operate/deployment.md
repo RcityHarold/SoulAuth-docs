@@ -18,7 +18,7 @@ libraries. The provided container runs it on `debian:bookworm-slim` with
 
 ```bash
 surreal start --bind 0.0.0.0:8000 --user root --pass root \
-  file:/var/lib/surrealdb/soulauth.db
+  surrealkv:///var/lib/surrealdb/soulauth.db
 ```
 
 For production give SoulAuth a scoped account rather than `root`, and put TLS in front —

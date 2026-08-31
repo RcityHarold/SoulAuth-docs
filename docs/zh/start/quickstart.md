@@ -34,10 +34,14 @@ docker compose up -d
 ## 1 · 启动数据库
 
 ```bash
-surreal start --bind 127.0.0.1:8000 --user root --pass root file:soulauth.db
+surreal start --bind 127.0.0.1:8000 --user root --pass root surrealkv://soulauth.db
 ```
 
-如果只需要一个用完即弃的实例，把 `file:soulauth.db` 换成 `memory`。
+如果只需要一个用完即弃的实例，把 `surrealkv://soulauth.db` 换成 `memory`。
+
+注意是 `surrealkv://` 而不是 `file:`。`file:` 是 SurrealDB 1.x 的写法，3.x 上会以
+`Unable to load the specified datastore` 直接退出，报错里那个被剥掉前缀的路径
+（`filesoulauth.db`）看不出是 scheme 的问题。
 
 ## 2 · 导入 schema
 

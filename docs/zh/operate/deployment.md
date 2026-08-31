@@ -17,7 +17,7 @@
 
 ```bash
 surreal start --bind 0.0.0.0:8000 --user root --pass root \
-  file:/var/lib/surrealdb/soulauth.db
+  surrealkv:///var/lib/surrealdb/soulauth.db
 ```
 
 生产环境请给 SoulAuth 一个限定账号而不是 `root`，并在前面放 TLS，

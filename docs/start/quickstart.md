@@ -37,10 +37,14 @@ does not use compose.
 ## 1 · Start the database
 
 ```bash
-surreal start --bind 127.0.0.1:8000 --user root --pass root file:soulauth.db
+surreal start --bind 127.0.0.1:8000 --user root --pass root surrealkv://soulauth.db
 ```
 
-Use `memory` instead of `file:soulauth.db` if you want a throwaway instance.
+Use `memory` instead of `surrealkv://soulauth.db` if you want a throwaway instance.
+
+Note `surrealkv://`, not `file:`. `file:` is the SurrealDB 1.x form; on 3.x the server
+exits with `Unable to load the specified datastore`, and the path in that message has the
+prefix stripped (`filesoulauth.db`), which does not look like a scheme problem.
 
 ## 2 · Load the schema
 
