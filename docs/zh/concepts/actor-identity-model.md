@@ -12,7 +12,7 @@
 | `actor_kind` | `human` 或 `ai_actor` |
 | `identity_source` | `local`、`external`、`soulseed`。标明这个身份的来源 |
 | `canonical_actor_ref` | 仅 Soulseed 部署：指向别处定义的 actor 的引用 |
-| `status` | `active`、`suspended`、`retired` |
+| `status` | `active` 能认证；`suspended` 暂时不能，可以改回来；`retired` 永久不能，且 `subject_key` 不再分配给别人 |
 
 表里有两个设计决定值得说清楚。
 
@@ -85,9 +85,13 @@
 下面这些都不改变主体：改邮箱、改用户名、轮换密钥、开了 MFA 又关掉、
 从不同客户端登录。
 
-退役是唯一不可逆的一步：退役的主体永不被重新分配。一个身份可以停止认证；
-它的标识符不会在之后被交给另一个人。退役之所以不删记录，原因也在这里：记录留着，
-唯一索引才继续挡住复用。
+`status` 改成 `retired` 是唯一不可逆的一步。`suspended` 只是暂时不能认证，改回
+`active` 就恢复；`retired` 之后这个主体永远不能再认证，而且它的 `subject_key`
+不会被交给任何别的主体。
+
+所以 `retired` 不删记录：那一行留在库里，`actor_subject_idx` 这个唯一索引就继续
+占着那个 `subject_key`。删了的话，同一个值以后可能被分配给另一个人，而历史审计行
+里的 subject 就会在不同时间指向不同的人。
 
 ::: warning 今天的 `sub` 到底对什么稳定
 <Status kind="planned" /> OIDC 的 `sub` 目前带的是遗留 `user` 行的键，不是身份根。

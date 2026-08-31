@@ -38,8 +38,9 @@
 - **SoulAuth 认证主体，不定义主体。** 在 Soulseed 部署里，canonical actor 由别处
   定义，SoulAuth 持有的是一个引用，不是定义本身。
   [Soulseed 与 Mind OS →](/zh/spec/soulseed-and-mind-os)
-- **退役的主体永不被重新分配。** 一个身份可以停止认证；它的标识符不会在之后
-  被交给另一个人。历史 Claims 与审计记录不得悄悄改变含义。
+- **`retired` 的主体，`subject_key` 永不被重新分配。** 一个身份可以停止认证，
+  但它的标识符不会在之后被交给另一个主体，否则历史 Claims 与审计记录里的同一个
+  subject 会在不同时间指向不同的人。
 
 ## 权威的来源
 

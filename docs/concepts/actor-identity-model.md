@@ -13,7 +13,7 @@ holds, and how it relates to the identity root.
 | `actor_kind` | `human` or `ai_actor` |
 | `identity_source` | `local`, `external`, or `soulseed` — how this identity entered |
 | `canonical_actor_ref` | Soulseed deployments only: a reference to an actor defined elsewhere |
-| `status` | `active`, `suspended`, `retired` |
+| `status` | `active` can authenticate; `suspended` cannot, reversibly; `retired` cannot, permanently, and its `subject_key` is never reassigned |
 
 Two design decisions in that table are worth spelling out.
 
@@ -94,11 +94,14 @@ authentication.
 None of these change the actor: an email change, a username change, a key rotation, MFA
 being turned on and off again, sign-ins arriving through different clients.
 
-Retirement is the one thing that does not reverse — a retired subject is never
-reassigned. An
-identity can stop authenticating; its identifier is not handed to somebody else
-afterwards. This is why retirement does not delete the row — the record staying put is
-what keeps the unique index blocking reuse.
+Setting `status` to `retired` is the one step that does not reverse. `suspended` only
+stops authentication for now and can be set back to `active`; after `retired` the actor
+can never authenticate again, and its `subject_key` is never given to another actor.
+
+That is why `retired` does not delete the row: the row stays, so the
+`actor_subject_idx` unique index keeps holding that `subject_key`. Delete it and the same
+value could later be assigned to someone else, at which point a subject in an old audit
+row means two different actors at two different times.
 
 ::: warning What `sub` is stable across, today
 <Status kind="planned" /> The OIDC `sub` currently carries the legacy `user` row key,

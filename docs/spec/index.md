@@ -42,9 +42,10 @@ about what authentication *is*.
 - **SoulAuth authenticates actors; it does not define them.** In a Soulseed deployment,
   the canonical actor is defined elsewhere. SoulAuth holds a reference, not the
   definition. [Soulseed & Mind OS →](/spec/soulseed-and-mind-os)
-- **A retired subject is never reassigned.** An identity can stop authenticating; its
-  identifier is not handed to somebody else afterwards. Historical claims and audit
-  records must not silently change meaning.
+- **A `retired` actor's `subject_key` is never reassigned.** An identity can stop
+  authenticating, but its identifier is not handed to another actor afterwards —
+  otherwise the same subject in an old claim or audit row means two different actors at
+  two different times.
 
 ## Where authority comes from
 
