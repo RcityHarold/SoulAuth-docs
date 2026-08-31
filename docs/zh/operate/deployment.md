@@ -1,8 +1,11 @@
 # 部署
 
-下面这条路径是仓库在 CI 中**真正执行**的那一条：
-`tests/deployment_walkthrough.sh` 跑的就是下面这些步骤，从空库一直到一个可用的管理员。
+这一页是部署的完整说明。其中的**核心步骤**在代码仓里另有一份可执行副本：
+`DEPLOYMENT.md` 的「部署步骤」由 `tests/deployment_walkthrough.sh` 逐条执行，
+CI 每次推送都跑一遍，从空库一直到一个可用的管理员。
 <Status kind="tested" guard="deployment_walkthrough.sh" />
+
+那份副本只有步骤本身；Docker Compose、systemd、反向代理、版本升级这些在下面。
 
 ## 部署的构成
 
