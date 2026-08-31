@@ -236,8 +236,6 @@ It is returned so that every client library does not have to reimplement the
 canonicalisation and get it subtly wrong. The server recomputes it independently before
 verifying; the copy you send back is never trusted.
 
-Sign it and exchange it for a session:
-
 Sign the `payload` verbatim, then exchange it. Two places to get wrong: write the file
 with `printf '%s'` rather than `echo` (`echo` appends a newline, which becomes a fifth
 line of the payload), and encode with base64url without padding (the server decodes with

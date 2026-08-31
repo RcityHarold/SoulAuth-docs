@@ -156,8 +156,27 @@ const ZH_NAV = [
 const DESCRIPTION =
   'Actor-native identity and authentication infrastructure. Human and AIActor enter the same first-class ActorIdentity contract.'
 
+// 站点没有落地页：根路径直接跳进文档第一页。
+//
+// 跳转写在这里而不是 index.md 的 frontmatter 里，因为目标 URL 必须带 base，
+// 而 base 可以被 DOCS_BASE 覆盖 —— 写死在 markdown 里换个部署路径就跳错了。
+const REDIRECTS: Record<string, string> = {
+  'index.md': 'start/what-is-soulauth',
+  'zh/index.md': 'zh/start/what-is-soulauth',
+}
+
 export default defineConfig({
   base,
+  transformPageData(pageData) {
+    const to = REDIRECTS[pageData.relativePath]
+    if (!to) return
+    const url = base + to
+    pageData.frontmatter.head = [
+      ...(pageData.frontmatter.head ?? []),
+      ['meta', { 'http-equiv': 'refresh', content: `0; url=${url}` }],
+      ['link', { rel: 'canonical', href: url }],
+    ]
+  },
   title: 'SoulAuth',
   description: DESCRIPTION,
   lastUpdated: true,
