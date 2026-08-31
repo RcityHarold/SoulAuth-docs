@@ -103,6 +103,17 @@ That is why `retired` does not delete the row: the row stays, so the
 value could later be assigned to someone else, at which point a subject in an old audit
 row means two different actors at two different times.
 
+::: warning No endpoint sets an actor to `retired` today
+<Status kind="planned" /> `PUT /api/users/{user_id}/status` takes an account status
+(`Active` / `Inactive` / `Suspended` / `Deleted`) and does sync the identity root, but the
+mapping is `Active → active` and **everything else to `suspended`**.
+
+That is deliberately conservative: V1's `Deleted` and the identity root's `retired` do not
+mean the same thing — `retired` also carries "this `subject_key` is never reused" — and
+the transition does not treat them as equivalent. `retired` can therefore only be written
+by internal code; there is no way to reach it by following this documentation.
+:::
+
 ::: warning What `sub` is stable across, today
 <Status kind="planned" /> The OIDC `sub` currently carries the legacy `user` row key,
 not the identity root. So it is stable for the lifetime of that row — weaker than the

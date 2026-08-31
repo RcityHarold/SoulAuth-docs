@@ -93,6 +93,16 @@
 占着那个 `subject_key`。删了的话，同一个值以后可能被分配给另一个人，而历史审计行
 里的 subject 就会在不同时间指向不同的人。
 
+::: warning 当前没有把主体设成 `retired` 的对外端点
+<Status kind="planned" /> `PUT /api/users/{user_id}/status` 收的是账号状态
+（`Active` / `Inactive` / `Suspended` / `Deleted`），它会同步身份根，但映射是
+`Active → active`、**其余一律 `suspended`**。
+
+这是刻意保守：V1 的 `Deleted` 与身份根的 `retired` 语义不同 —— 后者还附带
+「`subject_key` 永不复用」这条约束，过渡期不做这个等价。也就是说 `retired` 目前
+只能由内部代码写入，照文档做不到。
+:::
+
 ::: warning 今天的 `sub` 到底对什么稳定
 <Status kind="planned" /> OIDC 的 `sub` 目前带的是遗留 `user` 行的键，不是身份根。
 因此它只在那一行的生命周期内稳定，弱于模型描述的「永不重新分配」。如果需要一个
