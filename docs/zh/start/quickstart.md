@@ -56,11 +56,9 @@ surreal import $DB schema.sql
 surreal import $DB initial_data.sql
 ```
 
-两个文件只导一次。`schema.sql` 里 195 条 `DEFINE` 只有 8 条带 `IF NOT EXISTS`，
-在已经导过的库上重跑会报 `The table 'actor_identity' already exists` 并中止 ——
-那是幂等性问题，不是数据损坏，第一次导入报了 `Import executed with no errors`
-就已经成功了，不用清库重来。`docker-compose.yml` 里的 schema-init 服务正是因此
-先探测再导入。
+两个文件都可以重复导入。`schema.sql` 里每一条 `DEFINE` 都带 `IF NOT EXISTS`，
+`initial_data.sql` 里每一行都是 `UPSERT`，所以在已经初始化过的库上再导一遍
+不会报错，只是什么都不做。下面的 Compose 每次启动都会重新导入一次，靠的就是这一点。
 
 ::: warning namespace 与 database 必须对上
 这里的 `auth` / `main` 必须与进程连接时使用的那一对完全一致。导入到错误的一对之后，

@@ -108,8 +108,8 @@ public documentation forbids it.
 `docker-compose.yml` does steps 1–4 in one command.
 
 <Status kind="tested" guard="ci.yml::docker" /> CI executes it on every push, all the way
-through to a working administrator, and restarts once to confirm the schema import stays
-idempotent — that second start is where a naive import would fail with `already exists`.
+through to a working administrator, then re-runs both imports against the populated
+database and logs in again — that is the check that re-importing stays a no-op.
 
 It is for local use: the passwords are development defaults and SurrealDB has no TLS.
 Production goes through the steps above plus the

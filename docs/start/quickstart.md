@@ -59,12 +59,10 @@ surreal import $DB schema.sql
 surreal import $DB initial_data.sql
 ```
 
-Import both files once. Only 8 of the 195 `DEFINE` statements in `schema.sql` carry
-`IF NOT EXISTS`, so re-running it against an initialised database stops with
-`The table 'actor_identity' already exists`. That is an idempotency problem, not
-corruption — if the first import said `Import executed with no errors` it worked, and
-there is no need to start over. The `schema-init` service in `docker-compose.yml` probes
-before importing for this reason.
+Both files are safe to re-run. Every `DEFINE` in `schema.sql` carries `IF NOT EXISTS`
+and every row in `initial_data.sql` is an `UPSERT`, so importing twice against an
+initialised database is a no-op rather than an error. That matters for the Compose path
+below, which re-imports on every start.
 
 ::: warning The namespace and database must match
 `auth` / `main` here must be the same pair the process connects with. Import into the

@@ -102,8 +102,8 @@ curl -X POST http://localhost:8080/api/bootstrap/admin \
 `docker-compose.yml` 一条命令做完第 1–4 步。
 
 <Status kind="tested" guard="ci.yml::docker" /> CI 每次推送都会执行它，一直跑到拿出
-一个可用的管理员，并且重启一次以确认 schema 导入是幂等的。第二次启动，
-一个不先探测就导入的脚本会在这里撞上 `already exists`。
+一个可用的管理员，然后把两个 SQL 文件在这个已经有数据的库上重导一遍、再登录一次 ——
+这一步验证的是重复导入确实是空操作。
 
 它是给本地用的：口令是开发默认值，SurrealDB 也没有 TLS。生产走上面那些步骤，
 外加[生产清单](/zh/operate/production-checklist)。
