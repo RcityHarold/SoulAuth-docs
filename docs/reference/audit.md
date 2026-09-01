@@ -7,11 +7,10 @@ reset, MFA failure, permission denial, rate-limit violation, account lock and un
 
 Two rules the writer holds to:
 
-- **It never blocks the request.** Writes are fire-and-forget; a failure is logged and
-  the user's operation still completes. The flip side is that an event can be lost
-  outright — the write runs in a spawned task, so a process that exits before it
-  finishes drops the event without even a log line. Together with the table not being
-  tamper-evident, treat this as an operations record, not as evidence.
+- **It never blocks the request.** `record` puts the event on a queue and returns; a
+  dedicated writer drains it, retries transient database errors, and the queue is
+  flushed during shutdown. The user's operation never waits on the audit write, and a
+  normal restart does not cost you queued events.
 - **It never records credentials.** Only the action, category, status, IP, user agent
   and a small set of non-sensitive context fields.
 
