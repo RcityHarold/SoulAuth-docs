@@ -1,9 +1,9 @@
 # Deployment
 
 This page is the full deployment guide. Its **core steps** also exist as an executable
-copy in the code repository: the deployment steps in `DEPLOYMENT.md` are run line by line
-by `tests/deployment_walkthrough.sh`, which CI executes on every push, from an empty
-database to a working administrator.
+copy in the code repository: the deployment steps in `DEPLOYMENT.md` (`DEPLOYMENT.zh-CN.md`
+in Chinese) are run line by line by `tests/deployment_walkthrough.sh`, which CI executes
+on every push, from an empty database to a working administrator.
 <Status kind="tested" guard="deployment_walkthrough.sh" />
 
 That copy carries only the steps themselves. Docker Compose, systemd, reverse proxies and
