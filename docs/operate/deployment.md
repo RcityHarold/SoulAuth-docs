@@ -50,7 +50,7 @@ surreal import $DB initial_data.sql
 
 ::: danger The namespace and database must match the process
 `auth` / `main` here must equal `DATABASE_NAMESPACE` / `DATABASE_NAME` below. Get it
-wrong and everything looks fine until the first write.
+wrong and the process refuses to start, naming the pair it actually connected to.
 
 The flag is `--endpoint`. `--conn` is the pre-3.x spelling and fails with an unhelpful
 message.
@@ -162,7 +162,11 @@ limiting.
 
 1. Read the release notes for schema changes.
 2. Back up the SurrealDB data directory.
-3. Import any new schema statements.
+3. Re-import `schema.sql` and `initial_data.sql` in full. You do not have to work out
+   which statements are new — every `DEFINE` carries `IF NOT EXISTS` and the seed data
+   is all `UPSERT`, so re-importing is a no-op for anything already there. Skipping this
+   step is what breaks an upgrade that adds a table: the endpoint that uses it fails at
+   runtime, not at startup.
 4. Replace the binary and restart.
 
 Rolling restarts are fine as long as every replica shares the same `JWT_SECRET` and OIDC

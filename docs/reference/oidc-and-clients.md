@@ -39,7 +39,8 @@ Rotation is mandatory: each refresh consumes the old token and issues a new one,
 the old access token is revoked at the same time.
 
 Presenting an already-consumed refresh token is treated as evidence of compromise, not
-as a retry — **the entire token family for that client and user is revoked**.
+as a retry — **every OIDC access and refresh token that user holds for that client is
+deleted**. Other clients and the user's SoulAuth session are not affected.
 
 Scope cannot escalate on refresh: the new scope must be a subset of the original.
 

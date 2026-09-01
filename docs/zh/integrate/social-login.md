@@ -11,10 +11,19 @@ GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
 GITHUB_CLIENT_ID=...
 GITHUB_CLIENT_SECRET=...
+
+# 配了任一 provider 就必填，否则拒绝启动。
+# 它是回调的前缀：SoulAuth 会把 provider 名字接在后面。
+OAUTH_REDIRECT_URL=https://auth.example.com/api/auth/callback
 ```
 
-在 provider 那边把 `{APP_URL}/api/auth/callback/google` 和
-`{APP_URL}/api/auth/callback/github` 登记为回调地址，必须与 provider 侧逐字符一致。
+`OAUTH_REDIRECT_URL` 的判据与端点覆盖相同：必须是绝对的 https URL，
+明文 http 只允许精确指向环回地址。
+
+SoulAuth 会把 provider 名字接在后面，所以在 provider 那边登记的回调地址是
+`${OAUTH_REDIRECT_URL}/google` 与 `${OAUTH_REDIRECT_URL}/github`。按上面这个值，
+它们正好落在本服务真正提供的两条路由上：`/api/auth/callback/google` 与
+`/api/auth/callback/github`。必须与 provider 侧逐字符一致。
 
 ## 流程
 

@@ -171,8 +171,14 @@ Rotation is mandatory: the old refresh token is consumed and the old access toke
 revoked. **Store the new one immediately.**
 
 ::: danger Reuse is treated as compromise
-Presenting an already-consumed refresh token is not a retry. SoulAuth revokes the entire
-token family for that client and user — every session that branch produced.
+Presenting an already-consumed refresh token is not a retry. SoulAuth deletes **every
+OIDC access and refresh token this user holds for this client**. Tokens at other clients
+are untouched, and so is the user's SoulAuth session — this is scoped revocation, not a
+global logout.
+
+A true race is handled separately: the second of two simultaneous refreshes loses the
+atomic consume and gets a plain `invalid_grant`, without the revocation above. What
+triggers revocation is presenting a token that was already marked consumed.
 
 The usual cause is a client that races two refreshes and keeps the loser's token.
 Serialise refreshes per session.

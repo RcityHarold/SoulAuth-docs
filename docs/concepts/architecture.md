@@ -35,7 +35,8 @@ databases.
 
 ::: warning The namespace/database pair is a real failure mode
 Import the schema into a different pair than the process connects with and the service
-starts, `/health` returns `ok`, and nothing fails until the first write.
+refuses to start. The check looks for the seeded `admin` role in the pair it just
+connected to, and the error names that pair.
 :::
 
 ## Next

@@ -58,9 +58,10 @@ first place.
 **An attacker obtains a refresh token and redeems it.**
 
 Rotation makes this loud rather than silent. Whoever redeems second presents a consumed
-token, and that is treated as compromise: the **entire token family** for that client and
-user is revoked. The legitimate user is logged out — which is the correct outcome, and
-also the signal.
+token, and that is treated as compromise: **every OIDC access and refresh token that user
+holds for that client is deleted**. The legitimate user loses that client's access —
+which is the correct outcome, and also the signal. Their SoulAuth session and their
+tokens at other clients are not touched.
 
 ## Brute force
 

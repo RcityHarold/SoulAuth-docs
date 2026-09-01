@@ -2,9 +2,11 @@
 
 A running instance, a first administrator, and a working token — in about five minutes.
 
-Every command on this page comes from a script that runs in CI
-(<Status kind="tested" guard="deployment_walkthrough.sh" />). If one of them fails for
-you, that is a bug in SoulAuth or in this page.
+The commands in steps 1–6 correspond line by line to the deployment script CI runs on
+every push (<Status kind="tested" guard="deployment_walkthrough.sh" />). Step 7 exercises
+a path the integration suite covers, but the shell spelling here is written for
+readability and is not itself executed. If one of them fails for you, that is a bug in
+SoulAuth or in this page.
 [Please open an issue.](https://github.com/RcityHarold/SoulAuth/issues)
 
 ## You need
@@ -12,6 +14,10 @@ you, that is a bug in SoulAuth or in this page.
 - [SurrealDB](https://surrealdb.com/install) v3
 - A Rust toolchain (to build the binary), or a prebuilt `soulauth` binary
 - `curl` and `openssl`
+- Step 7 (AI actors) also needs a base64url encoder. GNU coreutils' `basenc` is the
+  shortest spelling; macOS does not ship it, so substitute
+  `openssl base64 -A | tr '+/' '-_'` for `basenc --base64url` (both are followed by
+  `tr -d '='`).
 
 ::: tip Docker Compose is faster
 One command instead of steps 1–4:
@@ -65,9 +71,15 @@ initialised database is a no-op rather than an error. That matters for the Compo
 below, which re-imports on every start.
 
 ::: warning The namespace and database must match
-`auth` / `main` here must be the same pair the process connects with. Import into the
-wrong pair and everything still *looks* fine — the process starts, `/health` returns
-`ok` — until the first write fails. This exact mistake is why the walkthrough script
+`auth` / `main` here must be the same pair the process connects with — the one
+`DATABASE_NAMESPACE` / `DATABASE_NAME` name. Import into the wrong pair and the process
+**refuses to start**, with an error that prints the pair it actually used:
+
+```
+Database `auth` / `main` is not initialised: the seeded `admin` role is missing.
+```
+
+It used to start anyway and fail on the first write, which is why the walkthrough script
 exists.
 :::
 
@@ -259,6 +271,21 @@ The session token that comes back carries `subject_type: agent`. It works on
 A running identity provider, one administrator, and a session token. What you do **not**
 have is a production deployment: no TLS, no OIDC signing key, root database credentials,
 and an SMTP host that is probably not listening.
+
+### Three pages you have to supply
+
+SoulAuth is an API and ships no HTML. Three URLs have to render something, and by
+default all three point back at SoulAuth itself — which answers 404:
+
+| Path | Lands on | Point it somewhere with |
+|---|---|---|
+| `/api/oidc/authorize` with no session | `{APP_URL}/login` | `LOGIN_PAGE_URL` |
+| The link in a verification mail | `{APP_URL}/verify-email?token=…` | `VERIFY_EMAIL_PAGE_URL` |
+| The link in a password reset mail | `{APP_URL}/reset-password/{token}` | `RESET_PASSWORD_PAGE_URL` |
+
+Everything above in this guide works without them — it is all direct API calls. Browser
+SSO and the mail links are what stop at a blank page until you point these three at your
+own frontend.
 
 ## Next
 

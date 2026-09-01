@@ -6,11 +6,19 @@ configuration, and no runtime reload — changing anything means restarting the 
 
 ## The production gate
 
-Two settings have defaults that would silently destroy already-issued credentials if a
-real deployment ran on them. Rather than warn, SoulAuth **refuses to start**:
+A non-loopback `APP_URL` is how SoulAuth recognises a real deployment. Three things
+follow from it, and none of them is a warning — the process **refuses to start**:
 
-when `APP_URL` is not a loopback address, `OIDC_RSA_PRIVATE_KEY_PATH` (or `_PEM`) and
-`MFA_SECRET_ENCRYPTION_KEY` become required.
+- `APP_URL` must be **https**. Over plaintext the session cookie loses `Secure`, mail
+  links go out unencrypted, and the OIDC `issuer` violates the Discovery spec, which
+  conforming relying parties reject.
+- `OIDC_RSA_PRIVATE_KEY_PATH` (or `_PEM`) becomes required.
+- `MFA_SECRET_ENCRYPTION_KEY` becomes required.
+
+The last two have defaults that would silently destroy already-issued credentials if a
+real deployment ran on them: an ephemeral signing key invalidates every ID token on
+restart, and an MFA key derived from `JWT_SECRET` becomes undecryptable the day that
+secret is rotated. Neither shows up until it is already an incident.
 
 The [quickstart](/start/quickstart) uses `http://localhost:8080`, which is a loopback
 address, so it needs neither — and for the same reason its settings cannot be deployed

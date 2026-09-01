@@ -87,10 +87,12 @@ redirect a valid authorization code to themselves, which is why editing clients 
 # List (never returns secrets)
 curl $SOULAUTH/api/oidc/clients -H "Authorization: Bearer $ADMIN_TOKEN"
 
-# Update
+# Update — PUT reuses the create request body, so client_name, client_type and
+# redirect_uris are all required. Send the full object, not just the field you changed.
 curl -X PUT $SOULAUTH/api/oidc/clients/$CLIENT_ID \
   -H "Authorization: Bearer $ADMIN_TOKEN" -H 'Content-Type: application/json' \
-  -d '{"redirect_uris":["https://app.example.com/callback"]}'
+  -d '{"client_name":"My App","client_type":"confidential",
+       "redirect_uris":["https://app.example.com/callback"]}'
 
 # Disable — the record stays, so tokens already issued remain attributable
 curl -X DELETE $SOULAUTH/api/oidc/clients/$CLIENT_ID \

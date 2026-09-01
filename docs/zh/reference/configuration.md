@@ -5,11 +5,17 @@
 
 ## 生产环境闸门
 
-有两项设置，它们的默认值一旦被真实部署用上，会**悄悄摧毁已经签发的凭证**。
-SoulAuth 不是告警，而是**拒绝启动**：
+`APP_URL` 不是环回地址，就是 SoulAuth 判定「这是一个真实部署」的方式。
+由此有三条硬要求，都不是告警，而是**拒绝启动**：
 
-当 `APP_URL` 不是环回地址时，`OIDC_RSA_PRIVATE_KEY_PATH`（或 `_PEM`）与
-`MFA_SECRET_ENCRYPTION_KEY` 成为必填。
+- `APP_URL` 必须是 **https**。走明文会让会话 cookie 掉 `Secure`、邮件链接明文外发，
+  并且 OIDC `issuer` 违反 Discovery 规范，按规范校验的接入方会直接拒绝。
+- `OIDC_RSA_PRIVATE_KEY_PATH`（或 `_PEM`）成为必填。
+- `MFA_SECRET_ENCRYPTION_KEY` 成为必填。
+
+后两项的默认值一旦被真实部署用上，会**悄悄摧毁已经签发的凭证**：临时签名密钥
+一重启就让所有 ID Token 失效；从 `JWT_SECRET` 派生的 MFA 密钥，在轮换那个密钥的
+当天变得无法解密。两者暴露的时候都已经是事故。
 
 [快速上手](/zh/start/quickstart)用的是 `http://localhost:8080`，属于环回地址，
 所以那两项都不必配 —— 也因此那套配置不能直接拿去部署。

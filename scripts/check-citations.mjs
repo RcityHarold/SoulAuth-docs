@@ -33,7 +33,11 @@ const pathMatchers = realPaths.map(
   (p) => new RegExp('^' + p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/:\w+/g, ':[a-z_]+') + '$'),
 )
 // 前缀式引用（「`/api/me` 下的一切」）不是端点引用，不参与校验。
-const prefixes = new Set(['/api', '/api/me', '/api/oidc', '/api/rbac', '/api/users', '/api/auth', '/api/actors', '/api/audit', '/api/security', '/api/ops', '/api/bootstrap'])
+//
+// `/api/auth/callback` 在这里的理由与其它几条一样：契约里没有这个端点，只有
+// `/api/auth/callback/google` 与 `/api/auth/callback/github`。它是
+// `OAUTH_REDIRECT_URL` 的值，SoulAuth 会把 provider 名字接在后面。
+const prefixes = new Set(['/api', '/api/me', '/api/oidc', '/api/rbac', '/api/users', '/api/auth', '/api/auth/callback', '/api/actors', '/api/audit', '/api/security', '/api/ops', '/api/bootstrap'])
 
 // 大写下划线串里，shell 变量与外部工具的环境变量不归这条守卫管。
 const NOT_OURS = /^(CARGO|RUST|DOCS|GITHUB|LD|NODE|NPM|HOME|PATH)_/

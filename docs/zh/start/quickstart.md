@@ -2,15 +2,20 @@
 
 一个运行中的实例、第一个管理员、一枚可用令牌，大约五分钟。
 
-本页每一条命令都来自 CI 中会执行的脚本
-（<Status kind="tested" guard="deployment_walkthrough.sh" />）。若其中任何一条在
-你的环境里失败，那是 SoulAuth 或本页的缺陷，请[提个 issue](https://github.com/RcityHarold/SoulAuth/issues)。
+第 1–6 步的命令与 CI 每次推送都会执行的部署脚本逐条对应
+（<Status kind="tested" guard="deployment_walkthrough.sh" />）。第 7 步走的那条链路由
+集成测试覆盖，但这里的 shell 写法是为了好读而手写的，没有被原样执行过。
+若其中任何一条在你的环境里失败，那是 SoulAuth 或本页的缺陷，
+请[提个 issue](https://github.com/RcityHarold/SoulAuth/issues)。
 
 ## 前置条件
 
 - [SurrealDB](https://surrealdb.com/install) v3
 - Rust 工具链（用来构建二进制），或者一个已编好的 `soulauth`
 - `curl` 与 `openssl`
+- 第 7 步（AI 主体）还要一个 base64url 编码器。GNU coreutils 的 `basenc` 最直接；
+  macOS 默认没有它，可以把 `basenc --base64url` 换成
+  `openssl base64 -A | tr '+/' '-_'`（两种写法后面都接 `tr -d '='`）。
 
 ::: tip 用 Docker Compose 更快
 一条命令顶下面的第 1–4 步：
@@ -61,9 +66,15 @@ surreal import $DB initial_data.sql
 不会报错，只是什么都不做。下面的 Compose 每次启动都会重新导入一次，靠的就是这一点。
 
 ::: warning namespace 与 database 必须对上
-这里的 `auth` / `main` 必须与进程连接时使用的那一对完全一致。导入到错误的一对之后，
-一切**看起来**都正常：进程照常启动，`/health` 照常返回 `ok`，直到第一次写入才失败。
-这个错误踩过一次，所以有了 walkthrough 脚本。
+这里的 `auth` / `main` 必须与进程连接的那一对完全一致，也就是
+`DATABASE_NAMESPACE` / `DATABASE_NAME` 指定的那一对。导入错了，进程会**拒绝启动**，
+并且把它实际用的那一对打出来：
+
+```
+Database `auth` / `main` is not initialised: the seeded `admin` role is missing.
+```
+
+它以前是照常启动、直到第一次写入才失败的；walkthrough 脚本就是因为那次踩坑才有的。
 :::
 
 ## 3 · 配置
@@ -245,6 +256,20 @@ curl -X POST http://localhost:8080/api/actors/authenticate \
 
 一个运行中的身份提供方、一个管理员、一枚会话令牌。你**还没有**的是一套生产部署：
 没有 TLS，没有 OIDC 签名密钥，数据库使用 root 凭证，SMTP 主机多半也没在监听。
+
+### 有三个页面需要你自己提供
+
+SoulAuth 是纯 API，不带任何 HTML。有三个地址最终需要渲染出东西来，而它们默认
+都指回 SoulAuth 自己，于是得到 404：
+
+| 路径 | 落在 | 用它改指向 |
+|---|---|---|
+| 未登录时访问 `/api/oidc/authorize` | `{APP_URL}/login` | `LOGIN_PAGE_URL` |
+| 验证邮件里的链接 | `{APP_URL}/verify-email?token=…` | `VERIFY_EMAIL_PAGE_URL` |
+| 重置邮件里的链接 | `{APP_URL}/reset-password/{token}` | `RESET_PASSWORD_PAGE_URL` |
+
+这份指南上面的每一步都不需要它们：那些全是直接调 API。会停在空白页上的是
+浏览器 SSO 和邮件链接，把这三项指向你自己的前端即可。
 
 ## 接下来
 

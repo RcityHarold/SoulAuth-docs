@@ -115,10 +115,12 @@ An AI actor never sends a reusable secret. It signs a server-issued single-use c
 
 ## Audit
 
-Every authentication event is recorded: successes, failures with a categorised reason,
-lockouts, unlocks, permission denials, rate-limit violations.
+Every authentication event is *submitted* for recording: successes, failures with a
+categorised reason, lockouts, unlocks, permission denials, rate-limit violations.
 
-Writes never block the request and never contain credentials.
+Writes never block the request and never contain credentials. The cost of not blocking
+is that recording is best-effort — the write runs in a spawned task, so a database
+failure only reaches the log, and a process that exits first drops the event entirely.
 
 ::: warning Not tamper-evident
 An ordinary table. No hash chain, no checkpoint. Useful for

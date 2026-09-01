@@ -83,10 +83,12 @@ curl -X POST $SOULAUTH/api/oidc/clients \
 # 列出（永不返回密钥）
 curl $SOULAUTH/api/oidc/clients -H "Authorization: Bearer $ADMIN_TOKEN"
 
-# 更新
+# 更新 —— PUT 复用创建时的请求体，client_name、client_type、redirect_uris 都是必填。
+# 要发完整对象，不能只发改动的那个字段。
 curl -X PUT $SOULAUTH/api/oidc/clients/$CLIENT_ID \
   -H "Authorization: Bearer $ADMIN_TOKEN" -H 'Content-Type: application/json' \
-  -d '{"redirect_uris":["https://app.example.com/callback"]}'
+  -d '{"client_name":"My App","client_type":"confidential",
+       "redirect_uris":["https://app.example.com/callback"]}'
 
 # 禁用——记录保留，所以已签发给它的令牌仍然可归因
 curl -X DELETE $SOULAUTH/api/oidc/clients/$CLIENT_ID \

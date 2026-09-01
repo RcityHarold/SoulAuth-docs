@@ -9,8 +9,15 @@ directly.
 
 ## What you need running
 
-Email is not optional for these flows. `SMTP_HOST` and `SMTP_FROM` are required at
-startup, and nothing here works without a mail path.
+Two separate things, easy to conflate:
+
+- **The configuration is required to start.** Without `SMTP_HOST` and `SMTP_FROM` the
+  process will not come up.
+- **Whether mail actually leaves is something you have to test.** A failed send does not
+  fail the request — it writes a log line. With SMTP unreachable the service still
+  starts, registration with verification off still succeeds, and a reset request still
+  returns 200 (that is the enumeration-resistant design). The mail simply never arrives.
+  Walk through a real registration and a real reset after you deploy.
 
 Verification is **off by default**: `EMAIL_VERIFICATION_ENABLED=false`. With it off,
 `POST /api/auth/register` creates a usable account immediately and sends nothing. Turn it

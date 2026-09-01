@@ -154,7 +154,9 @@ curl https://auth.example.com/.well-known/openid-configuration   # issuer 等于
 - [ ] `CORS_ALLOWED_ORIGINS` 显式列出
 - [ ] 一封口令重置邮件确实收到了
 - [ ] 第一个管理员经由引导令牌创建，而不是改数据库
-- [ ] 备份覆盖 SurrealDB 数据目录
+- [ ] 备份覆盖四样东西：SurrealDB 数据目录、`JWT_SECRET`、OIDC 签名私钥、
+      `MFA_SECRET_ENCRYPTION_KEY`。只备份数据库恢复不回来 ——
+      见[运维与恢复](/zh/operate/operations-and-recovery)
 
 ## 接下来
 

@@ -36,15 +36,19 @@ If `MFA_SECRET_ENCRYPTION_KEY` was never set explicitly, the MFA key is **derive
 stored TOTP secrets can no longer be decrypted, and there is no recovery beyond having
 them re-enrol.
 
-Set a dedicated `MFA_SECRET_ENCRYPTION_KEY` before you ever touch `JWT_SECRET`. A
+Set a dedicated `MFA_SECRET_ENCRYPTION_KEY` before you ever touch `JWT_SECRET`.
 A non-loopback `APP_URL` already makes it required, which is what the gate is there for.
 :::
 
 ### OIDC signing key
 
-Rotating it invalidates in-flight ID tokens. Clients recover by refetching JWKS —
-which they do when they see an unknown `kid`, so keep serving the old key alongside the
-new one for at least one token lifetime if you can.
+**One key at a time.** SoulAuth loads a single signing key and JWKS publishes exactly
+that one — there is no key ring, so you cannot serve the old key alongside the new one.
+
+Rotating it therefore invalidates every ID token signed with the previous `kid`
+immediately, and refetching JWKS does not help a client holding one: the old key is gone
+from the document. Rotate during a window where a brief round of failed ID token
+validation is acceptable, or plan for clients to re-authenticate.
 
 ### Client secrets
 

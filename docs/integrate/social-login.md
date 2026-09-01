@@ -11,10 +11,20 @@ GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
 GITHUB_CLIENT_ID=...
 GITHUB_CLIENT_SECRET=...
+
+# Required as soon as any provider is configured, or startup fails.
+# It is the callback prefix: SoulAuth appends the provider name to it.
+OAUTH_REDIRECT_URL=https://auth.example.com/api/auth/callback
 ```
 
-Register `{APP_URL}/api/auth/callback/google` and `{APP_URL}/api/auth/callback/github` as
-the redirect URIs on the provider side. They must match what the provider has, exactly.
+`OAUTH_REDIRECT_URL` follows the same rule as the endpoint overrides: an absolute https
+URL, or plaintext http only for an exact loopback host.
+
+SoulAuth appends the provider name, so the redirect URIs to register on the provider side
+are `${OAUTH_REDIRECT_URL}/google` and `${OAUTH_REDIRECT_URL}/github`. With the value
+above those resolve to the two routes this service actually serves,
+`/api/auth/callback/google` and `/api/auth/callback/github`. They must match what the
+provider has, exactly.
 
 ## The flow
 

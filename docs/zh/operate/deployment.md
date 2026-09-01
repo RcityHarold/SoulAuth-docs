@@ -48,7 +48,7 @@ surreal import $DB initial_data.sql
 
 ::: danger namespace 与 database 必须与进程一致
 这里的 `auth` / `main` 必须等于下面的 `DATABASE_NAMESPACE` / `DATABASE_NAME`。
-弄错了，一切看起来都正常，直到第一次写入。
+弄错了，进程会拒绝启动，并把它实际连上的那一对打出来。
 
 参数是 `--endpoint`。`--conn` 是 3.x 之前的写法，报错信息毫无帮助。
 :::
@@ -103,7 +103,7 @@ curl -X POST http://localhost:8080/api/bootstrap/admin \
 `docker-compose.yml` 一条命令做完第 1–4 步。
 
 <Status kind="tested" guard="ci.yml::docker" /> CI 每次推送都会执行它，一直跑到拿出
-一个可用的管理员，然后把两个 SQL 文件在这个已经有数据的库上重导一遍、再登录一次 ——
+一个可用的管理员，然后把两个 SQL 文件在这个已经有数据的库上重导一遍、再登录一次：
 这一步验证的是重复导入确实是空操作。
 
 它是给本地用的：口令是开发默认值，SurrealDB 也没有 TLS。生产走上面那些步骤，
@@ -155,7 +155,10 @@ location / {
 
 1. 读发布说明里的 schema 变更。
 2. 备份 SurrealDB 数据目录。
-3. 导入新增的 schema 语句。
+3. 把 `schema.sql` 与 `initial_data.sql` 整份重导一遍。不必去分辨哪几条是新增的：
+   每条 `DEFINE` 都带 `IF NOT EXISTS`、种子数据全是 `UPSERT`，已经存在的东西重导
+   就是空操作。跳过这一步正是「升级里新增了一张表」会出问题的地方，用到那张表的
+   端点会在运行时报错，而不是在启动时。
 4. 换二进制并重启。
 
 滚动重启没有问题，前提是每个副本共享同一个 `JWT_SECRET` 与 OIDC 签名密钥。

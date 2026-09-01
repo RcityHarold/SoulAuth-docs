@@ -164,7 +164,9 @@ curl https://auth.example.com/.well-known/openid-configuration   # issuer == APP
 - [ ] `CORS_ALLOWED_ORIGINS` explicitly listed
 - [ ] A password reset email actually arrived
 - [ ] First administrator created via the bootstrap token, not by editing the database
-- [ ] Backups cover the SurrealDB data directory
+- [ ] Backups cover four things: the SurrealDB data directory, `JWT_SECRET`, the OIDC
+      signing key, and `MFA_SECRET_ENCRYPTION_KEY`. The database alone does not restore —
+      see [Operations & recovery](/operate/operations-and-recovery)
 
 ## Next
 
