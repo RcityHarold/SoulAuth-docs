@@ -100,7 +100,6 @@ const ZH_TEXT: Record<string, string> = {
   Operate: '运行',
   'Security & Trust': '安全与信任',
   Reference: '参考',
-  Project: '项目',
 
   'What is SoulAuth': 'SoulAuth 是什么',
   Quickstart: '快速开始',
