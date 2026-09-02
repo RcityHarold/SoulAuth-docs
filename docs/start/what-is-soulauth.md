@@ -1,105 +1,266 @@
 # What SoulAuth is
 
-A self-hosted authentication service. Written in Rust, one binary plus one SurrealDB,
-speaking standard OpenID Connect. A client library that already talks to Keycloak or
-Auth0 talks to it without changes.
+**Actor-native identity infrastructure for Human and AIActor subjects.**
 
-Compared with other authentication services it does one extra thing: an AI actor is a
-first-class object here, with an identity record and a key of its own, rather than
-something hanging off a `user` row. The rest is a conventional authentication service.
+SoulAuth is open-source identity and authentication infrastructure built by
+**TRANTOR LABS, Singapore**. It is implemented in Rust, supports self-hosting and
+OpenID Connect, can serve Web, Backend, API and AI / Agent systems on its own, and
+integrates natively with SoulseedOS.
 
-## What is in it
+Traditional identity systems assume the subject is a Human User; a bot, service account
+or agent is a special object hanging off a human account or an application. As AI moves
+from a one-shot call towards an Actor that keeps understanding, judging, calling tools
+and taking part in real-world action, a more basic question surfaces:
 
-**Accounts and sessions.** Register, log in, log out, log out everywhere. Session tokens
-are signed JWTs; the database keeps only a SHA-256 fingerprint.
+> **Who is being authenticated?**
 
-**Email and passwords.** Email verification, resend, password reset. An account created
-through a social login can set its first password with `initialize-password`. All of it
-goes over SMTP; the mail templates live in the code.
+SoulAuth starts from that question and puts **Actor Identity** at the centre of the
+identity model. Human and AIActor can both be first-class subjects; they may hold
+different credentials, authentication methods and lifecycles, but they enter the same
+Actor-native Identity Contract.
 
-**Multi-factor.** TOTP plus backup codes. Enabling it takes two calls: fetch the secret,
-then confirm with a real code. An authenticator set up wrong therefore cannot lock
-anyone out.
+## An Actor-centred identity model
 
-**Social login.** Google and GitHub. The CSRF defence is the `state` parameter bound to
-an HttpOnly cookie; an unverified email at the provider is refused.
+<Figure2 locale="en" />
 
-**OIDC provider.** Authorization Code with PKCE (`S256` only), RS256-signed ID tokens, a
-discovery document, JWKS, refresh token rotation with reuse detection, userinfo, and a
-logout endpoint. Client registration and secret rotation have a full admin API.
+First-class standing for Human and AIActor does not mean the two share credentials,
+capabilities, lifecycles, permissions or legal status. It means each can independently
+be a subject that is identifiable, authenticable, able to establish an AuthSession, able
+to be expressed through a token, and attributable in the audit trail.
 
-**AI actors.** Ed25519 challenge–response, with no email, no password, and no user row
-behind it. The next section goes into it.
+**Actor Identity is the identity root; a credential is how a subject proves itself.**
+A human can use a password, MFA or an external identity; an AIActor uses a key-based
+credential suited to a machine subject. The paths converge on one Authentication Core
+and produce a standardised Authenticated Identity / Claims.
 
-**Permissions and audit.** RBAC over 14 permissions, governing SoulAuth's own admin API
-only. Plus account status management, self-service profiles, activity logs and audit
-reports.
+SoulAuth proves who an Actor is. It does not grant that Actor any power to act just
+because authentication succeeded. In a Soulseed environment the AIActor itself is
+defined by SoulseedAGI; SoulAuth authenticates that subject through a controlled
+Canonical Actor Binding, and never defines, modifies or owns its Mind.
 
-**Protection.** Argon2 for passwords, lockout on both the account and the IP, rate
-limiting by route template. Counters live in the database, so replicas share one budget.
+## Why Actor-native identity
 
-**The first administrator.** There is no default account. A fresh instance prints a
-one-time token in its startup log; you use it to create the first administrator without
-touching the database.
+Large language models already provide increasingly strong generation, understanding,
+reasoning and tool use. We prefer to read an LLM as the general compute of the
+intelligence era, something like a CPU: it supplies intelligence, but it does not by
+itself produce the identity, continuity, accountability and governance order that a
+long-lived intelligent system needs.
 
-## How an AI actor authenticates
+Once AI stops being a single call and becomes a continuously existing Actor, the system
+has to answer, reliably: who is understanding, who is judging, who is acting, and to
+whom the result belongs.
 
-A password can be copied. Once the same account is handed to several people and
-machines, the log can only record that the account was used, not who used it. So this
-path uses keys instead.
+That is why SoulAuth is **Actor First**. Before memory, knowledge, judgment, action and
+accountability, establish a stable *who*.
 
-Each AI actor is an `ActorIdentity`, and authentication is two calls:
+So SoulAuth does not keep the traditional `User` as the root of every identity object,
+and it is not a `type = ai` column added to a user table. A few boundaries hold
+throughout:
 
+```text
+Actor Identity ≠ Account
+Actor Identity ≠ Credential
+Actor Identity ≠ Client
+
+Authentication ≠ Authority
 ```
-POST /api/actors/challenge      → a one-time nonce
-POST /api/actors/authenticate   → the Ed25519 signature back
+
+Human Account, Identity Binding, Credential and Client each have their own
+responsibility, and none of them can stand in for Actor Identity.
+
+The fuller ontology is developed in
+[AI-native identity](/concepts/ai-native-identity),
+[Actor identity model](/concepts/actor-identity-model) and
+[Identity vs authority](/spec/identity-vs-authority).
+
+## Soulseed: AGI infrastructure above the LLM
+
+SoulAuth runs on its own, but it is not an isolated thought project. It is also part of
+TRANTOR LABS' answer to the question of AGI infrastructure.
+
+Our reading is this: if the LLM supplies the intelligence, a system built for long-lived
+AIActors still needs a Mind above it, continuous operation, governance, applications,
+and the order required to enter public reality.
+
+<Figure1 locale="en" />
+
+The infrastructure divides into four layers of responsibility.
+
+**SoulseedAGI — the mind kernel** defines the AIActor and its continuous Mind.
+
+**SoulseedOS — the runtime and governance operating system** keeps that Mind running
+continuously, safely and under governance.
+
+**Soulseed Apps — the application layer** turns Mind and operating-system capability
+into real applications.
+
+**Public Reality Infrastructure** carries the public facts and trust that must be
+verifiable across subjects.
+
+SoulAuth occupies the identity-infrastructure position in this stack. It is not a part of
+SoulseedAGI and not an internal module of SoulseedOS. It keeps its own boundary: it can
+be composed by SoulseedOS, and it can serve entirely different systems on its own.
+
+> **SoulseedAGI defines the subject and its Mind, SoulAuth authenticates the subject,
+> SoulseedOS runs and governs it.**
+
+The full relationship is developed in
+[Soulseed and Mind OS](/spec/soulseed-and-mind-os).
+
+## What SoulAuth is responsible for, and what it is not
+
+SoulAuth's boundary ends at a **trustworthy identity fact**.
+
+| Capability | Core responsibility |
+|---|---|
+| **Actor Identity** | Establish who the currently authenticable digital subject is |
+| **Credential** | Manage what an Actor uses to prove itself |
+| **Authentication** | Decide whether the presented credential holds |
+| **AuthSession** | Maintain an authentication state that has been established |
+| **Token & Federation** | Express the identity fact through tokens, OIDC and SSO |
+| **Control Plane** | Manage identities, credentials, clients and Auth-local RBAC |
+| **Security Protection** | Protect the credential, authentication, session, token and key lifecycles |
+| **Audit & Attribution** | Record who became the current identity, and through what process |
+
+SoulAuth does not define a Mind and does not stand in for a higher governance system.
+A successful authentication does not by itself produce a mandate, a business permission,
+a governance decision, a lease, or the right to act in the real world.
+
+The shortest form of the boundary:
+
+> **Identity answers "who", authority answers "why this Actor may act here and now".**
+
+SoulAuth's Auth-local RBAC governs SoulAuth itself. It is not the final authority engine
+for Soulseed as a whole, nor for any other business system.
+
+## SoulAuth architecture
+
+<Figure3 locale="en" />
+
+SoulAuth takes **Actor Identity** as the identity root and separates Human Account,
+Identity Binding and Credential. Credentials enter the Authentication Core to establish
+a trustworthy identity fact, **AuthSession** carries authentication continuity, and
+**Token & Federation** then hands that fact to external consumers as tokens, OIDC, SSO
+and claims.
+
+**Control Plane, Security Protection and Audit & Attribution** cut across the whole
+identity lifecycle; **Persistence & Infrastructure** underneath provides the data, keys,
+external IdPs and adapters that bound the runtime.
+
+SoulAuth can keep a small operational surface by default, a Rust service and a
+SurrealDB. A simple physical deployment does not license mixing the domains inside it:
+
+> **One Database ≠ One Domain.**
+
+Identity, Credential, AuthSession, OIDC, Security and Audit still have distinct logical
+sources, lifecycles and responsibility boundaries even when one database carries them
+all.
+
+The full architecture is developed in
+[SoulAuth architecture](/concepts/architecture).
+
+## Two ways to use it
+
+### Standalone
+
+SoulAuth can act as an independent identity provider for conventional Web, Backend, API
+and AI / Agent systems, offering complete identity capability through authentication,
+AuthSession, OIDC, tokens and claims.
+
+```text
+SoulAuth
+   ↓
+Any Application
 ```
 
-One identity can hold several active keys at once. That exists for safe rotation (add
-the new one, confirm it authenticates, revoke the old), and it has a useful side effect:
-each machine can hold its own. A successful authentication returns that key's
-`credential_label` and stamps its `last_used_at`, so attribution reaches the key rather
-than stopping at the account.
+### Soulseed
 
-Rotating a key does not change the identity, so audit rows written before the rotation
-still resolve to the same actor. The conformance suite checks the code itself:
-`src/services/ai_actor.rs` must not contain `human_account`, `password`, `email` or
-`username`.
-<Status kind="tested" guard="conformance::a6" />
+Inside Soulseed, SoulAuth supplies SoulseedOS with authenticated Actor identity facts
+through a stable adapter. For a canonical AIActor already defined by SoulseedAGI,
+SoulAuth can maintain a controlled identity binding, but never reads, modifies or owns
+its Mind.
 
-[The full model →](/concepts/actor-identity-model)
+```text
+SoulseedAGI
+Canonical AIActor
+      │
+Canonical Actor Binding
+      ▼
+   SoulAuth
+      │
+Authenticated Identity
+      ▼
+  SoulseedOS
+```
 
-## How it relates to Soulseed
+Both ways use the same SoulAuth core. Soulseed is the native integration direction, not
+a prerequisite for using SoulAuth.
 
-SoulAuth is the authentication component of the Soulseed stack, but it does not depend on
-Soulseed and runs perfectly well on its own. Standalone is the default, not a fallback:
-with `identity_source` set to `local` and `canonical_actor_ref` empty, authentication
-behaves no differently.
+## Why Rust
 
-Three systems, one job each:
+SoulAuth is written in Rust because identity infrastructure needs explicit data
+ownership, strong type boundaries, memory safety and predictable system behaviour.
 
-| System | Owns |
-|---|---|
-| **SoulseedAGI** | What the subject is: the canonical actor, its Mind and intent |
-| **SoulAuth** | How the subject proves itself: identity, credentials, sessions |
-| **SoulseedOS** | What is running, and under which policy |
+We want Identity, Credential, AuthSession and the other security boundaries to exist not
+only in the architecture documents but, as far as possible, as constraints the code
+itself finds hard to violate.
 
-The subject SoulAuth authenticates is defined by SoulseedAGI, and the arrow points one
-way: SoulAuth stores a reference to the canonical actor and never writes back. Exactly
-one thing crosses the boundary, an authentication fact: this request really is that
-subject, at this moment, proven this way. Authority does not cross, and neither does
-profile data.
+## Security and trust
 
-If you are not running Soulseed you can skip this section; nothing else on the site
-assumes it exists.
+Security and audit are not peripheral capabilities added after SoulAuth is deployed.
+They are part of the identity infrastructure itself.
 
-[The full ownership boundary →](/spec/soulseed-and-mind-os)
+SoulAuth treats credentials, authentication, AuthSession, tokens, keys, external IdPs
+and audit as explicit security boundaries, and builds continuous protection around MFA,
+lockout, replay protection, token reuse detection and key lifecycle.
 
-## Next
+The fuller security model is defined by these documents:
 
-| | |
-|---|---|
-| Running in five minutes | [Quickstart](/start/quickstart) |
-| Choosing an integration | [Integration path](/start/integration-path) |
-| Wiring an OIDC client | [Authorization Code flow](/integrate/authorization-code-flow) |
-| Giving an AI actor an identity | [AI-native identity](/concepts/ai-native-identity) |
+**[Security model](/security/security-model)** defines the assets, trust boundaries and
+security assumptions.
+
+**[Threat model](/security/threat-model)** defines the main threats: credential theft,
+token theft, replay, a malicious client, a compromised database.
+
+**[Authentication protection](/security/authentication-protection)** defines MFA,
+lockout, rate limiting, replay protection and key lifecycle.
+
+**[Standards and conformance](/security/standards-and-conformance)** defines protocol
+conformance and Actor-native architecture conformance.
+
+The process for reporting a security problem is defined in `SECURITY.md`.
+
+## Getting started
+
+Coming to SoulAuth for the first time, this is the order to take it in:
+
+**This page** decides whether SoulAuth fits your system.
+
+**[Quickstart](/start/quickstart)** brings up a local instance and completes a first
+authentication.
+
+**[Integration path](/start/integration-path)** picks the right route among Web
+application, Backend / API, OIDC client, AI / Agent system and SoulseedOS.
+
+Once the integration is done, run the
+[production checklist](/operate/production-checklist) before going live.
+
+## About SoulAuth
+
+The goal is not to lock identity capability inside one application, one model or one
+ecosystem, but to provide identity infrastructure that is **independently deployable,
+built on open standards, and composed with other systems through stable contracts**.
+
+It can enter Soulseed or stand alone; it can serve conventional applications or
+AI-native systems; it can be used as a standard OIDC provider or become the identity
+layer of a larger Actor-based architecture. A consumer never needs to read SoulAuth's
+private database, and should not have to depend on its internals to use it correctly.
+
+SoulAuth is built by **TRANTOR LABS, Singapore**.
+
+TRANTOR LABS is not focused on a single AI product but on a more basic question of the
+AGI era: once intelligence becomes a general capability, how should subject, judgment,
+identity, accountability, governance and public reality be organised into infrastructure
+that actually runs.
+
+> **Philosophy defines the question; engineering verifies the answer.**
