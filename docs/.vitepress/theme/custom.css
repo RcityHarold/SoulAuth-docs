@@ -40,13 +40,8 @@
   margin: 2rem auto;
 }
 
-/* 「查看大图」。跟在图注末尾，不另起一行占位置。 */
-.vp-doc figure.figure figcaption .figure-zoom {
-  margin-left: 0.5em;
-  white-space: nowrap;
-  font-weight: 500;
-}
-
+/* 图本身可点开看原图，光标提示这件事。图注里不再另放一个按钮 ——
+   图可点已经足够，多一个链接只是重复。 */
 .vp-doc figure.figure a:has(img) {
   cursor: zoom-in;
 }

@@ -8,8 +8,8 @@
 // 顺带修好一处：承托底与边框的样式挂在 `figure.figure a` 上（见 custom.css），
 // 上一版渲染裸 <img>，那层样式一直没生效。
 //
-// 标题、图注与"查看大图"都从 `strings.ts` 取 —— 它们是文字，烧进像素里就
-// 搜不到、翻译不了，也无法被引用守卫检查。
+// 标题与图注从 `strings.ts` 取 —— 它们是文字，烧进像素里就搜不到、
+// 翻译不了，也无法被引用守卫检查。`t.zoom` 只用作 title 提示。
 import { fig1 } from './strings'
 import { withBase } from 'vitepress'
 const props = defineProps<{ locale: 'en' | 'zh' }>()
@@ -22,9 +22,6 @@ const src = withBase(`/figures/figure-1-soulseed-agi-infrastructure.${props.loca
     <a :href="src" target="_blank" rel="noopener" :title="t.zoom">
       <img :src="src" :alt="t.title" loading="lazy" decoding="async" />
     </a>
-    <figcaption>
-      <strong>{{ t.title }}</strong> — {{ t.caption }}
-      <a class="figure-zoom" :href="src" target="_blank" rel="noopener">{{ t.zoom }} →</a>
-    </figcaption>
+    <figcaption><strong>{{ t.title }}</strong> — {{ t.caption }}</figcaption>
   </figure>
 </template>
