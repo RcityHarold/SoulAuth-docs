@@ -1,24 +1,36 @@
-# 位图原稿（已被组件版取代）
+# 三张 Canonical Figure 的位图原稿
 
-这里是三张 Canonical Figure 的位图原稿，中英各一版。它们**不再被站点渲染**，
-保留在这里只作为历史参照与设计出处。
+站点渲染的就是这里的六个文件（三张图 × 中英）。构建时它们被复制进
+`docs/public/figures/`，由 `Figure1/2/3.vue` 三个组件以 `<img>` 引用。
 
-站点上的三张图现在由 `docs/.vitepress/theme/figures/` 下的 Vue 组件绘制。
-换掉位图是因为两处缺陷改不动：
+组件只做两件事：按页面语言选文件，以及从 `strings.ts` 取标题与图注。
+标题和图注是文字，没有理由烧进像素里 —— 烧进去就搜不到、翻译不了，
+也无法被引用守卫检查。
 
-- **Figure 2** 没有画出 `IdentityBinding`。图上是一条从 SoulseedAGI 直连
-  ActorIdentity 的虚线，标签写 `Canonical Actor Binding`。标签名对，缺的是那个
-  canonical 对象本身 —— 语料 06 §4 与 08 §6 要求的关系是
-  `Soulseed Canonical Actor ↔ IdentityBinding ↔ SoulAuth ActorIdentity`。
-  补这个对象要改版式，不是改像素。
-- **Figure 1 中文版比英文版实质更薄**。英文版有三条底部编号注释、
-  `Public Bridge / On-demand Access` 副标、以及 SoulseedAGI ↔ SoulseedOS ↔ Apps
-  和 SoulseedOS ↔ SoulAuth ↔ Any Application 的双向箭头；中文版这三样都没有，
-  箭头是单向下行加无头连线。而这种差异不会让任何检查变红。
+## 曾经是组件版，为什么换回来
 
-组件版把这两处都修掉了，并且中英从同一份 `strings.ts` 生成 ——「某个语言版本
-更薄」从"靠人眼发现"变成结构上不可能，`npm run check:figures` 会逐层比对两个
-locale 的结构。
+这三张图有一段时间是用 Vue 盒子逐个画出来的（`Box.vue` + `diagram.css`），
+中英从同一份 `strings.ts` 生成。那样做的理由是：位图版出过一次
+「中文版比英文版实质更薄」——英文版有三条底部注释、`On-demand Access` 副标
+和双向箭头，中文版一样都没有，而没有任何东西会报错。组件版让这种差异
+在结构上不可能发生。
 
-另有一处已在位图上直接修掉：Figure 3 中文版 `Credentiat` → `Credential`
-（从同词的 `d` 取升部竖干贴回末位）。这处修改保留在本目录的 PNG 里。
+换回位图是因为版式：这套图的信息密度与排布不是 flex 盒子排得出来的。
+
+**代价要说清楚**：中英对等不再由结构保证，只能靠人核。
+`npm run check:figures` 现在守的是三件事 ——
+
+1. 每个 `<Figure>` 的 `locale` 与页面语言一致（中文页不会渲染英文图）；
+2. 六个位图文件都存在（缺文件时页面会渲染成碎图标，而构建依然是绿的）；
+3. 没有冒出第四张公共核心图。
+
+它**不再**校验图内文案的中英对等 —— 那件事从此靠改图的人自己保证。
+
+## 改图看哪份规格
+
+`CHANGES.md`。里面逐条写了每张图该画什么线（实线还是虚线、箭头几个、
+从哪里连到哪里）、每个框的中英文案应该是什么，以及为什么。
+文案全部从 `strings.ts` 逐字抄出，可以直接复制。
+
+改完图之后，如果动了标题或图注，记得同步改 `strings.ts` ——
+那两处仍然由代码提供。

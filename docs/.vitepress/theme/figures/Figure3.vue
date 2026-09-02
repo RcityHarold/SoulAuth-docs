@@ -1,88 +1,26 @@
 <script setup lang="ts">
-// Figure 3 · HOW —— SoulAuth 内部有哪些长期稳定的 Logical Responsibilities。
+// Figure 3 —— 渲染位图原稿。
+//
+// 这三张图曾经用 Vue 盒子逐个画出来（`Box.vue` + `diagram.css`），
+// 目的是让中英两版从同一份 `strings.ts` 生成，「某个语言版本更薄」在结构上
+// 不可能发生。现在改回位图：设计侧按 `figures/CHANGES.md` 的规格重绘了六张，
+// 版式与信息密度都不是 flex 盒子排得出来的。
+//
+// 代价说清楚：中英对等不再由结构保证，只能靠人核。`check:figures` 仍然守着
+// locale 用对、没有第四张核心图，以及**两个 locale 的图片文件都存在**。
+//
+// 标题与图注仍从 `strings.ts` 取 —— 那部分是文字，没有理由烧进像素里，
+// 烧进去就搜不到、翻译不了、也无法被引用守卫检查。
 import { fig3 } from './strings'
-import Box from './Box.vue'
+import { withBase } from 'vitepress'
 const props = defineProps<{ locale: 'en' | 'zh' }>()
 const t = fig3[props.locale]
-const planeVariant = ['purple', 'red', 'amber']
+const src = withBase(`/figures/figure-3-soulauth-architecture.${props.locale}.png`)
 </script>
 
 <template>
   <figure class="figure">
-    <div class="dg dg-plate">
-      <div class="dg-col">
-        <div class="dg-row">
-          <Box v-for="c in t.clients" :key="c.name" :n="c" variant="plain" />
-        </div>
-        <div class="dg-down"></div>
-        <Box :n="t.edge" />
-        <div class="dg-down"></div>
-
-        <!-- 主责任链在左，三个横切平面在右 -->
-        <div class="dg-row" style="align-items: flex-start">
-          <div class="dg-group" style="flex: 1 1 64%">
-            <header><b>{{ t.core.name }}</b></header>
-            <div class="dg-col">
-              <div class="dg-group" style="background: #fff">
-                <header><b>{{ t.identityDomain.name }}</b></header>
-                <div class="dg-col">
-                  <Box :n="t.actorIdentity" variant="accent" />
-                  <div class="dg-row">
-                    <Box :n="t.humanAccount" variant="plain" />
-                    <Box :n="t.identityBinding" variant="plain" />
-                    <Box :n="t.credential" variant="plain" />
-                  </div>
-                </div>
-              </div>
-              <div class="dg-down"></div>
-              <Box :n="t.authCore" />
-              <div class="dg-down"></div>
-              <Box :n="t.authSession" />
-              <div class="dg-down"></div>
-              <Box :n="t.tokenFed" />
-              <div class="dg-down"></div>
-              <Box :n="t.output" variant="green" />
-            </div>
-          </div>
-
-          <div class="dg-col" style="flex: 1 1 36%">
-            <div
-              v-for="(p, i) in t.planes"
-              :key="p.name"
-              class="dg-plane"
-              :class="`dg-plane--${planeVariant[i]}`"
-            >
-              <b>{{ p.name }}</b>
-              <ul>
-                <li v-for="it in p.items" :key="it.name">
-                  <b>{{ it.name }}</b><template v-if="it.sub"> · {{ it.sub }}</template>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div class="dg-down"></div>
-        <div class="dg-row">
-          <Box :n="t.anyapp" variant="plain" />
-          <Box :n="t.soulseedOS" variant="plain" />
-        </div>
-
-        <div class="dg-group" style="margin-top: 10px">
-          <header><b>{{ t.persistence.name }}</b><span>{{ t.persistence.sub }}</span></header>
-          <div class="dg-neq">
-            <code v-for="s in t.stores" :key="s.name">{{ s.name }}</code>
-          </div>
-          <div class="dg-neq" style="margin-top: 8px">
-            <code v-for="s in t.infra" :key="s.name">{{ s.name }}</code>
-          </div>
-        </div>
-
-        <div class="dg-neq">
-          <code v-for="x in t.neq" :key="x">{{ x }}</code>
-        </div>
-      </div>
-    </div>
+    <img :src="src" :alt="t.title" loading="lazy" decoding="async" />
     <figcaption><strong>{{ t.title }}</strong> — {{ t.caption }}</figcaption>
   </figure>
 </template>

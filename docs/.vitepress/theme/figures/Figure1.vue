@@ -1,63 +1,26 @@
 <script setup lang="ts">
-// Figure 1 · WHERE —— SoulAuth 在更大的系统中处于什么位置。
+// Figure 1 —— 渲染位图原稿。
+//
+// 这三张图曾经用 Vue 盒子逐个画出来（`Box.vue` + `diagram.css`），
+// 目的是让中英两版从同一份 `strings.ts` 生成，「某个语言版本更薄」在结构上
+// 不可能发生。现在改回位图：设计侧按 `figures/CHANGES.md` 的规格重绘了六张，
+// 版式与信息密度都不是 flex 盒子排得出来的。
+//
+// 代价说清楚：中英对等不再由结构保证，只能靠人核。`check:figures` 仍然守着
+// locale 用对、没有第四张核心图，以及**两个 locale 的图片文件都存在**。
+//
+// 标题与图注仍从 `strings.ts` 取 —— 那部分是文字，没有理由烧进像素里，
+// 烧进去就搜不到、翻译不了、也无法被引用守卫检查。
 import { fig1 } from './strings'
-import Box from './Box.vue'
+import { withBase } from 'vitepress'
 const props = defineProps<{ locale: 'en' | 'zh' }>()
 const t = fig1[props.locale]
+const src = withBase(`/figures/figure-1-soulseed-agi-infrastructure.${props.locale}.png`)
 </script>
 
 <template>
   <figure class="figure">
-    <div class="dg dg-plate">
-      <div class="dg-col">
-        <div class="dg-row dg-row--center">
-          <div class="dg-narrow" style="flex: 0 1 340px; margin: 0 auto">
-            <Box :n="t.llm" variant="plain" />
-          </div>
-        </div>
-        <div class="dg-down"><label>{{ t.intelligence }}</label></div>
-
-        <!-- Mind OS：私有的四层里的前三层 -->
-        <div class="dg-row">
-          <div class="dg-group" style="flex: 1 1 62%">
-            <header><b>{{ t.mindos.name }}</b><span>{{ t.mindos.sub }}</span></header>
-            <div class="dg-col">
-              <Box :n="t.agi" />
-              <div class="dg-updown"><i></i></div>
-              <Box :n="t.os" />
-              <div class="dg-updown"><i></i></div>
-              <Box :n="t.apps" />
-            </div>
-          </div>
-
-          <!-- SoulAuth 与 SoulseedOS 平级并列，不在 Mind OS 盒子里 -->
-          <div class="dg-side"><i></i></div>
-          <!-- flex:0 0 auto 而不是默认的 1 1 auto：否则这两个盒子会被拉到
-               和左边 Mind OS 一样高，中间大片空白 -->
-          <div class="dg-col dg-col--center" style="flex: 1 1 38%">
-            <Box :n="t.soulauth" class="dg-fixed" />
-            <div class="dg-updown"><i></i></div>
-            <Box :n="t.anyapp" variant="plain" class="dg-fixed" />
-          </div>
-        </div>
-
-        <div class="dg-down"><label>{{ t.bridge.name }} · {{ t.bridge.sub }}</label></div>
-        <div class="dg-box dg-box--amber">
-          <b>{{ t.pri.name }}</b>
-          <span>{{ t.pri.sub }}</span>
-          <div class="dg-neq" style="margin-top: 8px">
-            <code v-for="i in t.pri.items" :key="i">{{ i }}</code>
-          </div>
-        </div>
-
-        <div class="dg-notes">
-          <div v-for="(nb, i) in t.notes" :key="nb.title">
-            <b :data-n="i + 1">{{ nb.title }}</b>
-            <p>{{ nb.body }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <img :src="src" :alt="t.title" loading="lazy" decoding="async" />
     <figcaption><strong>{{ t.title }}</strong> — {{ t.caption }}</figcaption>
   </figure>
 </template>
