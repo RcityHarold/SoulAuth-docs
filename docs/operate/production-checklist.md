@@ -28,6 +28,7 @@ export OIDC_RSA_PRIVATE_KEY_PATH=/etc/soulauth/oidc-signing.pem
 # Dedicated MFA key — derived from JWT_SECRET otherwise, which means rotating
 # JWT_SECRET locks every MFA user out permanently.
 export MFA_SECRET_ENCRYPTION_KEY=$(openssl rand -base64 32)
+export AUDIT_INTEGRITY_KEY=$(openssl rand -base64 32)
 ```
 
 Both defaults would work in the sense of not erroring, and both would quietly destroy
@@ -139,9 +140,14 @@ into a 500 or let a response-time difference reveal whether an address is regist
 
 Stateless for authentication; instances share the database and never talk to each other.
 
-- Every replica needs the **same** `JWT_SECRET`, OIDC signing key and
-  `MFA_SECRET_ENCRYPTION_KEY`. Different signing keys means tokens issued by one replica
-  fail verification against another's JWKS.
+- Every replica needs the **same** `JWT_SECRET`, OIDC signing key,
+  `MFA_SECRET_ENCRYPTION_KEY` and `AUDIT_INTEGRITY_KEY`. Different signing keys means
+  tokens issued by one replica fail verification against another's JWKS.
+- Every replica needs a **different** `SOULAUTH_INSTANCE_ID`. This is the one setting
+  that must not match: it names the replica's own audit hash chain, and two replicas
+  sharing an id collide on the unique index, which silently drops the later one's audit
+  events. It is required in production for exactly that reason: the default only tells
+  apart processes on one host, so guessing it would be the failure mode itself.
 - Rate limiting and lockout are shared, since they are in the database.
 - **Revocation is not instant.** Each instance caches resolved sessions; others observe a
   logout or suspension within `AUTH_SESSION_CACHE_TTL_SECONDS` (default 5). Lower it for
@@ -157,6 +163,8 @@ curl https://auth.example.com/.well-known/openid-configuration   # issuer == APP
 - [ ] `JWT_SECRET` generated, ≥ 32 chars, identical on every replica
 - [ ] OIDC signing key persisted to disk, identical on every replica
 - [ ] `MFA_SECRET_ENCRYPTION_KEY` set explicitly
+- [ ] `AUDIT_INTEGRITY_KEY` set explicitly, and `GET /api/audit/integrity` reports
+      `intact: true` once the first checkpoint has been issued
 - [ ] `APP_URL` is `https://` and matches `issuer` in discovery
 - [ ] Database over TLS with a scoped account, not `root`
 - [ ] Schema imported into the namespace/database pair the process uses
@@ -165,7 +173,8 @@ curl https://auth.example.com/.well-known/openid-configuration   # issuer == APP
 - [ ] A password reset email actually arrived
 - [ ] First administrator created via the bootstrap token, not by editing the database
 - [ ] Backups cover four things: the SurrealDB data directory, `JWT_SECRET`, the OIDC
-      signing key, and `MFA_SECRET_ENCRYPTION_KEY`. The database alone does not restore —
+      signing key, `MFA_SECRET_ENCRYPTION_KEY` and `AUDIT_INTEGRITY_KEY`. Losing the last
+      one makes every existing checkpoint unverifiable. The database alone does not restore —
       see [Operations & recovery](/operate/operations-and-recovery)
 
 ## Next

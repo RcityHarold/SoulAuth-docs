@@ -123,10 +123,26 @@ a dedicated writer drains, retrying on transient database errors, and the queue 
 flushed before the process exits — so shutting down does not cost you the events that
 were still in flight.
 
-::: warning Not tamper-evident
-An ordinary table. No hash chain, no checkpoint. Useful for
-operations; not evidence.
-:::
+The log is tamper-evident, in two layers:
+
+- **A hash chain.** Every row carries a `seq`, a `previous_hash` and an `event_hash`
+  computed over its own content plus the link. Editing one row breaks its own hash;
+  deleting one breaks the next row's link and leaves a gap in `seq`.
+- **Signed checkpoints.** A chain on its own can be recomputed end to end by whoever
+  holds database write access, so the chain head is signed hourly with an Ed25519 key
+  from `AUDIT_INTEGRITY_KEY` — a key that does not live in the database. A recomputed
+  chain no longer matches the signatures already issued.
+
+**One chain per replica.** The sequence is assigned in memory by the writing process, so
+each replica keeps its own chain, identified by `SOULAUTH_INSTANCE_ID`. Two replicas
+sharing an id collide on the unique index and the later one's audit events are rejected,
+so the setting is required once `APP_URL` is not loopback rather than guessed from the
+hostname.
+
+`GET /api/audit/integrity` re-derives every chain and verifies each checkpoint against
+this instance's own public key. It reports how many chains it covered and, if a chain is
+broken, which one and where.
+<Status kind="tested" guard="conformance::f4" />
 
 ## Next
 

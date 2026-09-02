@@ -212,7 +212,8 @@ They are part of the identity infrastructure itself.
 
 SoulAuth treats credentials, authentication, AuthSession, tokens, keys, external IdPs
 and audit as explicit security boundaries, and builds continuous protection around MFA,
-lockout, replay protection, token reuse detection and key lifecycle.
+lockout, replay protection, token reuse detection, key lifecycle and a tamper-evident
+audit log.
 
 The fuller security model is defined by these documents:
 

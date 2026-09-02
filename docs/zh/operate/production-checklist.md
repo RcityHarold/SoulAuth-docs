@@ -27,6 +27,7 @@ export OIDC_RSA_PRIVATE_KEY_PATH=/etc/soulauth/oidc-signing.pem
 # 专用的 MFA 密钥——否则它从 JWT_SECRET 派生，这意味着轮换 JWT_SECRET
 # 会把每个 MFA 用户永久锁在门外。
 export MFA_SECRET_ENCRYPTION_KEY=$(openssl rand -base64 32)
+export AUDIT_INTEGRITY_KEY=$(openssl rand -base64 32)
 ```
 
 两个默认值都「能用」，也都会在之后悄悄摧毁凭证。对于失效方式延迟且不可逆的默认值，
@@ -130,7 +131,12 @@ LOCKOUT_IP_ENABLED=true
 
 就认证而言无状态；实例共享数据库，彼此从不通信。
 
-- 每个副本需要**相同的** `JWT_SECRET`、OIDC 签名密钥与 `MFA_SECRET_ENCRYPTION_KEY`。
+- 每个副本需要**相同的** `JWT_SECRET`、OIDC 签名密钥、`MFA_SECRET_ENCRYPTION_KEY`
+  与 `AUDIT_INTEGRITY_KEY`。
+- 每个副本需要**不同的** `SOULAUTH_INSTANCE_ID`。这是唯一一项不能相同的配置：
+  它标识该副本自己那条审计哈希链，两个副本共用同一个标识会撞唯一索引，
+  后者的审计事件被静默丢弃。生产环境把它列为必填正是因为这个：默认值只能区分
+  同一台机器上的多个进程，靠猜本身就是那个故障。
   签名密钥不同意味着一个副本签发的令牌在另一个副本的 JWKS 上验不过。
 - 限流与锁定是共享的，因为它们在数据库里。
 - **吊销不是瞬时的。** 每个实例缓存已解析的会话；其它实例在
@@ -147,6 +153,8 @@ curl https://auth.example.com/.well-known/openid-configuration   # issuer 等于
 - [ ] `JWT_SECRET` 已生成、≥ 32 字符、每个副本一致
 - [ ] OIDC 签名密钥落盘、每个副本一致
 - [ ] `MFA_SECRET_ENCRYPTION_KEY` 已显式设置
+- [ ] `AUDIT_INTEGRITY_KEY` 已显式设置，且第一个 checkpoint 签出之后
+      `GET /api/audit/integrity` 报告 `intact: true`
 - [ ] `APP_URL` 是 `https://` 且与发现文档的 `issuer` 一致
 - [ ] 数据库走 TLS，用限定账号而非 `root`
 - [ ] schema 导进了进程使用的那一对 namespace/database
@@ -155,7 +163,8 @@ curl https://auth.example.com/.well-known/openid-configuration   # issuer 等于
 - [ ] 一封口令重置邮件确实收到了
 - [ ] 第一个管理员经由引导令牌创建，而不是改数据库
 - [ ] 备份覆盖四样东西：SurrealDB 数据目录、`JWT_SECRET`、OIDC 签名私钥、
-      `MFA_SECRET_ENCRYPTION_KEY`。只备份数据库恢复不回来 ——
+      `MFA_SECRET_ENCRYPTION_KEY`、`AUDIT_INTEGRITY_KEY`。丢掉最后这一把，
+      已有的每个 checkpoint 都验不了。只备份数据库恢复不回来 ——
       见[运维与恢复](/zh/operate/operations-and-recovery)
 
 ## 接下来

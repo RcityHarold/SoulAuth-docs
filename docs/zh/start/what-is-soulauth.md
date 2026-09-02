@@ -190,7 +190,7 @@ Security 与 Audit 不是 SoulAuth 部署完成以后再增加的外围能力，
 
 SoulAuth 将 Credential、Authentication、AuthSession、Token、Key、External IdP 与
 Audit 都视为明确的安全边界，并围绕 MFA、Lockout、Replay Protection、
-Token Reuse Detection 与 Key Lifecycle 建立持续保护。
+Token Reuse Detection、Key Lifecycle 与 Tamper-evident Audit 建立持续保护。
 
 更完整的安全模型分别由以下文档定义：
 

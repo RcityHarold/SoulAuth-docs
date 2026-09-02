@@ -33,6 +33,25 @@ says who; it grants nothing. [Identity vs authority](/spec/identity-vs-authority
 <Status kind="tested" guard="conformance::b4b" /> asserts that none of those columns
 holds plaintext, and that the hash function is a real one rather than an encoding.
 
+### Where the keys themselves live
+
+The table above is about what the database holds. Three secrets are deliberately **not**
+in it, because they are what the database contents are checked against:
+
+| Key | What it does | Where it lives |
+|---|---|---|
+| `JWT_SECRET` | Signs session tokens | Process environment |
+| OIDC signing key | Signs ID tokens | A file, or the process environment |
+| `MFA_SECRET_ENCRYPTION_KEY` | Encrypts stored TOTP secrets | Process environment |
+| `AUDIT_INTEGRITY_KEY` | Signs audit checkpoints | Process environment |
+
+Keeping the audit key out of the database is what makes a checkpoint mean anything: an
+attacker who reaches the database can rewrite rows and recompute the hash chain, but
+cannot produce signatures that match. Someone who reaches the process environment can.
+That is the boundary these four keys sit on, and it is why the production checklist
+treats them as backup material in their own right rather than as part of a database
+dump.
+
 ### Why two different algorithms
 
 Passwords are low-entropy and human-chosen, so a slow hash is what makes offline
