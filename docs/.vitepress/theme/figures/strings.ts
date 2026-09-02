@@ -11,7 +11,7 @@ export type Plane = { name: string; items: Node[] }
 export type NoteBlock = { title: string; body: string }
 
 export interface Fig1 {
-  title: string; caption: string
+  title: string; caption: string; zoom: string
   llm: Node; intelligence: string
   mindos: Node
   agi: Node; os: Node; apps: Node
@@ -22,7 +22,7 @@ export interface Fig1 {
 }
 
 export interface Fig2 {
-  title: string; caption: string
+  title: string; caption: string; zoom: string
   human: Node; aiactor: Node
   actorIdentity: Node
   humanAccount: Node
@@ -37,7 +37,7 @@ export interface Fig2 {
 }
 
 export interface Fig3 {
-  title: string; caption: string
+  title: string; caption: string; zoom: string
   clients: Node[]
   edge: Node
   core: Node
@@ -59,6 +59,7 @@ export const fig1: Record<'en' | 'zh', Fig1> = {
       'infrastructure a persistent AIActor needs. SoulAuth is independent identity and ' +
       'authentication infrastructure — usable by SoulseedOS and, on its own, by any application. ' +
       'This is an architecture relationship, not a deployment topology.',
+    zoom: 'Open full size',
     llm: { name: 'LLM', sub: 'General intelligence capability' },
     intelligence: 'Intelligence capability',
     mindos: { name: 'Mind OS', sub: 'AGI cognitive & governance infrastructure' },
@@ -103,6 +104,7 @@ export const fig1: Record<'en' | 'zh', Fig1> = {
       'LLM 提供智能，Soulseed 为持续 AIActor 建立 Mind、运行、应用与公共现实所需要的系统秩序。' +
       'SoulAuth 是独立的身份与认证基础设施 —— 既可被 SoulseedOS 使用，也可独立服务任意应用。' +
       '这张图表达的是 Architecture Relationship，不是 Deployment Topology。',
+    zoom: '查看大图',
     llm: { name: 'LLM', sub: '通用智能能力' },
     intelligence: '智能能力',
     mindos: { name: 'Mind OS', sub: 'AGI 认知与治理基础设施' },
@@ -147,6 +149,7 @@ export const fig2: Record<'en' | 'zh', Fig2> = {
       'Human and AIActor are first-class identity subjects entering the same Actor-native ' +
       'identity core through different credentials. A Soulseed canonical Actor relates to a ' +
       'SoulAuth ActorIdentity only through an IdentityBinding — and only when that binding exists.',
+    zoom: 'Open full size',
     human: { name: 'Human', sub: 'Actor Kind' },
     aiactor: { name: 'AIActor', sub: 'Actor Kind' },
     actorIdentity: {
@@ -214,6 +217,7 @@ export const fig2: Record<'en' | 'zh', Fig2> = {
       'Human 与 AIActor 作为一等身份主体，通过不同 Credential 进入同一个 Actor-native Identity ' +
       'Core。Soulseed Canonical Actor 只能通过 IdentityBinding 与 SoulAuth ActorIdentity 建立' +
       '关系 —— 而且只在这条 Binding 确实存在时。',
+    zoom: '查看大图',
     human: { name: 'Human', sub: 'Actor Kind · 人类主体' },
     aiactor: { name: 'AIActor', sub: 'Actor Kind · AI 主体' },
     actorIdentity: {
@@ -283,6 +287,7 @@ export const fig3: Record<'en' | 'zh', Fig3> = {
       'With ActorIdentity as the identity root, organising credential, authentication, ' +
       'AuthSession, OIDC, security and audit. This maps logical responsibilities — it is not a ' +
       'runtime sequence and not a deployment diagram.',
+    zoom: 'Open full size',
     clients: [
       { name: 'Browser' }, { name: 'App' }, { name: 'Backend' },
       { name: 'AI Client' }, { name: 'Admin' },
@@ -349,6 +354,7 @@ export const fig3: Record<'en' | 'zh', Fig3> = {
       '以 ActorIdentity 为身份根，组织 Credential、Authentication、AuthSession、OIDC、Security ' +
       '与 Audit。这是一张 Logical Responsibilities 图 —— 不是 Runtime Sequence，也不是 ' +
       'Deployment Diagram。',
+    zoom: '查看大图',
     clients: [
       { name: 'Browser 浏览器' }, { name: 'App 应用' }, { name: 'Backend 后端' },
       { name: 'AI Client' }, { name: 'Admin 管理员' },

@@ -31,11 +31,24 @@
    Figure 3 (HOW)。它们是浅底插图，深色模式下直接铺在深色页面上会刺眼，
    所以始终给一块近白的承托底，让它读起来像"一张图"而不是"漏了背景的图"。 */
 .vp-doc figure.figure {
-  /* 比正文栏窄并居中。图占满整栏时盒子被横向拉扁，读起来像表格不像图。
-     限制加在 figure 上而不是里面的 .dg 上，这样 figcaption 跟着一起收窄，
-     图注与图的左边缘才对得齐 —— 只收窄 .dg 的话图居中、图注贴左。 */
-  max-width: min(560px, 100%);
+  /* 占满正文栏。
+     560px 那个上限是给组件版（紧凑的 flex 图）调的：那时图占满整栏会被横向
+     拉扁，读起来像表格。换成位图之后情况反过来了 —— 原图宽 1600–2000px，
+     缩到 560px 里小字只剩四五个像素。
+     真正读得清要靠点开原图（组件把图包在 <a> 里），页内这一版负责结构与位置。 */
+  max-width: 100%;
   margin: 2rem auto;
+}
+
+/* 「查看大图」。跟在图注末尾，不另起一行占位置。 */
+.vp-doc figure.figure figcaption .figure-zoom {
+  margin-left: 0.5em;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.vp-doc figure.figure a:has(img) {
+  cursor: zoom-in;
 }
 
 .vp-doc figure.figure a {
