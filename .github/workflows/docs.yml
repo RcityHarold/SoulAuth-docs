@@ -43,12 +43,19 @@ jobs:
 
       - run: npm ci
 
-      # base 从仓库名推导，不写死 —— 仓库改名时 base 会跟着走，
-      # 否则所有资源 404 而构建依然是绿的。
+      # 不设 DOCS_BASE：站点部署在自定义域名 soulauth.trantorlabs.sg 上，
+      # 从根路径提供，`config.mts` 里的默认 base `/` 就是对的。
+      #
+      # 这里曾经是 `DOCS_BASE: /${{ github.event.repository.name }}/`
+      # —— 项目页时代从仓库名推导 base。挂上自定义域名之后那个值让每个资源
+      # 都指向 `/SoulAuth-docs/...`：页面打得开、样式全丢、点任何链接都 404，
+      # 而构建依然是绿的。
+      #
+      # 自定义域名靠 `docs/public/CNAME` 保持：VitePress 把 public/ 原样复制进
+      # dist，产物里带着 CNAME，每次部署都会重新声明域名。少了它，
+      # Pages 有可能在某次部署后把自定义域名清掉。
       - name: Build
         run: npm run build
-        env:
-          DOCS_BASE: /${{ github.event.repository.name }}/
 
       - run: npm run check:anchors
       # 文档不得复述端点/路由计数 —— 那份事实归 contracts/openapi.yaml，

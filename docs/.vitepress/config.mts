@@ -1,8 +1,14 @@
 import { defineConfig } from 'vitepress'
 
-// 部署到 GitHub Pages 的项目页时，base 必须是 `/<repo>/`。
-// 换成自定义域名或根路径部署时，把它改成 '/'。
-const base = process.env.DOCS_BASE ?? '/SoulAuth-docs/'
+// 站点部署在自定义域名 https://soulauth.trantorlabs.sg/ 上，所以 base 是根路径。
+//
+// 曾经是 `/SoulAuth-docs/`（GitHub Pages 项目页的路径）。挂上自定义域名之后
+// 站点从根路径提供，那个 base 会让每一个资源与内部链接都指向
+// `/SoulAuth-docs/...` —— 页面能打开、样式全丢、点任何链接都是 404。
+//
+// `DOCS_BASE` 仍然保留：如果要临时部署回项目页（或部署到某个子路径），
+// 设成 `/SoulAuth-docs/` 即可，不必改代码。
+const base = process.env.DOCS_BASE ?? '/'
 
 const REPO = 'https://github.com/RcityHarold/SoulAuth'
 
